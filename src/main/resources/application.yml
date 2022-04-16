@@ -1,0 +1,93 @@
+server:
+  port: 8000
+#  domain: https://www.xxxx.cn
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://124.222.112.118:3306/read?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: abc123400197
+
+  jackson:
+    time-zone: GMT+8
+
+  redis:
+    database: 0
+    host: 124.222.112.118
+    port: 6379
+    password: Lishuai0923
+    timeout: 1000
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+
+mini-app:
+# 开发
+#  app-id: wx0babc1717ad5dee9
+#  app-secret: 2cd5df837351e0b87a09e780c344eaa0
+# 正式
+  app-id: wx08d1da6fb17ce5a4
+  app-secret: 8f80a14b1bc57caf95a4152093a41ced
+#  mch-id: 1605043549
+#  mch-serial-no: 23055E66B45A68BD82BBDDDA5A3E1E8B919A3A12
+#  mch-private-key: -----BEGIN PRIVATE KEY-----
+#                   MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC819y9uSkSK66q
+#                   DHmlpqMtC68Pc0GEUAHP94UXU3BX8K8q8g5unqmnVnxUXHpP0bE3Ej1fqHxar8d5
+#                   S5OyfUaCjjb+iY5qLdTtknE0L77YTcvQ5XJewIcrgAQJz6Qj0hKSWX/GUuUu7wQ6
+#                   MafaG7gNQvlndI8I73yALrMPyqlnyeRYQew5BtuH/YvXzxFWbsL4gju49YcF0B4p
+#                   zEGpT9ukRpEBYgsjF2G+r9zmtHJO7rPgQM3vu1Yn50rfGmUdXVbELTMyUJGdlZK/
+#                   8Ubjl8n0iyzGiQtv7ElE/iDtdL/u/w8Dgq/LbyaTSRKR4Cr8BxAqaTNElTX6jZIP
+#                   RbOubgEPAgMBAAECggEBALmdr5IoSo9asl7gzj0dUqx3HIYiMpa8EVv6Hi50TCuU
+#                   HokmzTq752PcpW5CS9Li+L55xiudL0XwGzBFMhKyAjlXUgTU7k+9ZtpxI6Y4++we
+#                   Y6SbstQhh3shZFbEasDuvmRtZiNo3W5Jby1IG4VN05Xta7ndnq4Yv5Y60LRH7kVd
+#                   QWdgXKrAY6nG37GCuvDb5znWv1FN1bgU0s0JlxK4rxU+Fbw1OitUWInuS+hXMAeD
+#                   zK3Z/nwaZ76voz8MjOXgCpQo140L2ssX1bBlwRXKzZRykmv+dVXPJkiw0RPl16Lt
+#                   Zp+RQSHlhuShqm49H8J40a0cyUULJ7Ll21qgnj5cjDECgYEA8TAWGI8R/1EwXfCm
+#                   7oPdg42MGPZMYdMlmSl7qu3mpWvg6OewY31YXDoaRjUIFNSNpSIi5MiT+4fPLsjV
+#                   aDeRaIfTfw5g+wT+ZlIntu+vsCCckDW0IHmaijmozUKGbxZb1gviwFMFjh17BC7c
+#                   nczmck+ao+Q4khH99UU9edMNpJcCgYEAyHDSoLktVad2FsCUFTeBngKxZSG5hsdI
+#                   mRhI+VYbpmLBpTbI2ajL1qyMcN60Gexjk48EXCGjWsu/iwV81hGlqoYs+vCEbVhU
+#                   qOirPvRO+BpD5HeNiqQFh84JSopR2WGtMgI9dVFSD81M8vxWL2KGtPPWgr9UU9R6
+#                   RT/ne93uvkkCgYEAwpUB7pRWd75/n/pMIved2clzspvaqb2YgsXV8OP4BZNQI3bw
+#                   doOkqttxYRzdxThqgkRVFHDB+tbpjpwWl/rkxAl41vO5yCqSN+imA8/B1P2qcinx
+#                   hZW12TiFd/voy2ylcL2sFW+ldq9QFOLduC2b6bNRVlIEVcxQL/XJkCR2yEcCgYAW
+#                   KIrQY8hEONAQMdftBIbavfd4c6L76Fn5OrsOfVtvKGm55vWLQmLOZ6La83O7jetw
+#                   K5ZSzREu/2k8aC3lyGulD1I3p5EsOWCaj6YmvoFgYh7xSdom4n0OB1P1npbvziGE
+#                   bsT2jDfjMVH5ZrXsZRr5NB+ZsqcS4WFm+GqRwfYbqQKBgQDgb8FXkpKIlDpgC7ub
+#                   a8kXqyyyUfBZGeMJTQb+1zXOwbLS5w3/AFeqH+7mS3XxokQCtMCXEFsWBYpR9vNv
+#                   Paxcir0HYfxPn2gI3qkQZijrfv3ETqUXU4/bkNmGRQSsjE20E03jLNam67Yky4+j
+#                   lCP8Kkp4f5dn9pTJik2rChEjrg==
+#                   -----END PRIVATE KEY-----
+#  apiV3-key: 74F6043C14404B1ADED2CAAF4A83B9AF
+#
+
+
+
+#日志路径
+logback:
+  dir: logs
+#文件名称
+  filename:
+    all: springboot-base-frame-all
+    info: springboot-base-frame-info
+    warn: springboot-base-frame-warn
+    error: springboot-base-frame-error
+#文件的最大数量
+  maxhistory: 10
+#文件的最大文件大小
+  maxfilesize: 100MB
+#日志级别
+  level: debug
+#日志字符编码
+  charset: UTF-8
+#日志格式
+  CONSOLE_LOG_PATTERN: '%d{yyyy-MM-dd HH:mm:ss.SSS} %boldYellow([%thread]) %highlight(%-5level) %boldGreen(%logger{50}) - %msg%n'
+  FILE_LOG_PATTERN: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
