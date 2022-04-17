@@ -32,4 +32,7 @@ public interface UserMapper extends MyMapper<User> {
 
     @Update("UPDATE user SET organizer_id=#{organizer_id} WHERE id=#{id}")
     void classifyUser(@Param("organizer_id")Long organizerId,@Param("id")Long id);
+
+    @Select("SELECT * FROM user WHERE account_num = #{account_num}")
+    User getUserByNum(@Param("account_num")String number);
 }

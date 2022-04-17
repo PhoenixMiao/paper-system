@@ -31,8 +31,8 @@ public class ActivityServiceImpl implements ActivityService {
         User user = userMapper.selectByPrimaryKey(userId);
         Activity activity = activityMapper.getActivityById(updateActivityRequest.getId());
         if(user.getType()==0) throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
-        if(user.getId()!=activity.getPublisherId()) throw new CommonException((CommonErrorCode.ADMIN_NOT_SAME));
-        if(updateActivityRequest.getOrderEndTime().compareTo(TimeUtil.getCurrentTimestamp())<0) throw new CommonException(CommonErrorCode.ORDER_HAS_END);
+//        if(user.getId()!=activity.getPublisherId()) throw new CommonException((CommonErrorCode.ADMIN_NOT_SAME));
+//        if(updateActivityRequest.getOrderEndTime().compareTo(TimeUtil.getCurrentTimestamp())<0) throw new CommonException(CommonErrorCode.ORDER_HAS_END);
         int status = 0;
         if(updateActivityRequest.getOrderStartTime().compareTo(TimeUtil.getCurrentTimestamp())>0){
             status = -2;

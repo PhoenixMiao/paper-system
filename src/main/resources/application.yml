@@ -7,10 +7,23 @@ spring:
       charset: UTF-8
       force: true
       enabled: true
+  mail:
+    host: smtp.163.com
+    username: 2462660882@qq.com
+    password:
+    default-encoding: UTF-8
+
+  rabbitmq:
+    host: 124.222.112.118
+    port: 5672
+    username: root
+    password: Lishuai0923
+    virtual-host: /
+
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://124.222.112.118:3306/read?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://124.222.112.118:3306/paper?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: abc123400197
 
@@ -27,6 +40,7 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+
 
 
 mini-app:

@@ -7,6 +7,7 @@ import com.phoenix.read.controller.request.UpdateUserRequest;
 import com.phoenix.read.dto.BriefUser;
 import com.phoenix.read.dto.SessionData;
 import com.phoenix.read.service.UserService;
+import com.phoenix.read.util.RedisUtils;
 import com.phoenix.read.util.SessionUtils;
 import io.netty.handler.codec.CodecException;
 import io.swagger.annotations.Api;
@@ -33,6 +34,9 @@ public class UserController {
     @Autowired
     private SessionUtils sessionUtils;
 
+    @Autowired
+    private RedisUtils redisUtils;
+
     @GetMapping("/login")
     @ApiOperation(value = "登录",response = SessionData.class)
     @ApiImplicitParams({
@@ -40,9 +44,11 @@ public class UserController {
             @ApiImplicitParam(name = "password", value = "密码", required = true, paramType = "query", dataType = "Integer"),})
     public Result login(@NotNull @RequestParam("number")String number,
                         @NotNull @RequestParam("password")String password){
-
-        return Result.success(userService.login(number, password));
-
+        try{
+            return Result.success(userService.login(number, password));
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
     }
 
     @Auth
@@ -60,6 +66,7 @@ public class UserController {
         }
     }
 
+
     @Auth
     @GetMapping("/admin")
     @ApiOperation(value = "超管将普通用户改为管理员",response = Long.class)
@@ -76,8 +83,8 @@ public class UserController {
     @Auth
     @GetMapping("")
     @ApiOperation(value = "获取个人信息")
-    public Result getUserById(){
-        return Result.success(userService.getUserById(sessionUtils.getUserId()));
+    public Result getUserSessionData(){
+        return Result.success(sessionUtils.getSessionData());
     }
 
     @Auth

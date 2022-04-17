@@ -45,7 +45,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Long makeOrder(Long activityId, Long userId) {
         Activity activity = activityMapper.selectByPrimaryKey(activityId);
-        if(activity.getStatus()==-1) throw new CommonException(CommonErrorCode.ACTIVITY_HAS_END);
+        //if(activity.getStatus()==-1) throw new CommonException(CommonErrorCode.ACTIVITY_HAS_END);
         User user = userMapper.selectByPrimaryKey(userId);
         if(user.getDepartment()==null||user.getMajor()==null||user.getName()==null||user.getStudentId()==null||user.getGrade()==null) throw new CommonException(CommonErrorCode.SELF_INFORMATION_UNWRITTEN);
         if(memberMapper.getMemberByUserIdAndActivityId(userId,activity.getId())!=null) throw  new CommonException(CommonErrorCode.ORDER_HAS_MADE);
@@ -58,7 +58,7 @@ public class MemberServiceImpl implements MemberService {
     public void check(Long id) {
         Member member = memberMapper.selectByPrimaryKey(id);
         Activity activity = activityMapper.selectByPrimaryKey(member.getActivityId());
-        if(activity.getType()==-1) throw new CommonException(CommonErrorCode.ACTIVITY_HAS_END);
+        //if(activity.getType()==-1) throw new CommonException(CommonErrorCode.ACTIVITY_HAS_END);
         memberMapper.updateStatus(1,id);
     }
 

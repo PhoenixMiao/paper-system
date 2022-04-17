@@ -1,6 +1,8 @@
 package com.phoenix.read.util;
 
 import com.phoenix.read.common.CommonConstants;
+import com.phoenix.read.common.CommonErrorCode;
+import com.phoenix.read.common.CommonException;
 import com.phoenix.read.dto.SessionData;
 import com.phoenix.read.entity.User;
 import com.phoenix.read.mapper.UserMapper;
@@ -39,51 +41,27 @@ public class SessionUtils {
                 .getId();
     }
 
-//    public Integer getUserType(){
-//        return Optional
-//                .ofNullable(getSessionData())
-//                .orElse(new SessionData())
-//                .getType();
-//    }
 
-    public SessionData getSessionData(){
+    public SessionData getSessionData() throws CommonException{
         String key = request.getHeader(CommonConstants.SESSION);
-        if(key == null)return null;
-
-        try {
-            if(redisUtil.isExpire(key)) return null;
-            return (SessionData) redisUtil.get(key);
-        }catch (Exception e){
-            e.printStackTrace();
+        if(key == null) throw new CommonException(CommonErrorCode.NEED_SESSION_ID);
+        if(!redisUtil.hasKey(key)) throw new CommonException(CommonErrorCode.SESSION_IS_INVALID);
+        if(redisUtil.isExpire(key)){
+            redisUtil.del(key);
+            throw new CommonException(CommonErrorCode.LOGIN_HAS_OVERDUE);
         }
-        return null;
+
+        return (SessionData) redisUtil.get(key);
+
     }
 
     public void setSessionId(String sessionId){
         response.setHeader(CommonConstants.SESSION,sessionId);
     }
 
-    public String generateSessionId(){
+    public String generateSessionId() {
         String sessionId = UUID.randomUUID().toString();
-        response.setHeader(CommonConstants.SESSION,sessionId);
+        response.setHeader(CommonConstants.SESSION, sessionId);
         return sessionId;
-    }
-
-    //todo
-    public void invalidate(){
-        request.removeAttribute(CommonConstants.SESSION);
-    }
-
-    private SessionData getSessionDataFromDB(String key) {
-        SessionData sessionData;
-        User user = userMapper.selectOne(User.builder().sessionId(key).build());
-        if(user != null){
-            sessionData = new SessionData(user);
-            redisUtil.set(key,sessionData);
-            return sessionData;
-        }else{
-            redisUtil.set(key,null,3600);
-            return null;
-        }
     }
 }

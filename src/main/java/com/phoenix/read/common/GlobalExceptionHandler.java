@@ -30,11 +30,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     public Result defaultErrorHandler(HttpServletRequest request, Exception e) {
 
-        SessionData sessionData = sessionUtil.getSessionData();
-        if(sessionData != null) {
-            log.error("user: " + JsonUtil.toJSONString(sessionData));
-        }
-
         Map<String, String> res = new HashMap<>();
         Enumeration<?> temp = request.getParameterNames();
         if (null != temp) {

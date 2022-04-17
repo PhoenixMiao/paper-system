@@ -1,5 +1,6 @@
 package com.phoenix.read.aspect;
 
+import com.phoenix.read.common.CommonException;
 import com.phoenix.read.util.SessionUtils;
 import com.phoenix.read.annotation.Auth;
 import com.phoenix.read.common.CommonErrorCode;
@@ -32,6 +33,7 @@ public class AuthAspect {
     public Object doAroundAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
 
         SessionData sessionData = sessionUtil.getSessionData();
+
         AssertUtil.notNull(sessionData, CommonErrorCode.INVALID_SESSION);
 
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();

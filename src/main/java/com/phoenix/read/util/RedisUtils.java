@@ -29,7 +29,7 @@ public class RedisUtils {
     public boolean expire(String key, long time) {
         try {
             if (time > 0) {
-                redisTemplate.expire(key, time, TimeUnit.SECONDS);
+                redisTemplate.expire(key, time, TimeUnit.MINUTES);
             }
             return true;
         } catch (Exception e) {
@@ -124,7 +124,7 @@ public class RedisUtils {
     public boolean set(String key, Object value, long time) {
         try {
             if (time > 0) {
-                redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set(key, value, time, TimeUnit.MINUTES);
             } else {
                 set(key, value);
             }
