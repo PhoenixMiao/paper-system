@@ -1,5 +1,6 @@
 package com.phoenix.read.entity;
 
+import cn.hutool.core.date.DateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -17,22 +18,22 @@ import javax.persistence.Id;
 
 public class Comment {
     @Id
-    @ApiModelProperty("id")
+    @ApiModelProperty("评论id")
     private Long id;
 
-    @ApiModelProperty("评论用户")
+    @ApiModelProperty("笔记id")
+    private Long noteId;
+
+    @ApiModelProperty("用户id")
     private Long userId;
 
-    @ApiModelProperty("类别")
-    private Integer objectType;
+    @ApiModelProperty("评论时间")
+    private String createTime;
+
+    @ApiModelProperty("删除时间")
+    private String  deleteTime;
 
     @ApiModelProperty("评论内容")
     private String comment;
-
-    @ApiModelProperty("评论对象的id")
-    private Long objectId;
-
-    @ApiModelProperty("评论时间")
-    private String commentTime;
 
 }

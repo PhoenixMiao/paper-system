@@ -56,45 +56,47 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId) {
-        if(userMapper.selectByPrimaryKey(userId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        PageHelper.startPage(pageNum,pageSize,"id asc");
-        return new Page<>(new PageInfo<>(userMapper.getBriefUser()));
+        if(userMapper.getUserById(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
+        PageHelper.startPage(pageNum,pageSize,"create_time desc");
+        return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
+    }
+
+//    @Override
+//    public void toAdmin(Long userId,Long adminId) {
+//        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
+//        if(userMapper.selectByPrimaryKey(userId).getType()!=0) throw new CommonException(CommonErrorCode.USER_IS_ADMIN);
+//        userMapper.toAdmin(1,userId);
+//    }
+//
+//    @Override
+//    public void backToUser(Long userId, Long adminId) {
+//        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
+//        if(userMapper.selectByPrimaryKey(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
+//        userMapper.toAdmin(0,userId);
+//        userMapper.classifyUser(null,userId);
+//    }
+
+    @Override
+    public User getUserById(Long userId, Long targetId) {
+        if(targetId==null)return userMapper.getUserById(userId);
+        if(!userId.equals(targetId)&&!userMapper.getUserById(userId).getType().equals(1))throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
+        return userMapper.getUserById(targetId);
     }
 
     @Override
-    public void toAdmin(Long userId,Long adminId) {
-        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        if(userMapper.selectByPrimaryKey(userId).getType()!=0) throw new CommonException(CommonErrorCode.USER_IS_ADMIN);
-        userMapper.toAdmin(1,userId);
-    }
+    public void updateUser(Long userId, UpdateUserRequest updateUserRequest) {
 
-    @Override
-    public void backToUser(Long userId, Long adminId) {
-        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        if(userMapper.selectByPrimaryKey(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
-        userMapper.toAdmin(0,userId);
-        userMapper.classifyUser(null,userId);
-    }
+     }
 
-    @Override
-    public User getUserById(Long userId) {
-        return userMapper.selectByPrimaryKey(userId);
-    }
-
-    @Override
-    public void UpdateUser(Long userId, UpdateUserRequest updateUserRequest) {
-        userMapper.updateUser(updateUserRequest.getNickname(),updateUserRequest.getDepartment(),updateUserRequest.getMajor(),updateUserRequest.getGrade(),updateUserRequest.getTelephone(),updateUserRequest.getQQ(),updateUserRequest.getWechatNum(),updateUserRequest.getPortrait(),userId);
-    }
-
-    @Override
-    public void classifyUser(Long organizerId, Long userId, Long adminId) {
-        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        if(userMapper.selectByPrimaryKey(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
-        userMapper.classifyUser(organizerId,userId);
-    }
-
-
-
-
-
+//    @Override
+//    public void classifyUser(Long organizerId, Long userId, Long adminId) {
+//        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
+//        if(userMapper.selectByPrimaryKey(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
+//        userMapper.classifyUser(organizerId,userId);
+//    }
+//
+//
+//
+//
+//
 }

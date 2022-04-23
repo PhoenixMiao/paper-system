@@ -53,75 +53,88 @@ public class UserController {
 
     @Auth
     @GetMapping("/list")
-    @ApiOperation(value = "查看所有用户",response = BriefUser.class)
+    @ApiOperation(value = "获取用户列表",response = BriefUser.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
             @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),})
     public Result getBriefUserList(@NotNull @RequestParam("pageSize")Integer pageSize,
                                    @NotNull @RequestParam("pageNum")Integer pageNum){
         try{
-            return Result.success(userService.getBriefUserList(pageSize,pageNum,sessionUtils.getUserId()));
-        }catch (CommonException e){
-            return Result.result(e.getCommonErrorCode(),sessionUtils.getUserId());
-        }
-    }
-
-
-    @Auth
-    @GetMapping("/admin")
-    @ApiOperation(value = "超管将普通用户改为管理员",response = Long.class)
-    @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
-    public Result toAdmin(@NotNull@RequestParam("userId")Long userId){
-        try{
-            userService.toAdmin(userId,sessionUtils.getUserId());
-            return Result.success(userId);
+            return Result.success(userService.getBriefUserList(pageSize,pageNum, sessionUtils.getUserId()));
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
     }
 
-    @Auth
-    @GetMapping("")
-    @ApiOperation(value = "获取个人信息")
-    public Result getUserSessionData(){
-        return Result.success(sessionUtils.getSessionData());
+    //@Auth
+    @GetMapping("/info")
+    @ApiOperation(value = "获取用户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId",value = "用户id(查询自己的信息时可以传null)",required = true,paramType = "query",dataType = "Long"),})
+    public Result getUserInformation(@RequestParam("userId")Long targetId){
+        try{
+            return Result.success(userService.getUserById(sessionUtils.getUserId(), targetId));
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
     }
 
+//
+//    @Auth
+//    @GetMapping("/admin")
+//    @ApiOperation(value = "超管将普通用户改为管理员",response = Long.class)
+//    @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
+//    public Result toAdmin(@NotNull@RequestParam("userId")Long userId){
+//        try{
+//            userService.toAdmin(userId,sessionUtils.getUserId());
+//            return Result.success(userId);
+//        }catch (CommonException e){
+//            return Result.result(e.getCommonErrorCode());
+//        }
+//    }
+//
+//    @Auth
+//    @GetMapping("")
+//    @ApiOperation(value = "获取个人信息")
+//    public Result getUsergetSessionData(){
+//        return Result.success(sessionUtils.getSessionData());
+//    }
+//
     @Auth
-    @PostMapping("/change")
-    @ApiOperation(value = "更新用户信息")
+    @PostMapping("/update")
+    @ApiOperation(value = "更改用户信息")
     public Result updateUser(@NotNull @Valid @RequestBody UpdateUserRequest updateUserRequest){
-        userService.UpdateUser(sessionUtils.getUserId(),updateUserRequest);
+        userService.updateUser(sessionUtils.getUserId(),updateUserRequest);
         return Result.success("ok");
     }
 
-    @Auth
-    @GetMapping("/user")
-    @ApiOperation(value = "超管将管理员改为普通用户",response = Long.class)
-    @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
-    public Result backToUser(@NotNull@RequestParam("userId")Long userId){
-        try{
-            userService.backToUser(userId,sessionUtils.getUserId());
-            return Result.success(userId);
-        }catch (CommonException e){
-            return Result.result(e.getCommonErrorCode());
-        }
-    }
-
-    @Auth
-    @GetMapping("/organize")
-    @ApiOperation(value = "超管将用户绑定到特定主办方中",response = Long.class)
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query"),
-            @ApiImplicitParam(name = "organizerId",value = "主办方id",required = true,paramType = "query")
-    })
-    public Result backToUser(@NotNull@RequestParam("userId")Long userId,
-                             @NotNull @RequestParam("organizerId")Long organizerId){
-        try{
-            userService.classifyUser(organizerId,userId,sessionUtils.getUserId());
-            return Result.success(userId);
-        }catch (CommonException e){
-            return Result.result(e.getCommonErrorCode());
-        }
-    }
+//    @Auth
+//    @GetMapping("/user")
+//    @ApiOperation(value = "超管将管理员改为普通用户",response = Long.class)
+//    @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
+//    public Result backToUser(@NotNull@RequestParam("userId")Long userId){
+//        try{
+//            userService.backToUser(userId,sessionUtils.getUserId());
+//            return Result.success(userId);
+//        }catch (CommonException e){
+//            return Result.result(e.getCommonErrorCode());
+//        }
+//    }
+//
+//    @Auth
+//    @GetMapping("/organize")
+//    @ApiOperation(value = "超管将用户绑定到特定主办方中",response = Long.class)
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query"),
+//            @ApiImplicitParam(name = "organizerId",value = "主办方id",required = true,paramType = "query")
+//    })
+//    public Result backToUser(@NotNull@RequestParam("userId")Long userId,
+//                             @NotNull @RequestParam("organizerId")Long organizerId){
+//        try{
+//            userService.classifyUser(organizerId,userId,sessionUtils.getUserId());
+//            return Result.success(userId);
+//        }catch (CommonException e){
+//            return Result.result(e.getCommonErrorCode());
+//        }
+//    }
 }
