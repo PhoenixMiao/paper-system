@@ -1,5 +1,6 @@
 package com.phoenix.read.entity;
 
+import cn.hutool.core.date.DateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -21,15 +22,21 @@ import javax.persistence.Id;
 
 public class Collection {
     @Id
-    @ApiModelProperty("id")
+    @ApiModelProperty("收藏id")
     private Long id;
+
+    @ApiModelProperty("对象id")
+    private Long objectId;
+
+    @ApiModelProperty("对象类型")
+    private Integer objectType;
 
     @ApiModelProperty("用户id")
     private Long userId;
 
-    @ApiModelProperty("帖子id")
-    private Long passageId;
-
     @ApiModelProperty("收藏时间")
-    private String collectTime;
+    private String  collectTime;
+
+    @ApiModelProperty("删除时间")
+    private String  deleteTime;
 }

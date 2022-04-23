@@ -1,5 +1,6 @@
 package com.phoenix.read.entity;
 
+import cn.hutool.core.date.DateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class User {
     @ApiModelProperty("用户id")
     private Long id;
 
+    @Id
     @ApiModelProperty("账号")
     private String accountNum;
 
@@ -33,29 +35,23 @@ public class User {
     @ApiModelProperty("会话id")
     private String sessionId;
 
-    @ApiModelProperty("用户唯一标识")
-    private String openId;
-
-    @ApiModelProperty("unionid")
-    private String unionId;
-
-    @ApiModelProperty("会话密钥")
-    private String sessionKey;
-
     @ApiModelProperty("创建时间")
     private String createTime;
 
-    @ApiModelProperty("性别")
-    private Integer gender;
-
-    @ApiModelProperty("真实姓名")
-    private String name;
+    @ApiModelProperty("注销时间")
+    private String deleteTime;
 
     @ApiModelProperty("昵称")
     private String nickname;
 
-    @ApiModelProperty("学院")
-    private String department;
+    @ApiModelProperty("真实姓名")
+    private String name;
+
+    @ApiModelProperty("性别")
+    private Integer gender;
+
+    @ApiModelProperty("学校")
+    private String school;
 
     @ApiModelProperty("专业")
     private String major;
@@ -63,28 +59,15 @@ public class User {
     @ApiModelProperty("年级")
     private String grade;
 
-    @ApiModelProperty("学号")
-    private String studentId;
+    @ApiModelProperty("邮箱")
+    private String email;
 
-    @ApiModelProperty("手机号")
+    @ApiModelProperty("电话号")
     private String telephone;
-
-    @ApiModelProperty("QQ")
-    private String QQ;
-
-    @ApiModelProperty("微信号")
-    private String wechatNum;
 
     @ApiModelProperty("头像")
     private String portrait;
 
-    @ApiModelProperty("类型")
+    @ApiModelProperty("类型(0为普通用户，1为管理员)")
     private Integer type;
-
-    @ApiModelProperty("禁言与否（1为禁言，0为未禁言）")
-    private Integer isMute;
-
-    @ApiModelProperty("主办方id")
-    private Long organizerId;
-
 }

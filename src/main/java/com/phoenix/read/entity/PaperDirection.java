@@ -7,29 +7,30 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Like 点赞记录")
-public class Like {
+@ApiModel("PaperDirection 论文研究方向")
+public class PaperDirection {
+
     @Id
-    @ApiModelProperty("点赞id")
+    @ApiModelProperty("方向id")
     private Long id;
 
-    @ApiModelProperty("对象id")
-    private Long objectId;
+    @ApiModelProperty("论文id")
+    private Long paperId;
 
-    @ApiModelProperty("对象类型")
-    private Integer objectType;
+    @ApiModelProperty("研究方向id")
+    private Long directionId;
 
-    @ApiModelProperty("用户id")
-    private Long userId;
-
-    @ApiModelProperty("点赞时间")
-    private String likeTime;
+    @ApiModelProperty("创建时间")
+    private String createTime;
 
     @ApiModelProperty("删除时间")
     private String deleteTime;

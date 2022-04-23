@@ -4,6 +4,7 @@ import com.phoenix.read.MyMapper;
 import com.phoenix.read.dto.BriefUser;
 import com.phoenix.read.entity.User;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -18,14 +19,17 @@ import java.util.List;
 
 @Repository
 public interface UserMapper extends MyMapper<User> {
-    @Select("SELECT id,name,nickname,portrait FROM user")
-    List<BriefUser> getBriefUser();
+    @Select("SELECT id,name,nickname,portrait,type FROM user")
+    List<BriefUser> getBriefUserList();
+
+    @Select("SELECT * from user where id=#{id}")
+    User getUserById(@Param("id")Long id);
 
     @Update("UPDATE user SET type=#{type} WHERE id=#{id}")
     void toAdmin(@Param("type")Integer type,@Param("id")Long id);
 
-    @Update("UPDATE user SET nickname=#{nickname},department=#{department},major=#{major},grade=#{grade},telephone=#{telephone},q_q=#{q_q},wechat_num=#{wechat_num},portrait=#{portrait} WHERE id=#{id};")
-    void updateUser(@Param("nickname")String nickname,@Param("department")String department,@Param("major")String major,@Param("grade")String grade,@Param("telephone")String telephone,@Param("q_q")String QQ,@Param("wechat_num")String wechatNum,@Param("portrait")String portrait,@Param("id")Long id);
+    @Update("UPDATE user SET nickname=#{nickname},name=#{name},gender=#{gender},grade=#{grade},school=#{school},major=#{major},grade=#{grade}, email=#{email}, telephone=#{telephone},portrait=#{portrait}, type=#{type} WHERE id=#{id};")
+    void updateUser(@Param("nickname")String nickname, @Param("name")String name, @Param("gender") Integer gender, @Param("school")String school, @Param("major")String major, @Param("grade")String grade, @Param("email")String email, @Param("telephone")String telephone,@Param("poatrait")String poatrait, @Param("type")Integer type, @Param("id")Long id);
 
     @Update("UPDATE user SET is_mute=#{is_mute} WHERE id=#{id}")
     void muteUser(@Param("is_mute")Integer isMute,@Param("id")Long id);
