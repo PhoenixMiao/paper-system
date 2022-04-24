@@ -18,7 +18,6 @@ spring:
     port: 5672
     username: root
     password: Lishuai0923
-    virtual-host: /
 
 
   datasource:
