@@ -23,7 +23,7 @@ public interface UserService {
 //
     User getUserById(Long userId,Long targetId);
 //
-    void updateUser(Long userId, UpdateUserRequest updateUserRequest);
+    Integer updateUser(Long userId, UpdateUserRequest updateUserRequest);
 //
 //    void classifyUser(Long organizerId,Long userId,Long adminId);
 }
