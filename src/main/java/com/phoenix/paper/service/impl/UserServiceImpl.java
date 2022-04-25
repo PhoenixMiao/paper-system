@@ -78,9 +78,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(Long userId, UpdateUserRequest updateUserRequest) {
-
+    public Integer updateUser(Long userId, UpdateUserRequest updateUserRequest) {
+        Long targetId;
+        if(updateUserRequest.getId()==null)targetId=userId;
+        else if(!userId.equals(updateUserRequest.getId())&&!userMapper.getUserById(userId).getType().equals(1))throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
+        else targetId=updateUserRequest.getId();
+        User targetUser=userMapper.getUserById(targetId);
+        if(targetUser==null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        return userMapper.updateByPrimaryKeySelective(User.builder().id(targetId).accountNum(targetUser.getAccountNum()).portrait(updateUserRequest.getPortrait()).email(updateUserRequest. getEmail()).gender(updateUserRequest.getGender()).grade(updateUserRequest.getGrade()).major(updateUserRequest. getMajor()).name(updateUserRequest.getName()).
+                nickname(updateUserRequest.getNickname()).password(passwordUtil.convert(updateUserRequest.getPassword())).school(updateUserRequest.getSchool()).telephone(updateUserRequest.getTelephone()).type(updateUserRequest.getType()).build());
      }
+//
+//
+//
+
+//
+//
 
 //    @Override
 //    public void classifyUser(Long organizerId, Long userId, Long adminId) {

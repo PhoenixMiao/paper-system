@@ -64,7 +64,7 @@ public class UserController {
         }
     }
 
-    //@Auth
+    @Auth
     @GetMapping("/info")
     @ApiOperation(value = "获取用户信息")
     @ApiImplicitParams({
@@ -101,9 +101,12 @@ public class UserController {
     @Auth
     @PostMapping("/update")
     @ApiOperation(value = "更改用户信息")
-    public Result updateUser(@NotNull @Valid @RequestBody UpdateUserRequest updateUserRequest){
-        userService.updateUser(sessionUtils.getUserId(),updateUserRequest);
-        return Result.success("ok");
+    public Result updateUser(@NotNull @RequestBody UpdateUserRequest updateUserRequest){
+        try{
+            return Result.success(userService.updateUser(sessionUtils.getUserId(), updateUserRequest));
+        }catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
     }
 
 //    @Auth
