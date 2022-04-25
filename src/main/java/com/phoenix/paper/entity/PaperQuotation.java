@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
@@ -17,7 +18,7 @@ import javax.persistence.Id;
 @ApiModel("PaperQuotation 论文引用关系")
 public class PaperQuotation {
     @Id
-    @GeneratedValue(generator = "JDBC")
+    @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
     @ApiModelProperty("引用关系id")
     private Long id;
 

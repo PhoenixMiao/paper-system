@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 
@@ -22,7 +23,7 @@ import javax.persistence.Id;
 @ApiModel("User 用户")
 public class User {
     @Id
-    @GeneratedValue(generator = "JDBC")
+    @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
     @ApiModelProperty("用户id")
     private Long id;
 

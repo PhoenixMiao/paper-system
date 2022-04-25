@@ -13,11 +13,6 @@ import java.util.Map;
 @Getter
 public enum CommonErrorCode {
 
-    //1打头是微信错误，其他是程序错误
-    WX_LOGIN_BUSY(1002,"系统繁忙，此时请开发者稍候再试","微信小程序繁忙，请稍候再试"),
-    WX_LOGIN_INVALID_CODE(1003,"无效的code","授权失败，请检查微信账号是否正常"),
-    WX_LOGIN_FREQUENCY_REFUSED(1004,"请求太频繁，一分钟不能超过100次","请勿多次重复授权"),
-    WX_LOGIN_UNKNOWN_ERROR(1005,"微信授权未知错误","微信异常，请稍后再试"),
     INVALID_SESSION(2006,"会话丢失","登录已失效，请重新登录"),
     USER_NOT_EXIST(2001,"用户不存在","用户不存在"),
     USER_NOT_ADMIN(2002,"用户非管理员","用户非管理员"),
@@ -31,6 +26,7 @@ public enum CommonErrorCode {
     HAS_LIKED(2012,"该用户已经对该文章点过赞","该用户已经对该文章点过赞"),
     PASSWORD_NOT_RIGHT(2013,"密码不正确","密码不正确，请输入正确的密码"),
     REPETITIVE_DIRECTION(2014,"与已有方向重复","与已有研究方向重复，不可添加"),
+    HAVE_NO_SON(2015,"该节点为叶子节点","请输入有子节点的节点id"),
     ;
 
     /**

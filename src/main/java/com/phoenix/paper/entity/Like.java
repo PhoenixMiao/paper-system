@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
@@ -17,7 +18,7 @@ import javax.persistence.Id;
 @ApiModel("Like 点赞记录")
 public class Like {
     @Id
-    @GeneratedValue(generator = "JDBC")
+    @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
     @ApiModelProperty("点赞id")
     private Long id;
 

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
@@ -17,7 +18,7 @@ import javax.persistence.Id;
 @ApiModel("ResearchDirection 研究方向")
 public class ResearchDirection {
     @Id
-    @GeneratedValue(generator = "JDBC")
+    @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
     @ApiModelProperty("研究方向id")
     private Long id;
 
@@ -30,17 +31,11 @@ public class ResearchDirection {
     @ApiModelProperty("父方向id")
     private Long fatherId;
 
-    @ApiModelProperty("树id")
-    private Long treeId;
-
-    @ApiModelProperty("节点层id")
-    private Long layerId;
-
-    @ApiModelProperty("节点高度")
-    private Integer height;
-
     @ApiModelProperty("节点路径")
     private String path;
+
+    @ApiModelProperty("是否是叶子")
+    private Integer isLeaf;
 
     @ApiModelProperty("创建者id")
     private Long creatorId;
