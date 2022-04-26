@@ -63,16 +63,13 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
     @Override
     public List<BriefNode> getSons(Long father) throws CommonException{
         if(father==0) return researchDirectionMapper.getSons((long)0);
-        ResearchDirection fatherDirection = researchDirectionMapper.selectByPrimaryKey(father);
-        if(fatherDirection == null || fatherDirection.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.RESEARCH_DIRECTION_NOT_EXIST);
-        if(fatherDirection.getIsLeaf()==1) throw new CommonException(CommonErrorCode.HAVE_NO_SON);
+        if(researchDirectionMapper.selectByPrimaryKey(father).getIsLeaf()==1) throw new CommonException(CommonErrorCode.HAVE_NO_SON);
         return researchDirectionMapper.getSons(father);
     }
 
     @Override
     public List<Long> getAllSons(Long father) throws CommonException{
         ResearchDirection researchDirection = researchDirectionMapper.selectByPrimaryKey(father);
-        if(researchDirection == null || researchDirection.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.RESEARCH_DIRECTION_NOT_EXIST);
         return researchDirectionMapper.getAllSons(researchDirection.getRootId(),researchDirection.getPath()+'%');
     }
 }

@@ -104,10 +104,6 @@ public class AssertUtil {
         isTrue(object != null, resultCode, null);
     }
 
-    public static void isNull(Object object, CommonErrorCode resultCode) {
-        isTrue(object == null, resultCode, null);
-    }
-
     public static void notEmpty(Collection collection, CommonErrorCode resultCode, Object obj) {
         isTrue(!CollectionUtils.isEmpty(collection), resultCode, obj);
     }
@@ -142,5 +138,4 @@ public class AssertUtil {
             return true;
         }
     }
-
 }
