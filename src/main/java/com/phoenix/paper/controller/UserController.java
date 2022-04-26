@@ -1,5 +1,6 @@
 package com.phoenix.paper.controller;
 
+import com.phoenix.paper.annotation.Admin;
 import com.phoenix.paper.annotation.Auth;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Result;
@@ -49,7 +50,7 @@ public class UserController {
         }
     }
 
-    @Auth
+    @Admin
     @GetMapping("/list")
     @ApiOperation(value = "获取用户列表",response = BriefUser.class)
     @ApiImplicitParams({

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
+
 @Api("论文相关操作")
 @RestController
 @RequestMapping("/paper")
@@ -29,9 +31,8 @@ public class PaperController {
 
     @GetMapping("")
     @ApiOperation(value = "论文详情")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long"),})
-    public Result getPaperById(@RequestParam("paperId")Long paperId){
+    @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
+    public Result getPaperById( @RequestParam("paperId")Long paperId){
             return Result.success(paperService.getPaperById(paperId));
     }
 
