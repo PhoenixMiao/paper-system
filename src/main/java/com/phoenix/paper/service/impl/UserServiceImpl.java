@@ -41,6 +41,10 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.getUserByNum(number);
 
+        AssertUtil.notNull(user,CommonErrorCode.USER_NOT_EXIST);
+
+        AssertUtil.isNull(user.getDeleteTime(),CommonErrorCode.USER_NOT_EXIST);
+
         AssertUtil.isTrue(passwordUtil.convert(password).equals(user.getPassword()),CommonErrorCode.PASSWORD_NOT_RIGHT);
 
         sessionUtils.setSessionId(sessionId);

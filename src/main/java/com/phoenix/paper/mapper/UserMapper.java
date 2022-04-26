@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 public interface UserMapper extends MyMapper<User> {
-    @Select("SELECT id,name,nickname,portrait,type FROM user")
+    @Select("SELECT id,name,nickname,portrait,type FROM user WHERE LEN(delete_time)=0;")
     List<BriefUser> getBriefUserList();
 
     @Select("SELECT * from user where id=#{id}")
