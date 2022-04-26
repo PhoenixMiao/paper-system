@@ -27,12 +27,6 @@ public enum CommonErrorCode {
     PASSWORD_NOT_RIGHT(2013,"密码不正确","密码不正确，请输入正确的密码"),
     REPETITIVE_DIRECTION(2014,"与已有方向重复","与已有研究方向重复，不可添加"),
     HAVE_NO_SON(2015,"该节点为叶子节点","请输入有子节点的节点id"),
-    DOWNLOAD_FILE_FAILED(2016,"下载文件失败","请在浏览器地址栏中输入链接来测试，或者检查网络或系统状况"),
-    READ_FILE_ERROR(2017,"读取文件失败","请检查文件格式之后重新上传文件"),
-    PAPER_NOT_EXIST(2018,"该论文不存在","只能在目前存在的论文上添加笔记"),
-    RESEARCH_DIRECTION_NOT_EXIST(2019,"该研究方向不存在","请输入存在的研究方向id"),
-    NOTE_NOT_EXIST(2020,"该笔记不存在","请输入目前系统中存在的笔记"),
-    FILE_NOT_EXIST(2021,"该文件不存在","请输入有效的文件名"),
     ;
 
     /**

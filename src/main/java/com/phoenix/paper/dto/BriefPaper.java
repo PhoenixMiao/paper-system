@@ -32,7 +32,10 @@ public class BriefPaper {
     @ApiModelProperty("摘要")
     private String summary;
 
-    @ApiModelProperty("文献链接")
-    private String link;
+    @ApiModelProperty("点赞数")
+    private Long likeNumber;
+
+    @ApiModelProperty("收藏数")
+    private Long collectNumber;
 
 }
