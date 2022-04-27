@@ -16,6 +16,8 @@ import com.phoenix.paper.util.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -56,6 +58,7 @@ public class UserServiceImpl implements UserService {
     public Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId) {
         if(userMapper.getUserById(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
         PageHelper.startPage(pageNum,pageSize,"create_time desc");
+        //List<BriefUser> briefUsers = briefUserList.stream().parallel().filter(user -> user.getDeleteTime() == null).collect(Collectors.toList());
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
 

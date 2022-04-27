@@ -9,6 +9,6 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 public interface PaperMapper extends MyMapper<Paper> {
-    @Select("SELECT id,title,author,publishDate,summary,link FROM paper")
+    @Select("SELECT id,title,author,publishDate,summary,link FROM paper WHERE delete_time IS NULL;")
     List<BriefPaper> getPaperList();
 }

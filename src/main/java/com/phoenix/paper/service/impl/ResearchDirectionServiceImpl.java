@@ -23,7 +23,8 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
 
     @Override
     public Long addResearchDirection(AddResearchDirectionRequest addResearchDirectionRequest, Long creatorId) throws CommonException {
-        if (researchDirectionMapper.selectOne(ResearchDirection.builder().name(addResearchDirectionRequest.getName()).build()) != null)
+        ResearchDirection researchDirectionOld = researchDirectionMapper.selectOne(ResearchDirection.builder().name(addResearchDirectionRequest.getName()).build());
+        if (researchDirectionOld == null || researchDirectionOld.getDeleteTime()!=null)
             throw new CommonException(CommonErrorCode.REPETITIVE_DIRECTION);
         ResearchDirection researchDirection;
         if (addResearchDirectionRequest.getFatherId() != 0) {
