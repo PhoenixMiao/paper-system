@@ -27,4 +27,11 @@ public class BriefUser {
 
     @ApiModelProperty("类型(0为普通用户，1为管理员)")
     private Integer type;
+
+    @ApiModelProperty("创建时间")
+    private String createTime;
+
+    @ApiModelProperty("删除时间")
+    private String deleteTime;
+
 }
