@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,8 +37,6 @@ public class Paper {
     @ApiModelProperty("摘要")
     private String summary;
 
-
-
     @ApiModelProperty("论文类型")
     private Integer paperType;
 
@@ -58,14 +55,6 @@ public class Paper {
 
     @ApiModelProperty("附加文件")
     private String fileLink;
-
-    @Value("${some.key:0}")
-    @ApiModelProperty("点赞数")
-    private Long likeNumber;
-
-    @Value("${some.key:0}")
-    @ApiModelProperty("收藏数")
-    private Long collectNumber;
 
 
 }

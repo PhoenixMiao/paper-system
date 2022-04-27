@@ -15,13 +15,13 @@ public interface UserService {
      */
     LoginResponse login(String number, String password);
 
-    Page<BriefUser> getBriefUserList(int pageSize, int pageNum);
+    Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId);
 //
 //    void toAdmin(Long userId,Long adminId);
 //
 //    void backToUser(Long userId,Long adminId);
 //
-    User getUserById(Long userId);
+    User getUserById(Long userId,Long targetId);
 //
     Integer updateUser(Long userId, UpdateUserRequest updateUserRequest);
 //
