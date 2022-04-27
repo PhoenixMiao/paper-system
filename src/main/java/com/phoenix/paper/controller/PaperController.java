@@ -33,7 +33,12 @@ public class PaperController {
     @ApiOperation(value = "论文详情")
     @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
     public Result getPaperById( @RequestParam("paperId")Long paperId){
+        try{
             return Result.success(paperService.getPaperById(paperId));
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+
     }
 
     @GetMapping("/list")
