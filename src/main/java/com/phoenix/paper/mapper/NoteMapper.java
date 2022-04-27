@@ -12,5 +12,11 @@ public interface NoteMapper extends MyMapper<Note> {
     Long getNoteLikes(@Param("id")Long id);
 
     @Update("UPDATE note set like_number=#{likeNumber} where id=#{id}")
-    void setNoteLikes(@Param("id")Long id,@Param("like_number")Long like_number);
+    void setNoteLikes(@Param("id")Long id,@Param("likeNumber")Long likeNumber);
+
+    @Select("SELECT collect_number FROM note where id=#{id}")
+    Long getNoteCollects(@Param("id")Long id);
+
+    @Update("UPDATE note set collect_number=#{collectNumber} where id=#{id}")
+    void setNoteCollects(@Param("id")Long id,@Param("collectNumber")Long collectNumber);
 }
