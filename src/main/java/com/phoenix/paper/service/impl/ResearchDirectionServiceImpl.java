@@ -45,7 +45,6 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
             }
         } else {
             synchronized (this) {
-                int num = researchDirectionMapper.select(ResearchDirection.builder().fatherId((long)0).build()).size();
                 researchDirection = ResearchDirection.builder()
                         .name(addResearchDirectionRequest.getName())
                         .path("0")
