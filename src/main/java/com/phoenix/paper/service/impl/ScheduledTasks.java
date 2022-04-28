@@ -2,8 +2,10 @@ package com.phoenix.paper.service.impl;
 
 
 
+import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.Likes;
 import com.phoenix.paper.entity.Paper;
+import com.phoenix.paper.mapper.CollectionMapper;
 import com.phoenix.paper.mapper.LikesMapper;
 import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.PaperMapper;
@@ -33,7 +35,11 @@ public class ScheduledTasks {
     @Autowired
     private LikesMapper likesMapper;
 
-    @Scheduled(cron = "0 0 0/2 * * ? ")
+    @Autowired
+    private CollectionMapper collectionMapper;
+
+    @Scheduled(cron = "0 0/10 * * * ? ")
+    //@Scheduled(cron = "0 0 0/2 * * ? ")
     public void likes2database() {
         Map<Object,Object> likeInformation = new HashMap<>();
         likeInformation=redisUtils.hmget("LIKE_INFORMATION");
@@ -42,11 +48,11 @@ public class ScheduledTasks {
             String[] splitInfo = information.split(" ");
             String time = (String) entry.getValue();
             if(splitInfo[2].equals("1")){
-                Likes like= Likes.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType(Integer.valueOf(splitInfo[1].charAt(0))).userId(Long.valueOf(splitInfo[0])).likeTime(time).build();
+                Likes like= Likes.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType(Integer.valueOf(splitInfo[1].charAt(0))-48).userId(Long.valueOf(splitInfo[0])).likeTime(time).build();
                 likesMapper.insert(like);
             }
             else if(splitInfo[2].equals("0")){
-                likesMapper.cancelLike(time,Long.valueOf(splitInfo[1].substring(1)),Integer.valueOf(splitInfo[1].charAt(0)));
+                likesMapper.cancelLike(time,Long.valueOf(splitInfo[1].substring(1)),Integer.valueOf(splitInfo[1].charAt(0))-48);
             }
         }
         Map<Object,Object> likeCount = new HashMap<>();
@@ -55,25 +61,49 @@ public class ScheduledTasks {
             String object=(String) entry.getKey();
             Long likeNumber=(Long) entry.getValue();
             if(object.charAt(0)=='1'){
-                paperMapper.setPaperLikes(Long.valueOf(object.substring(1)),likeNumber);
+                paperMapper.setPaperLikes(Long.valueOf(object.substring(2)),likeNumber);
             }
             else if(object.charAt(0)=='0'){
-                noteMapper.setNoteLikes(Long.valueOf(object.substring(1)),likeNumber);
+                noteMapper.setNoteLikes(Long.valueOf(object.substring(2)),likeNumber);
             }
         }
 
-        redisUtils.clear("LIKE_COUNT");
-        redisUtils.clear("LIKE_INFORMATION");
+        redisUtils.del("LIKE_COUNT");
+        redisUtils.del("LIKE_INFORMATION");
     }
 
-//    @Scheduled(cron = "0 0 0 * * ?")
-////    @Scheduled(cron = "0 0 0 */1 * ?")
-//    public void collection2Mysql() {
-//        Set<String> keySet = redisUtils.keys("collections*");
-//        for (String key : keySet) {
-//            displayProjectMapper.setCollectionNumber(Long.valueOf(String.valueOf(redisUtils.get(key))),Long.valueOf(key.substring(11)));
-//        }
-//        redisUtils.clear("collections*");
-//    }
+    @Scheduled(cron = "0 0/10 * * * ? ")
+    //@Scheduled(cron = "0 0 0/2 * * ? ")
+    public void collections2database() {
+        Map<Object,Object> collectInformation = new HashMap<>();
+        collectInformation=redisUtils.hmget("COLLECT_INFORMATION");
+        for (Map.Entry<Object, Object> entry : collectInformation.entrySet()) {
+            String information = (String) entry.getKey();
+            String[] splitInfo = information.split(" ");
+            String time = (String) entry.getValue();
+            if(splitInfo[2].equals("1")){
+                Collection collection= Collection.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType(Integer.valueOf(splitInfo[1].charAt(0))-48).userId(Long.valueOf(splitInfo[0])).collectTime(time).build();
+                collectionMapper.insert(collection);
+            }
+            else if(splitInfo[2].equals("0")){
+                collectionMapper.cancelCollect(time,Long.valueOf(splitInfo[1].substring(1)),Integer.valueOf(splitInfo[1].charAt(0))-48);
+            }
+        }
+        Map<Object,Object> collectCount = new HashMap<>();
+        collectCount=redisUtils.hmget("LIKE_COUNT");
+        for (Map.Entry<Object, Object> entry : collectCount.entrySet()){
+            String object=(String) entry.getKey();
+            Long collectNumber=(Long) entry.getValue();
+            if(object.charAt(0)=='1'){
+                paperMapper.setPaperCollects(Long.valueOf(object.substring(2)),collectNumber);
+            }
+            else if(object.charAt(0)=='0'){
+                noteMapper.setNoteCollects(Long.valueOf(object.substring(2)),collectNumber);
+            }
+        }
+
+        redisUtils.del("COLLECT_COUNT");
+        redisUtils.del("COLLECT_INFORMATION");
+    }
 
 }

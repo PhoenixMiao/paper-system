@@ -20,5 +20,11 @@ public interface PaperMapper extends MyMapper<Paper> {
     Long getPaperLikes(@Param("id")Long id);
 
     @Update("UPDATE paper set like_number=#{likeNumber} where id=#{id}")
-    void setPaperLikes(@Param("id")Long id,@Param("like_number")Long like_number);
+    void setPaperLikes(@Param("id")Long id,@Param("likeNumber")Long likeNumber);
+
+    @Select("SELECT collect_number FROM paper where id=#{id}")
+    Long getPaperCollects(@Param("id")Long id);
+
+    @Update("UPDATE paper set collect_Number=#{collectNumber} where id=#{id}")
+    void setPaperCollects(@Param("id")Long id,@Param("collectNumber")Long collectNumber);
 }

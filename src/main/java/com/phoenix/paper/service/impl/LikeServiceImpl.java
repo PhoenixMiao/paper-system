@@ -1,7 +1,5 @@
 package com.phoenix.paper.service.impl;
 
-import com.phoenix.paper.entity.Likes;
-import com.phoenix.paper.mapper.LikesMapper;
 import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.service.LikeService;
@@ -9,8 +7,6 @@ import com.phoenix.paper.util.RedisUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -20,9 +16,6 @@ public class LikeServiceImpl implements LikeService {
 
     @Autowired
     private RedisUtils redisUtils;
-
-    @Autowired
-    private LikesMapper likesMapper;
 
     @Autowired
     private PaperMapper paperMapper;
@@ -40,8 +33,7 @@ public class LikeServiceImpl implements LikeService {
 
     private Long getLikesFromRedis(Long objectId, Integer type) {
         try {
-            Long likeNumber= (Long )redisUtils.hget("LIKE_COUNT",LIKE_COUNT_KEY(type,objectId));
-            return likeNumber;
+            return (Long )redisUtils.hget("LIKE_COUNT",LIKE_COUNT_KEY(type,objectId));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -89,4 +81,5 @@ public class LikeServiceImpl implements LikeService {
         redisUtils.hmset("LIKE_COUNT", likeCount );
         return likeNumber-1;
     }
+
 }
