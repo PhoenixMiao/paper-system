@@ -5,12 +5,14 @@ import com.github.pagehelper.PageInfo;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Page;
+import com.phoenix.paper.controller.response.GetUserPaperListResponse;
 import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.entity.Paper;
 import com.phoenix.paper.entity.User;
 import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.PaperService;
+import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.index.PathBasedRedisIndexDefinition;
 import org.springframework.stereotype.Service;
@@ -36,10 +38,10 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public Page<BriefPaper> getUserPaperList(Integer pageNum,Integer pageSize,Long userId){
+    public GetUserPaperListResponse getUserPaperList(Integer pageNum, Integer pageSize, Long userId){
         User user=userMapper.getUserById(userId);
         if(user==null||user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         PageHelper.startPage(pageNum,pageSize,"upload_time desc");
-        return new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId)));
+        return new GetUserPaperListResponse(paperMapper.getUserTotalPaperNumber(userId),paperMapper.getUserPaperNumberInThisWeek(userId),new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId))));
     }
 }
