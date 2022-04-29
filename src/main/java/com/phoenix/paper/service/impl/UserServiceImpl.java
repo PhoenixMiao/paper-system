@@ -16,6 +16,8 @@ import com.phoenix.paper.util.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -41,6 +43,10 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.getUserByNum(number);
 
+        AssertUtil.notNull(user,CommonErrorCode.USER_NOT_EXIST);
+
+        AssertUtil.isNull(user.getDeleteTime(),CommonErrorCode.USER_NOT_EXIST);
+
         AssertUtil.isTrue(passwordUtil.convert(password).equals(user.getPassword()),CommonErrorCode.PASSWORD_NOT_RIGHT);
 
         sessionUtils.setSessionId(sessionId);
@@ -49,8 +55,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<BriefUser> getBriefUserList(int pageSize, int pageNum) {
+    public Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId) {
+        if(userMapper.getUserById(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
         PageHelper.startPage(pageNum,pageSize,"create_time desc");
+        //List<BriefUser> briefUsers = briefUserList.stream().parallel().filter(user -> user.getDeleteTime() == null).collect(Collectors.toList());
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
 
@@ -70,26 +78,28 @@ public class UserServiceImpl implements UserService {
 //    }
 
     @Override
-    public User getUserById(Long userId ) {
-        User user=userMapper.getUserById(userId);
-        if(user==null||user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        return user;
+    public User getUserById(Long userId, Long targetId) {
+        if(targetId==null)return userMapper.getUserById(userId);
+        if(!userId.equals(targetId)&&!userMapper.getUserById(userId).getType().equals(1))throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
+        return userMapper.getUserById(targetId);
     }
 
     @Override
     public Integer updateUser(Long userId, UpdateUserRequest updateUserRequest) {
-        User user=userMapper.getUserById(userId);
-        if(user==null||user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        return userMapper.updateByPrimaryKeySelective(User.builder().id(userId).accountNum(user.getAccountNum()).portrait(updateUserRequest.getPortrait()).email(updateUserRequest. getEmail()).gender(updateUserRequest.getGender()).grade(updateUserRequest.getGrade()).major(updateUserRequest. getMajor()).name(updateUserRequest.getName()).
+        Long targetId;
+        if(updateUserRequest.getId()==null)targetId=userId;
+        else if(!userId.equals(updateUserRequest.getId())&&!userMapper.getUserById(userId).getType().equals(1))throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
+        else targetId=updateUserRequest.getId();
+        User targetUser=userMapper.getUserById(targetId);
+        if(targetUser==null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        return userMapper.updateByPrimaryKeySelective(User.builder().id(targetId).accountNum(targetUser.getAccountNum()).portrait(updateUserRequest.getPortrait()).email(updateUserRequest. getEmail()).gender(updateUserRequest.getGender()).grade(updateUserRequest.getGrade()).major(updateUserRequest. getMajor()).name(updateUserRequest.getName()).
                 nickname(updateUserRequest.getNickname()).password(passwordUtil.convert(updateUserRequest.getPassword())).school(updateUserRequest.getSchool()).telephone(updateUserRequest.getTelephone()).type(updateUserRequest.getType()).build());
      }
 //
 //
 //
-
 //
 //
-
 //    @Override
 //    public void classifyUser(Long organizerId, Long userId, Long adminId) {
 //        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);

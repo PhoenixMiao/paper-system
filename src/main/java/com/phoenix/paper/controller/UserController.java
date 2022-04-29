@@ -14,7 +14,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -59,29 +58,21 @@ public class UserController {
             @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),})
     public Result getBriefUserList(@NotNull @RequestParam("pageSize")Integer pageSize,
                                    @NotNull @RequestParam("pageNum")Integer pageNum){
-            return Result.success(userService.getBriefUserList(pageSize,pageNum));
-    }
-
-    @Auth
-    @GetMapping("/info")
-    @ApiOperation(value = "获取我的信息")
-    public Result getMyInformation(){
-
         try{
-            return Result.success(userService.getUserById(sessionUtils.getUserId()));
+            return Result.success(userService.getBriefUserList(pageSize,pageNum, sessionUtils.getUserId()));
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
     }
 
-    @Admin
-    @GetMapping("/userInfo")
+    @Auth
+    @GetMapping("/info")
     @ApiOperation(value = "获取用户信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
-    public Result getUserInformation(@RequestParam("userId")Long userId){
+            @ApiImplicitParam(name = "userId",value = "用户id(查询自己的信息时可以传null)",required = true,paramType = "query",dataType = "Long"),})
+    public Result getUserInformation(@RequestParam("userId")Long targetId){
         try{
-            return Result.success(userService.getUserById(userId));
+            return Result.success(userService.getUserById(sessionUtils.getUserId(), targetId));
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
@@ -110,7 +101,7 @@ public class UserController {
 //
     @Auth
     @PostMapping("/update")
-    @ApiOperation(value = "更改我的信息")
+    @ApiOperation(value = "更改用户信息")
     public Result updateUser(@NotNull @RequestBody UpdateUserRequest updateUserRequest){
         try{
             return Result.success(userService.updateUser(sessionUtils.getUserId(), updateUserRequest));
@@ -118,7 +109,6 @@ public class UserController {
             return Result.result(e.getCommonErrorCode());
         }
     }
-
 
 //    @Auth
 //    @GetMapping("/user")

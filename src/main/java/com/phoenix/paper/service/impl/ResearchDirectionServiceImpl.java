@@ -23,7 +23,8 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
 
     @Override
     public Long addResearchDirection(AddResearchDirectionRequest addResearchDirectionRequest, Long creatorId) throws CommonException {
-        if (researchDirectionMapper.selectOne(ResearchDirection.builder().name(addResearchDirectionRequest.getName()).build()) != null)
+        ResearchDirection researchDirectionOld = researchDirectionMapper.selectOne(ResearchDirection.builder().name(addResearchDirectionRequest.getName()).build());
+        if (researchDirectionOld == null || researchDirectionOld.getDeleteTime()!=null)
             throw new CommonException(CommonErrorCode.REPETITIVE_DIRECTION);
         ResearchDirection researchDirection;
         if (addResearchDirectionRequest.getFatherId() != 0) {
@@ -44,7 +45,6 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
             }
         } else {
             synchronized (this) {
-                int num = researchDirectionMapper.select(ResearchDirection.builder().fatherId((long)0).build()).size();
                 researchDirection = ResearchDirection.builder()
                         .name(addResearchDirectionRequest.getName())
                         .path("0")
@@ -63,13 +63,16 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
     @Override
     public List<BriefNode> getSons(Long father) throws CommonException{
         if(father==0) return researchDirectionMapper.getSons((long)0);
-        if(researchDirectionMapper.selectByPrimaryKey(father).getIsLeaf()==1) throw new CommonException(CommonErrorCode.HAVE_NO_SON);
+        ResearchDirection fatherDirection = researchDirectionMapper.selectByPrimaryKey(father);
+        if(fatherDirection == null || fatherDirection.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.RESEARCH_DIRECTION_NOT_EXIST);
+        if(fatherDirection.getIsLeaf()==1) throw new CommonException(CommonErrorCode.HAVE_NO_SON);
         return researchDirectionMapper.getSons(father);
     }
 
     @Override
     public List<Long> getAllSons(Long father) throws CommonException{
         ResearchDirection researchDirection = researchDirectionMapper.selectByPrimaryKey(father);
+        if(researchDirection == null || researchDirection.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.RESEARCH_DIRECTION_NOT_EXIST);
         return researchDirectionMapper.getAllSons(researchDirection.getRootId(),researchDirection.getPath()+'%');
     }
 }

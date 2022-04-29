@@ -11,9 +11,9 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 public interface ResearchDirectionMapper extends MyMapper<ResearchDirection> {
-    @Select("SELECT id,name,is_leaf FROM research_direction WHERE father_id = #{father_id};")
+    @Select("SELECT id,name,is_leaf FROM research_direction WHERE father_id = #{father_id} AND LEN(delete_time) = 0 AND delete_time IS NULL;")
     List<BriefNode> getSons(@Param("father_id")Long father_id);
 
-    @Select("SELECT id FROM research_direction WHERE root_id = #{root_id} AND path LIKE #{path};")
+    @Select("SELECT id FROM research_direction WHERE root_id = #{root_id} AND path LIKE #{path} AND LEN(delete_time) = 0 AND delete_time IS NULL;")
     List<Long> getAllSons(@Param("root_id")Long root_id,@Param("path")String path);
 }

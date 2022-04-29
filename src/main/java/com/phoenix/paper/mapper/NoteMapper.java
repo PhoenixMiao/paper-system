@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 public interface NoteMapper extends MyMapper<Note> {
 
     @Select("SELECT like_number FROM note where id=#{id}")
@@ -19,4 +21,7 @@ public interface NoteMapper extends MyMapper<Note> {
 
     @Update("UPDATE note set collect_number=#{collectNumber} where id=#{id}")
     void setNoteCollects(@Param("id")Long id,@Param("collectNumber")Long collectNumber);
+
+    @Select("SELECT * FROM note WHERE delete_time IS NULL")
+    List<Note> getNoteList();
 }

@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,20 +31,20 @@ public class Paper {
     @ApiModelProperty("发布会议")
     private String publishConference;
 
-    @ApiModelProperty("发布日期")
+    @ApiModelProperty("发布日期（平台上用户的上传时间）")
     private String publishDate;
+
+    @ApiModelProperty("论文发布日期（真实）")
+    private String paperDate;
 
     @ApiModelProperty("摘要")
     private String summary;
-
-
 
     @ApiModelProperty("论文类型")
     private Integer paperType;
 
     @ApiModelProperty("文献链接")
     private String link;
-
 
     @ApiModelProperty("上传者id")
     private Long uploaderId;
@@ -59,13 +58,9 @@ public class Paper {
     @ApiModelProperty("附加文件")
     private String fileLink;
 
-    @Value("${some.key:0}")
     @ApiModelProperty("点赞数")
-    private Long likeNumber;
+    private Integer likeNumber;
 
-    @Value("${some.key:0}")
     @ApiModelProperty("收藏数")
-    private Long collectNumber;
-
-
+    private Integer collectNumber;
 }

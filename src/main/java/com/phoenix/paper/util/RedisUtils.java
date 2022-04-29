@@ -2,12 +2,10 @@ package com.phoenix.paper.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +18,6 @@ public class RedisUtils {
 
     @Autowired
     private RedisTemplate redisTemplate;
-
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 指定缓存失效时间
@@ -205,21 +200,6 @@ public class RedisUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        }
-    }
-
-    /**
-     * 获取所有键值
-     **/
-    public Set<String> keys(String pattern) { return redisTemplate.keys(pattern); }
-
-    /**
-     * 删除所有键值对
-     **/
-    public void clear(String pattern) {
-        Set<String> allKey=keys(pattern);
-        for(String key:allKey){
-            redisTemplate.delete(key);
         }
     }
 

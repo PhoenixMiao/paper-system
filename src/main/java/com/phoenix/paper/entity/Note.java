@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,17 +31,21 @@ public class Note {
     @ApiModelProperty("创建者id")
     private Long authorId;
 
+    @ApiModelProperty("标题")
+    private String title;
+
+    @ApiModelProperty("封面图片")
+    private String cover;
+
     @ApiModelProperty("创建时间")
     private String createTime;
 
     @ApiModelProperty("删除时间")
     private String deleteTime;
 
-    @Value("${some.key:0}")
     @ApiModelProperty("点赞数")
-    private Long likeNumber;
+    private Integer likeNumber;
 
-    @Value("${some.key:0}")
     @ApiModelProperty("收藏数")
-    private Long collectNumber;
+    private Integer collectNumber;
 }

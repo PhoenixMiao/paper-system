@@ -32,9 +32,14 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public Page<BriefPaper> getPaperList(int pageNum, int pageSize, String orderBy){
-        PageHelper.startPage(pageNum,pageSize,orderBy);
+    public Page<BriefPaper> getPaperList(int pageNum, int pageSize, int orderBy){
+        if(orderBy == 0){
+            PageHelper.startPage(pageNum,pageSize,"paper_date desc");
+        }else{
+            PageHelper.startPage(pageNum,pageSize,"like_number+collect_number desc");
+        }
         return new Page<>(new PageInfo<>(paperMapper.getPaperList()));
+
     }
 
     @Override
