@@ -23,8 +23,8 @@ public class BriefPaper {
     @ApiModelProperty("标题")
     private String title;
 
-    @ApiModelProperty("作者")
-    private String author;
+    @ApiModelProperty("发布人")
+    private String nickname;
 
     @ApiModelProperty("发布日期")
     private String publishDate;

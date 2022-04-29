@@ -16,10 +16,10 @@ import java.util.List;
  */
 
 public interface UserMapper extends MyMapper<User> {
-    @Select("SELECT id,name,nickname,portrait,type FROM user WHERE delete_time IS NULL;")
+    @Select("SELECT id,name,nickname,portrait,type FROM user WHERE user.delete_time IS NULL")
     List<BriefUser> getBriefUserList();
 
-    @Select("SELECT * from user where id=#{id} AND delete_time IS NULL;")
+    @Select("SELECT * from user where id=#{id}")
     User getUserById(@Param("id")Long id);
 
     @Update("UPDATE user SET type=#{type} WHERE id=#{id}")
