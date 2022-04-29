@@ -2,10 +2,9 @@ package com.phoenix.paper.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
-import com.phoenix.paper.common.CommonConstants;
-import com.phoenix.paper.common.CommonErrorCode;
-import com.phoenix.paper.common.CommonException;
-import com.phoenix.paper.common.Result;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.phoenix.paper.common.*;
 import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.entity.Paper;
 import com.phoenix.paper.mapper.NoteMapper;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class NoteServiceImpl implements NoteService{
@@ -55,5 +55,15 @@ public class NoteServiceImpl implements NoteService{
                 .build();
         noteMapper.insert(note);
         return note.getId();
+    }
+
+    @Override
+    public Page<Note> getNoteList(int pageSize, int pageNum, int orderBy){
+        if(orderBy == 0){
+            PageHelper.startPage(pageNum,pageSize,"create_time desc");
+        }else{
+            PageHelper.startPage(pageNum,pageSize,"like_number+collect_number desc");
+        }
+        return new Page<>(new PageInfo<>(noteMapper.getNoteList()));
     }
 }

@@ -48,11 +48,11 @@ public class ScheduledTasks {
             String[] splitInfo = information.split(" ");
             String time = (String) entry.getValue();
             if(splitInfo[2].equals("1")){
-                Likes like= Likes.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType(Integer.valueOf(splitInfo[1].charAt(0))-48).userId(Long.valueOf(splitInfo[0])).likeTime(time).build();
+                Likes like= Likes.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType((int) splitInfo[1].charAt(0) -48).userId(Long.valueOf(splitInfo[0])).likeTime(time).build();
                 likesMapper.insert(like);
             }
             else if(splitInfo[2].equals("0")){
-                likesMapper.cancelLike(time,Long.valueOf(splitInfo[1].substring(1)),Integer.valueOf(splitInfo[1].charAt(0))-48);
+                likesMapper.cancelLike(time,Long.parseLong(splitInfo[1].substring(1)), (int) splitInfo[1].charAt(0) -48);
             }
         }
         Map<Object,Object> likeCount = new HashMap<>();
@@ -82,11 +82,11 @@ public class ScheduledTasks {
             String[] splitInfo = information.split(" ");
             String time = (String) entry.getValue();
             if(splitInfo[2].equals("1")){
-                Collection collection= Collection.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType(Integer.valueOf(splitInfo[1].charAt(0))-48).userId(Long.valueOf(splitInfo[0])).collectTime(time).build();
+                Collection collection= Collection.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType((int) splitInfo[1].charAt(0) -48).userId(Long.valueOf(splitInfo[0])).collectTime(time).build();
                 collectionMapper.insert(collection);
             }
             else if(splitInfo[2].equals("0")){
-                collectionMapper.cancelCollect(time,Long.valueOf(splitInfo[1].substring(1)),Integer.valueOf(splitInfo[1].charAt(0))-48);
+                collectionMapper.cancelCollect(time,Long.parseLong(splitInfo[1].substring(1)), (int) splitInfo[1].charAt(0) -48);
             }
         }
         Map<Object,Object> collectCount = new HashMap<>();

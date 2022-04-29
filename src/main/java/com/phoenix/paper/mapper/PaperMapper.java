@@ -10,13 +10,13 @@ import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 public interface PaperMapper extends MyMapper<Paper> {
-    @Select("SELECT paper.id,title,nickname,publish_date,summary,link,like_number,collect_number FROM paper LEFT JOIN user ON paper.uploader_id=user.id WHERE user.delete_time IS NULL AND paper.delete_time IS NULL")
+    @Select("SELECT id,title,publish_date,summary,link,like_number,collect_number FROM paper WHERE paper.delete_time IS NULL")
     List<BriefPaper> getPaperList();
 
-    @Select("SELECT paper.id,title,nickname,publish_date,summary,link,like_number,collect_number FROM paper join user on paper.uploader_id=user.id where uploader_id=#{userId} and user.delete_time IS NULL AND paper.delete_time IS NULL")
+    @Select("SELECT id,title,publish_date,summary,link,like_number,collect_number FROM paper WHERE uploader_id=#{userId} AND paper.delete_time IS NULL")
     List<BriefPaper> getUserPaperList(@Param("userId")Long userId);
 
-    @Select("SELECT like_number FROM paper where id=#{id}")
+    @Select("SELECT like_number FROM paper WHERE id=#{id}")
     Long getPaperLikes(@Param("id")Long id);
 
     @Update("UPDATE paper set like_number=#{likeNumber} where id=#{id}")

@@ -98,10 +98,8 @@ public class UserServiceImpl implements UserService {
 //
 //
 //
-
 //
 //
-
 //    @Override
 //    public void classifyUser(Long organizerId, Long userId, Long adminId) {
 //        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);

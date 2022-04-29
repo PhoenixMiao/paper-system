@@ -31,8 +31,11 @@ public class Paper {
     @ApiModelProperty("发布会议")
     private String publishConference;
 
-    @ApiModelProperty("发布日期")
+    @ApiModelProperty("发布日期（平台上用户的上传时间）")
     private String publishDate;
+
+    @ApiModelProperty("论文发布日期（真实）")
+    private String paperDate;
 
     @ApiModelProperty("摘要")
     private String summary;
@@ -42,7 +45,6 @@ public class Paper {
 
     @ApiModelProperty("文献链接")
     private String link;
-
 
     @ApiModelProperty("上传者id")
     private Long uploaderId;
@@ -56,5 +58,9 @@ public class Paper {
     @ApiModelProperty("附加文件")
     private String fileLink;
 
+    @ApiModelProperty("点赞数")
+    private Integer likeNumber;
 
+    @ApiModelProperty("收藏数")
+    private Integer collectNumber;
 }

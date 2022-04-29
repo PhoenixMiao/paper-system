@@ -15,8 +15,8 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Like 点赞记录")
-public class Like {
+@ApiModel("Likes 点赞记录")
+public class Likes {
     @Id
     @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
     @ApiModelProperty("点赞id")

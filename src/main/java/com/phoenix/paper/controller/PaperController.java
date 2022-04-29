@@ -46,9 +46,9 @@ public class PaperController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
             @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
-            @ApiImplicitParam(name = "orderBy", value = "排序规则", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "orderBy", value = "排序规则(0为热度,1为论文在现实世界中发布时间)", required = true, paramType = "query", dataType = "Integer"),
     })
-    public Result getPaperList(@RequestParam("pageSize") Integer pageSize, @Param("pageNum")Integer pageNum,@Param("orderBy")String orderBy){
+    public Result getPaperList(@RequestParam("pageSize") Integer pageSize, @Param("pageNum")Integer pageNum,@Param("orderBy")Integer orderBy){
         return Result.success(paperService.getPaperList(pageNum,pageSize,orderBy));
     }
 }

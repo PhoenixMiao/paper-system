@@ -31,9 +31,21 @@ public class Note {
     @ApiModelProperty("创建者id")
     private Long authorId;
 
+    @ApiModelProperty("标题")
+    private String title;
+
+    @ApiModelProperty("封面图片")
+    private String cover;
+
     @ApiModelProperty("创建时间")
     private String createTime;
 
     @ApiModelProperty("删除时间")
     private String deleteTime;
+
+    @ApiModelProperty("点赞数")
+    private Integer likeNumber;
+
+    @ApiModelProperty("收藏数")
+    private Integer collectNumber;
 }

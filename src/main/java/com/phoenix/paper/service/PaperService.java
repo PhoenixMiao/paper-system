@@ -9,7 +9,7 @@ public interface PaperService {
 
     Paper getPaperById(Long paperId);
 
-    Page<BriefPaper> getPaperList(int pageNum, int pageSize, String orderBy);
+    Page<BriefPaper> getPaperList(int pageNum, int pageSize, int orderBy);
 
     GetUserPaperListResponse getUserPaperList(Integer pageNum, Integer pageSize, Long userId);
 }

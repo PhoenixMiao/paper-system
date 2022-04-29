@@ -5,15 +5,15 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.phoenix.paper.annotation.Auth;
-import com.phoenix.paper.common.CommonConstants;
-import com.phoenix.paper.common.CommonErrorCode;
-import com.phoenix.paper.common.CommonException;
-import com.phoenix.paper.common.Result;
+import com.phoenix.paper.common.*;
+import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.SessionUtils;
 import io.netty.handler.codec.CodecException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -82,5 +82,16 @@ public class NoteController {
             return Result.result(CommonErrorCode.DOWNLOAD_FILE_FAILED);
         }
         return Result.success("下载成功");
+    }
+
+    @GetMapping("/list")
+    @ApiOperation(value = "笔记列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
+            @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "orderBy", value = "排序规则(0为热度,1为发布时间)", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result getNoteList(@NotNull @RequestParam("pageSize")int pageSize,@NotNull @RequestParam("pageNum")int pageNum,@NotNull @RequestParam("orderBy")int orderBy){
+        return Result.success(noteService.getNoteList(pageSize,pageNum,orderBy));
     }
 }
