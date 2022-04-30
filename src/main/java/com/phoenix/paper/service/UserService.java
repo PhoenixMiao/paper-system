@@ -4,6 +4,7 @@ import com.phoenix.paper.common.Page;
 import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefUser;
+import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.User;
 
 public interface UserService {
@@ -19,9 +20,17 @@ public interface UserService {
 //
 //    void toAdmin(Long userId,Long adminId);
 //
-//    void backToUser(Long userId,Long adminId);
-//
-    User getUserById(Long userId,Long targetId);
+    String sendEmail(String email,int flag);
+
+    LoginResponse signUp(String email,String password);
+
+    void checkCode(String email,String code);
+
+    String findNumber(String email);
+
+    void updatePassword(String accountNum,String password);
+
+    SessionData getUserById(Long userId);
 //
     Integer updateUser(Long userId, UpdateUserRequest updateUserRequest);
 //

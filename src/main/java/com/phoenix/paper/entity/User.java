@@ -27,15 +27,11 @@ public class User {
     @ApiModelProperty("用户id")
     private Long id;
 
-    @Id
     @ApiModelProperty("账号")
     private String accountNum;
 
     @ApiModelProperty("密码")
     private String password;
-
-    @ApiModelProperty("会话id")
-    private String sessionId;
 
     @ApiModelProperty("创建时间")
     private String createTime;

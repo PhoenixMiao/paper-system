@@ -1,0 +1,71 @@
+
+#保护系统级别 系统级别分为二级系统和三级系统
+#当systemGrade不为2或者3时，系统默认使用系统级别2的规则
+#当systemGrade设置为2或者3时，其他选项若未配置，则按照默认值处理，具体默认值信息见每一项说明
+systemGrade=2
+
+#检测密码口令长度
+#当checkPasswordLength为disable时，下面两项设置无效
+#其他检测功能设置为disable时，对应设置项设置数据无效
+#当系统级别为2或3时，checkPasswordLength默认为enable
+#当系统级别为2或3时，limitPassMinLength默认为8，limitPassMaxLength默认为20
+#是否检测密码口令长度，如为enable则检测，如为disable则不检测，如为空，
+checkPasswordLength=enable
+#允许密码口令最小长度
+limitPassMinLength=8
+#允许密码口令最大长度，如为空，则不设置上限
+limitPassMaxLength=20
+
+#是否包含数字、小写字母、大写字母、特殊符号
+#当设置checkContainUpperLowerCase为enable时，区分大小写
+#当系统级别为2时：checkContainDigit默认为enable，checkContainUpperLowerCase默认为disable
+#当系统级别为2时，checkContainLowerCase默认为disable，checkContainUpperCase默认为disable
+#当系统级别为2时，checkContainSpecialChar默认为disable
+#当系统级别为3时：checkContainDigit默认为enable，checkContainUpperLowerCase默认为disable
+#当系统级别为3时，checkContainLowerCase默认为disable，checkContainUpperCase默认为disable
+#当系统级别为3时，checkContainSpecialChar默认为enable
+#是否检测包含数字
+checkContainDigit=enable
+#是否检测包含大小写字母，区分密码口令大小写
+checkContainUpperLowerCase = enable
+#是否检测包含小写字母
+checkContainLowerCase = enable
+#是否检测包含大写字母
+checkContainUpperCase = enable
+#是否检测包含特殊符号
+checkContainSpecialChar=enable
+#支持自定义特殊符号集合
+specialCharSet="!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+
+#检测键盘按键连续 比如qwer、1qaz、0okm等
+#允许横向最大连续num为7，最小为3
+#允许斜向最大连续num为4，最小为3
+#当系统级别为2时：checkHorizontalKeySequential默认为enable，horizontalKeyLimitNum默认为4
+#当系统级别为2时，checkSlopeKeySequential默认为enable，slopeKeyLimitNum默认为4
+#当系统级别为3时：checkHorizontalKeySequential默认为enable，horizontalKeyLimitNum默认为3
+#当系统级别为3时，checkSlopeKeySequential默认为enable，slopeKeyLimitNum默认为3
+#是否检测键盘横向连续
+checkHorizontalKeySequential=enable
+#允许键盘横向连续最小数值，如为空，则设置为默认值
+horizontalKeyLimitNum=3
+#是否检测键盘斜向连续
+checkSlopeKeySequential=enable
+#允许键盘斜向连续最小数值，如为空，则设置为默认值
+slopeKeyLimitNum=3
+
+#检测逻辑位置连续 比如1234、abcd等
+#当系统级别为2时，checkLogicSequential默认为enable，logicLimitNum默认为4
+#当系统级别为3时，checkLogicSequential默认为enable，logicLimitNum默认为3
+#是否检测逻辑位置连续
+checkLogicSequential=enable
+#允许逻辑位置连续最小数值，如为空，则设置为默认值
+logicLimitNum=3
+
+#检测相邻字符相同 比如aaaa、2222、@@@@等
+#当系统级别为2时，checkSequentialCharSame默认为enable，sequentialCharNum默认为4
+#当系统级别为3时，checkSequentialCharSame默认为enable，sequentialCharNum默认为3
+#是否检测相邻字符相同
+checkSequentialCharSame=enable
+#允许相邻位置相同最小连续数，如为空，则设置为默认值
+sequentialCharNum=3
+
