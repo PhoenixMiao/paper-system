@@ -20,9 +20,15 @@ public interface UserService {
 //
 //    void toAdmin(Long userId,Long adminId);
 //
-    String sendEmail(String email);
+    String sendEmail(String email,int flag);
 
-    LoginResponse signUp(String email,String password,String verificationCode);
+    LoginResponse signUp(String email,String password);
+
+    void checkCode(String email,String code);
+
+    String findNumber(String email);
+
+    void updatePassword(String accountNum,String password);
 
     SessionData getUserById(Long userId);
 //

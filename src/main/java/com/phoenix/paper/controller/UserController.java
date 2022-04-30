@@ -10,10 +10,7 @@ import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.service.UserService;
 import com.phoenix.paper.util.RedisUtils;
 import com.phoenix.paper.util.SessionUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -123,10 +120,14 @@ public class UserController {
 
     @GetMapping("/send")
     @ApiOperation(value = "发送验证邮箱")
-    @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query")
-    public Result sendEmail(@NotNull @RequestParam("email")String email){
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "emailOrNumber",value = "注册和找回账号输入邮箱，找回密码输入账号",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "type",value = "0为注册，1为找回账号，2为找回密码",required = true,paramType = "query"),
+    })
+    public Result sendEmail(@NotNull @RequestParam("emailOrNumber")String emailOrNumber,
+                            @NotNull @RequestParam("type")int type){
         try{
-            return Result.success(userService.sendEmail(email));
+            return Result.success(userService.sendEmail(emailOrNumber,type));
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
@@ -136,17 +137,54 @@ public class UserController {
     @ApiOperation(value = "注册")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query"),
-            @ApiImplicitParam(name = "password",value = "密码",required = true,paramType = "query"),
-            @ApiImplicitParam(name = "verificationCode",value = "邮箱验证码",required = true,paramType = "query")
+            @ApiImplicitParam(name = "password",value = "密码",required = true,paramType = "query")
     })
     public Result signUp(@NotNull @RequestParam("email")String email,
-                         @NotNull @RequestParam("password")String password,
-                         @NotNull @RequestParam("verificationCode")String verificationCode){
+                         @NotNull @RequestParam("password")String password){
         try{
-            return Result.success(userService.signUp(email, password, verificationCode));
+            return Result.success(userService.signUp(email, password));
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
+    }
+
+    @GetMapping("/check")
+    @ApiOperation(value = "校验验证码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "code",value = "邮箱验证码",required = true,paramType = "query")
+    })
+    public Result checkCode(@NotNull @RequestParam("email")String email,
+                         @NotNull @RequestParam("code")String code){
+        try{
+            userService.checkCode(email,code);
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+        return Result.success("验证码正确");
+    }
+
+    @GetMapping("/number")
+    @ApiOperation(value = "找回账号")
+    @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query")
+    public Result findNumber(@NotNull @RequestParam("email")String email){
+        return Result.success(userService.findNumber(email));
+    }
+
+    @PostMapping("/password")
+    @ApiOperation(value = "更新密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "number",value = "账号",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "password",value = "新密码",required = true,paramType = "query")
+    })
+    public Result updatePassword(@NotNull @RequestParam("number")String number,
+                                 @NotNull @RequestParam("password")String password){
+        try{
+            userService.updatePassword(number,password);
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+        return Result.success("更新成功");
     }
 
 //    @Auth

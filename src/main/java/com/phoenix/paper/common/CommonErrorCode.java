@@ -36,6 +36,10 @@ public enum CommonErrorCode {
     VERIFICATION_CODE_HAS_EXPIRED(2022,"验证码已过期","请重新申请发送验证码"),
     HAS_NOT_SENT_EMAIL(2023,"未发送验证码","请先用此邮箱申请验证码"),
     SEND_EMAIL_FAILED(2024,"发送邮件失败","请检查邮箱账号"),
+    EMAIL_HAS_BEEN_SIGNED_UP(2025,"邮箱已被注册，请使用账号密码登录","如果忘记密码，请通过邮箱验证找回"),
+    VERIFICATION_CODE_WRONG(2026,"邮箱验证码错误","请输入正确的邮箱验证码"),
+    EMAIL_NOT_SIGNED_UP(2027,"该邮箱尚未注册账号","请输入正确的邮箱或先用此邮箱注册账号"),
+    PASSWORD_NOT_QUANTIFIED(2028,"密码强度不够","请输入符合要求的密码"),
     ;
 
     /**

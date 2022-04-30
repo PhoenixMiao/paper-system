@@ -27,7 +27,6 @@ public class User {
     @ApiModelProperty("用户id")
     private Long id;
 
-    @Id
     @ApiModelProperty("账号")
     private String accountNum;
 

@@ -20,6 +20,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import sun.rmi.runtime.Log;
 
+import javax.jws.soap.SOAPBinding;
 import java.sql.Time;
 import java.util.List;
 
@@ -47,6 +48,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     JavaMailSender jms;
+
+    @Autowired
+    private MessageUtil messageUtil;
 
     @Override
     public LoginResponse login(String number, String password) throws CommonException{
@@ -110,12 +114,12 @@ public class UserServiceImpl implements UserService {
                 nickname(updateUserRequest.getNickname()).password(passwordUtil.convert(updateUserRequest.getPassword())).school(updateUserRequest.getSchool()).telephone(updateUserRequest.getTelephone()).type(updateUserRequest.getType()).build());
      }
 
-
     @Override
-    public LoginResponse signUp(String email,String password,String verificationCode)throws CommonException{
-        if(redisUtils.hasKey(email)) throw new CommonException((CommonErrorCode.HAS_NOT_SENT_EMAIL));
-        if(redisUtils.isExpire(email)) throw new CommonException(CommonErrorCode.VERIFICATION_CODE_HAS_EXPIRED);
-        redisUtils.del(email);
+    public LoginResponse signUp(String email,String password)throws CommonException{
+        if(userMapper.select(User.builder().email(email).build()).size()!=0){
+            throw new CommonException(CommonErrorCode.EMAIL_HAS_BEEN_SIGNED_UP);
+        }
+        if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
         String sessionId = sessionUtils.generateSessionId();
         User user =  User.builder()
                 .createTime(TimeUtil.getCurrentTimestamp())
@@ -131,32 +135,53 @@ public class UserServiceImpl implements UserService {
         return new LoginResponse(new SessionData(user),sessionId);
     }
 
+    @Override
+    public String findNumber(String email){
+        if(userMapper.select(User.builder().email(email).build()).size()==0){
+            throw new CommonException(CommonErrorCode.EMAIL_NOT_SIGNED_UP);
+        }
+        User user = userMapper.selectOne(User.builder().email(email).build());
+        return user.getAccountNum();
+    }
 
     @Override
-    public String sendEmail(String email){
-        if(redisUtils.hasKey(email)) redisUtils.del(email);
+    public void updatePassword(String accountNum,String password){
+        if(userMapper.selectOne(User.builder().accountNum(accountNum).build())==null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
+        userMapper.updateByPrimaryKeySelective(User.builder().accountNum(accountNum).password(passwordUtil.convert(password)).build());
+    }
+
+    @Override
+    public void checkCode(String email,String code) throws CommonException{
+        if (!redisUtils.hasKey(email)) throw new CommonException((CommonErrorCode.HAS_NOT_SENT_EMAIL));
+        if (redisUtils.isExpire(email)) throw new CommonException(CommonErrorCode.VERIFICATION_CODE_HAS_EXPIRED);
+        if (redisUtils.get(email) != code)
+            throw new CommonException(CommonErrorCode.VERIFICATION_CODE_WRONG);
+        redisUtils.del(email);
+    }
+
+    @Override
+    public String sendEmail(String emailOrNumber,int flag){
+        if(flag==0){
+            if(userMapper.select(User.builder().email(emailOrNumber).build()).size()!=0){
+                throw new CommonException(CommonErrorCode.EMAIL_HAS_BEEN_SIGNED_UP);
+            }
+        }else if(flag==1){
+            if(userMapper.select(User.builder().email(emailOrNumber).build()).size()==0){
+                throw new CommonException(CommonErrorCode.EMAIL_NOT_SIGNED_UP);
+            }
+        }else{
+            User user = userMapper.selectOne(User.builder().accountNum(emailOrNumber).build());
+            if(user==null){
+                throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+            }
+            emailOrNumber = user.getEmail();
+        }
+        //if(redisUtils.hasKey(email)) redisUtils.del(email);
         String verificationCode = RandomVerifyCodeUtil.getRandomVerifyCode();
-        redisUtils.set(email,verificationCode,5);
+        redisUtils.set(emailOrNumber,verificationCode,5);
         try {
-            //建立邮件消息
-            SimpleMailMessage mainMessage = new SimpleMailMessage();
-
-            //发送者
-            mainMessage.setFrom(sender);
-
-            //接收者
-            mainMessage.setTo(email);
-
-            //发送的标题
-            mainMessage.setSubject("邮箱验证");
-
-            //发送的内容
-            String msg = "论文平台：您好！" + email + ",您正在使用邮箱验证，验证码：" + verificationCode + "。";
-            mainMessage.setText(msg);
-
-            //发送邮件
-            jms.send(mainMessage);
-
+            messageUtil.sendMail(sender,emailOrNumber,verificationCode,jms,flag);
         } catch (Exception e) {
             throw new CommonException(CommonErrorCode.SEND_EMAIL_FAILED);
         }

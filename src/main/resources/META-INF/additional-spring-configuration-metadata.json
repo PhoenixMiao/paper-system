@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "checkLogicSequential",
+      "type": "java.lang.String",
+      "description": "Description for checkLogicSequential."
+  }
+] }

@@ -1,36 +1,30 @@
 package com.phoenix.paper.util;
 
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
+
 import java.sql.Timestamp;
 
-//通知消息模板
+@Component
 public class MessageUtil {
 
-    //收藏公司+积分
-    public static String addCollection(String company_name,Double addCollection_point,Double point){
+    //注册账号
+    public static String signUp(String email,String code){
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        return "您于 " + getNowTime() + " 收藏了公司 " + company_name + " ，积分+" + addCollection_point + "，当前积分为" + point + "分";
+        return "论文平台：您好！"+ email + "您于 " + getNowTime() + "使用邮箱验证注册，验证码：" + code + "。";
     }
 
-    //打开公司网址+积分
-    public static String openURL(String company_url,Double openURL_point,Double point){
+    //找回账号
+    public static String findNumber(String email,String code){
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        return "您于 " + getNowTime() + " 打开了公司链接 " + company_url + " ，积分+" + openURL_point + "，当前积分为" + point + "分";
+        return "论文平台：您好！" + email + "您于 " + getNowTime() + "使用邮箱验证找回账号，验证码：" + code + "。";
     }
 
-    //更新报价+积分
-    public static String setContent(Double setContent_point,Double point){
+    //找回账号
+    public static String findPassword(String email,String code){
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        return "您于 " + getNowTime() + " 更新了公司报价，积分+" + setContent_point + "，当前积分为" + point + "分";
-    }
-
-    //充值会员+积分
-    public static String rechargeMember(Double rechargeMember_point,Double point){
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        return "您于 " + getNowTime() + " 充值了会员，积分+" + rechargeMember_point + "，当前积分为" + point + "分";
-    }
-
-    public static String inviteToSetContent(String username,double invite_point, Double point) {
-        return "您的好友 " + username +" 于 " + getNowTime() + " 第一次发布公司报价，您的积分+" + invite_point + "，当前积分为" + point + "分";
+        return "论文平台：您好！" + email + "您于 " + getNowTime() + "使用邮箱验证找回密码，验证码：" + code + "。";
     }
 
     //获取现在的时间
@@ -40,5 +34,34 @@ public class MessageUtil {
                 .toString()
                 .substring(0, timestamp.toString().indexOf("."));
         return timeStr;
+    }
+
+    public void sendMail(String sender, String email, String verificationCode, JavaMailSender jms,int flag)throws Exception{
+
+        //建立邮件消息
+        SimpleMailMessage mainMessage = new SimpleMailMessage();
+
+        //发送者
+        mainMessage.setFrom(sender);
+
+        //接收者
+        mainMessage.setTo(email);
+
+        //发送的标题
+        mainMessage.setSubject("论文平台");
+        String msg;
+
+        if(flag==0){
+            msg = signUp(email,verificationCode);
+        }else if(flag==1){
+            msg = findNumber(email,verificationCode);
+        }else{
+            msg = findPassword(email,verificationCode);
+        }
+        mainMessage.setText(msg);
+
+        //发送邮件
+        jms.send(mainMessage);
+
     }
 }
