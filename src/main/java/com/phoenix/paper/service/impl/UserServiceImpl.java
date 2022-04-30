@@ -148,7 +148,7 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(String accountNum,String password){
         if(userMapper.selectOne(User.builder().accountNum(accountNum).build())==null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
-        userMapper.updateByPrimaryKeySelective(User.builder().accountNum(accountNum).password(passwordUtil.convert(password)).build());
+        userMapper.updateByPrimaryKeySelective(User.builder().id((long)Integer.parseInt(accountNum.substring(8))).password(passwordUtil.convert(password)).build());
     }
 
     @Override
