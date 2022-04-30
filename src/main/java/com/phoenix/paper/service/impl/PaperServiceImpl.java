@@ -44,7 +44,7 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public GetUserPaperListResponse getUserPaperList(Integer pageNum, Integer pageSize, Long userId){
-        User user=userMapper.getUserById(userId);
+        User user=userMapper.selectByPrimaryKey(userId);
         if(user==null||user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         PageHelper.startPage(pageNum,pageSize,"upload_time desc");
         return new GetUserPaperListResponse(paperMapper.getUserTotalPaperNumber(userId),paperMapper.getUserPaperNumberInThisWeek(userId),new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId))));

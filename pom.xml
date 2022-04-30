@@ -217,6 +217,17 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 			<version>2.1.6.RELEASE</version>
 		</dependency>
+		<!--引入邮件 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>aliyun-java-sdk-core</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+
 
 	</dependencies>
 

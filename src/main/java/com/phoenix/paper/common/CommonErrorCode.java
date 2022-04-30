@@ -17,7 +17,7 @@ public enum CommonErrorCode {
     USER_NOT_EXIST(2001,"用户不存在","用户不存在"),
     USER_NOT_ADMIN(2002,"用户非管理员","用户非管理员"),
     NEED_SESSION_ID(2003,"未传入sessionId","请传入会话id"),
-    LOGIN_HAS_OVERDUE(2003,"登录已过期","登录已过期"),
+    LOGIN_HAS_OVERDUE(2004,"登录已过期","登录已过期"),
     SESSION_IS_INVALID(2005,"该session数据库里没有","请在header里key为session处对应有效的sessionId"),
     SELF_INFORMATION_UNWRITTEN(2007,"用户信息不完整，请先完善姓名、学号、院系、专业、年级等信息再进行操作","用户信息不完整，请先完善姓名、学号、院系、专业、年级等信息再进行操作"),
     USER_NOT_SUPERADMIN(2008,"用户不是管理员","用户不是管理员"),
@@ -33,6 +33,9 @@ public enum CommonErrorCode {
     RESEARCH_DIRECTION_NOT_EXIST(2019,"该研究方向不存在","请输入存在的研究方向id"),
     NOTE_NOT_EXIST(2020,"该笔记不存在","请输入目前系统中存在的笔记"),
     FILE_NOT_EXIST(2021,"该文件不存在","请输入有效的文件名"),
+    VERIFICATION_CODE_HAS_EXPIRED(2022,"验证码已过期","请重新申请发送验证码"),
+    HAS_NOT_SENT_EMAIL(2023,"未发送验证码","请先用此邮箱申请验证码"),
+    SEND_EMAIL_FAILED(2024,"发送邮件失败","请检查邮箱账号"),
     ;
 
     /**

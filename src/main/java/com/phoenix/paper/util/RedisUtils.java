@@ -620,4 +620,22 @@ public class RedisUtils {
         return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
     }
 
+    //设置过期时间为时刻
+    public boolean tset(String key, Object value, Long timeMillis){
+
+        Long expire_time = timeMillis - System.currentTimeMillis();
+
+        try {
+            if (expire_time > 0) {
+                redisTemplate.opsForValue().set(key, value, expire_time, TimeUnit.MILLISECONDS);
+            } else {
+                set(key, value);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

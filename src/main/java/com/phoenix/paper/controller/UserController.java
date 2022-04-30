@@ -67,12 +67,22 @@ public class UserController {
 
     @Auth
     @GetMapping("/info")
-    @ApiOperation(value = "获取用户信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "用户id(查询自己的信息时可以传null)",required = true,paramType = "query",dataType = "Long"),})
-    public Result getUserInformation(@RequestParam("userId")Long targetId){
+    @ApiOperation(value = "获取个人信息")
+    public Result getSessionData(){
         try{
-            return Result.success(userService.getUserById(sessionUtils.getUserId(), targetId));
+            return Result.success(sessionUtils.getSessionData());
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @Admin
+    @GetMapping("/superInfo")
+    @ApiOperation(value = "管理员使用此接口获取任意用户的信息")
+    @ApiImplicitParam(name = "userId",value = "用户的id",required = true,paramType = "query")
+    public Result getUserInformation(@NotNull @RequestParam("userId")Long userId){
+        try{
+            return Result.success(userService.getUserById(userId));
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
@@ -99,6 +109,7 @@ public class UserController {
 //        return Result.success(sessionUtils.getSessionData());
 //    }
 //
+
     @Auth
     @PostMapping("/update")
     @ApiOperation(value = "更改用户信息")
@@ -106,6 +117,34 @@ public class UserController {
         try{
             return Result.success(userService.updateUser(sessionUtils.getUserId(), updateUserRequest));
         }catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @GetMapping("/send")
+    @ApiOperation(value = "发送验证邮箱")
+    @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query")
+    public Result sendEmail(@NotNull @RequestParam("email")String email){
+        try{
+            return Result.success(userService.sendEmail(email));
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @PostMapping("/signUp")
+    @ApiOperation(value = "注册")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "password",value = "密码",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "verificationCode",value = "邮箱验证码",required = true,paramType = "query")
+    })
+    public Result signUp(@NotNull @RequestParam("email")String email,
+                         @NotNull @RequestParam("password")String password,
+                         @NotNull @RequestParam("verificationCode")String verificationCode){
+        try{
+            return Result.success(userService.signUp(email, password, verificationCode));
+        }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
     }
