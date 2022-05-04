@@ -33,7 +33,7 @@ public class UserController {
     @Autowired
     private RedisUtils redisUtils;
 
-    @GetMapping("/login")
+    @GetMapping(value = "/login" , produces = "application/json")
     @ApiOperation(value = "登录",response = SessionData.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "number",value = "用户账号",required = true,paramType = "query",dataType = "Integer"),
