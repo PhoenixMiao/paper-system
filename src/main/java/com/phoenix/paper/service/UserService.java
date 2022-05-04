@@ -6,6 +6,7 @@ import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.User;
+import io.swagger.models.auth.In;
 
 public interface UserService {
     /**
@@ -17,6 +18,8 @@ public interface UserService {
     LoginResponse login(String number, String password);
 
     Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId);
+
+    void deleteUser(Long userId);
 //
 //    void toAdmin(Long userId,Long adminId);
 //
@@ -33,6 +36,8 @@ public interface UserService {
     SessionData getUserById(Long userId);
 //
     Integer updateUser(Long userId, UpdateUserRequest updateUserRequest);
+
+    void authorizeUser(Long userId, Integer type);
 //
 //    void classifyUser(Long organizerId,Long userId,Long adminId);
 }

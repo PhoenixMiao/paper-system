@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @ApiModel("UpdateUserRequest 更改用户信息请求")
 public class UpdateUserRequest {
 
-    @ApiModelProperty("用户id(更改自己信息时不需要传id)")
-    private Long id;
-
     @ApiModelProperty("密码")
     private String password;
 

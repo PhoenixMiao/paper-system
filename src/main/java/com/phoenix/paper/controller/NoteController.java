@@ -6,6 +6,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.phoenix.paper.annotation.Auth;
 import com.phoenix.paper.common.*;
+import com.phoenix.paper.controller.request.SearchNoteRequest;
 import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.SessionUtils;
@@ -93,5 +94,11 @@ public class NoteController {
     })
     public Result getNoteList(@NotNull @RequestParam("pageSize")int pageSize,@NotNull @RequestParam("pageNum")int pageNum,@NotNull @RequestParam("orderBy")int orderBy){
         return Result.success(noteService.getNoteList(pageSize,pageNum,orderBy));
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "搜索笔记")
+    public Result searchNote(@NotNull @RequestBody SearchNoteRequest searchNoteRequest){
+        return Result.success(noteService.searchNote(searchNoteRequest));
     }
 }
