@@ -5,17 +5,24 @@ import cn.hutool.core.util.IdUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.phoenix.paper.common.*;
+import com.phoenix.paper.controller.request.SearchNoteRequest;
+import com.phoenix.paper.dto.BriefNote;
 import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.entity.Paper;
+import com.phoenix.paper.entity.User;
 import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.PaperMapper;
+import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.TimeUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tk.mybatis.mapper.entity.Example;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +33,9 @@ public class NoteServiceImpl implements NoteService{
 
     @Autowired
     private PaperMapper paperMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public String uploadNote(MultipartFile file,Long noteId) throws CommonException {
@@ -65,5 +75,10 @@ public class NoteServiceImpl implements NoteService{
             PageHelper.startPage(pageNum,pageSize,"like_number+collect_number desc");
         }
         return new Page<>(new PageInfo<>(noteMapper.getNoteList()));
+    }
+
+    @Override
+    public  Page<BriefNote> searchNote(SearchNoteRequest searchNoteRequest){
+        return new Page<>(new PageInfo<>());
     }
 }
