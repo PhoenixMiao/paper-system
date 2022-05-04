@@ -18,6 +18,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import sun.rmi.runtime.Log;
+
+import javax.jws.soap.SOAPBinding;
+import java.sql.Time;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -99,10 +104,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Integer updateUser(Long userId, UpdateUserRequest updateUserRequest) {
-        User user=userMapper.selectByPrimaryKey(userId);
-        return userMapper.updateByPrimaryKeySelective(User.builder().id(userId).accountNum(user.getAccountNum()).portrait(updateUserRequest.getPortrait()).email(updateUserRequest. getEmail()).gender(updateUserRequest.getGender()).grade(updateUserRequest.getGrade()).major(updateUserRequest. getMajor()).name(updateUserRequest.getName()).
+        Long targetId;
+        if(updateUserRequest.getId()==null) targetId=userId;
+        else if(!userId.equals(updateUserRequest.getId())&&!userMapper.selectByPrimaryKey(userId).getType().equals(1))throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
+        else targetId=updateUserRequest.getId();
+        User targetUser=userMapper.selectByPrimaryKey(targetId);
+        if(targetUser==null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        return userMapper.updateByPrimaryKeySelective(User.builder().id(targetId).accountNum(targetUser.getAccountNum()).portrait(updateUserRequest.getPortrait()).email(updateUserRequest. getEmail()).gender(updateUserRequest.getGender()).grade(updateUserRequest.getGrade()).major(updateUserRequest. getMajor()).name(updateUserRequest.getName()).
                 nickname(updateUserRequest.getNickname()).password(passwordUtil.convert(updateUserRequest.getPassword())).school(updateUserRequest.getSchool()).telephone(updateUserRequest.getTelephone()).type(updateUserRequest.getType()).build());
-    }
+     }
 
     @Override
     public LoginResponse signUp(String email,String password)throws CommonException{
@@ -138,7 +148,7 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(String accountNum,String password){
         if(userMapper.selectOne(User.builder().accountNum(accountNum).build())==null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
-        userMapper.updateByPrimaryKeySelective(User.builder().accountNum(accountNum).password(passwordUtil.convert(password)).build());
+        userMapper.updateByPrimaryKeySelective(User.builder().id((long)Integer.parseInt(accountNum.substring(8))).password(passwordUtil.convert(password)).build());
     }
 
     @Override
@@ -176,20 +186,6 @@ public class UserServiceImpl implements UserService {
             throw new CommonException(CommonErrorCode.SEND_EMAIL_FAILED);
         }
         return verificationCode;
-    }
-
-    @Override
-    public void deleteUser(Long userId){
-        User user=userMapper.selectByPrimaryKey(userId);
-        if(user==null || user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        userMapper.updateByPrimaryKeySelective(User.builder().id(userId).deleteTime(TimeUtil.getCurrentTimestamp()).build());
-    }
-
-    @Override
-    public void authorizeUser(Long userId,Integer type){
-        User user=userMapper.selectByPrimaryKey(userId);
-        if (user==null || user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        userMapper.updateByPrimaryKeySelective(User.builder().id(userId).type(type).build());
     }
 
 

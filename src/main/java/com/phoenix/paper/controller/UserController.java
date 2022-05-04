@@ -64,22 +64,20 @@ public class UserController {
 
     @Auth
     @GetMapping("/info")
-    @ApiOperation(value = "获取我的信息")
-    public Result getMyInformation(){
-
+    @ApiOperation(value = "获取个人信息")
+    public Result getSessionData(){
         try{
-            return Result.success(userService.getUserById(sessionUtils.getUserId()));
+            return Result.success(sessionUtils.getSessionData());
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
     }
 
     @Admin
-    @GetMapping("/userInfo")
-    @ApiOperation(value = "获取用户信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
-    public Result getUserInformation(@RequestParam("userId")Long userId){
+    @GetMapping("/superInfo")
+    @ApiOperation(value = "管理员使用此接口获取任意用户的信息")
+    @ApiImplicitParam(name = "userId",value = "用户的id",required = true,paramType = "query")
+    public Result getUserInformation(@NotNull @RequestParam("userId")Long userId){
         try{
             return Result.success(userService.getUserById(userId));
         }catch (CommonException e){
@@ -118,35 +116,6 @@ public class UserController {
         }catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
-    }
-
-    @Admin
-    @GetMapping("/delete")
-    @ApiOperation(value = "删除用户")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
-    public Result deleteUser(@NotNull @RequestParam("userId")Long userId){
-        try{
-            userService.deleteUser(userId);
-        }catch (CommonException e) {
-            return Result.result(e.getCommonErrorCode());
-        }
-        return Result.success("删除成功");
-    }
-
-    @Admin
-    @GetMapping("/authorize")
-    @ApiOperation(value = "设置用户权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),
-            @ApiImplicitParam(name = "type",value = "权限(0普通用户 1管理员)",required = true,paramType = "query",dataType = "Integer"),})
-    public Result authorizeUser(@NotNull @RequestParam("userId")Long userId,@NotNull @RequestParam("type")Integer type){
-        try{
-            userService.authorizeUser(userId,type);
-        }catch (CommonException e) {
-            return Result.result(e.getCommonErrorCode());
-        }
-        return Result.success("设置成功");
     }
 
     @GetMapping("/send")
