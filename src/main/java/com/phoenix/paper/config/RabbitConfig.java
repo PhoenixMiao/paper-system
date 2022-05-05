@@ -10,6 +10,7 @@ public class RabbitConfig {
     public Queue queue() {
         return new Queue("q_hello");
     }
+    
 }
 
 

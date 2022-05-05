@@ -55,6 +55,22 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
+    public void updateNote(MultipartFile file,Long noteId){
+        Note note = noteMapper.selectByPrimaryKey(noteId);
+        if(note==null || note.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
+        String originalFilename = file.getOriginalFilename();
+        String flag = IdUtil.fastSimpleUUID();
+        String rootFilePath = System.getProperty("user.dir") + "/src/main/resources/files/" + flag + "-" + originalFilename;
+        try{
+            FileUtil.writeBytes(file.getBytes(),rootFilePath);
+        }catch (IOException e){
+            throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
+        }
+        String link = CommonConstants.DOWNLOAD_PATH + flag;
+        noteMapper.updateByPrimaryKeySelective(Note.builder().id(noteId).noteLink(link).build());
+    }
+
+    @Override
     public Long addNote(Long authorId,Long paperId) throws CommonException{
         Paper paper = paperMapper.selectByPrimaryKey(paperId);
         if(paper == null || paper.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
@@ -81,4 +97,12 @@ public class NoteServiceImpl implements NoteService{
     public  Page<BriefNote> searchNote(SearchNoteRequest searchNoteRequest){
         return new Page<>(new PageInfo<>());
     }
+
+    @Override
+    public Note getNoteDetails(Long noteId){
+        Note note=noteMapper.selectByPrimaryKey(noteId);
+        if(note==null || note.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
+        return note;
+    }
+
 }

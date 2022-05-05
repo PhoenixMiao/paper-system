@@ -10,9 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 public interface NoteService {
     String uploadNote(MultipartFile file,Long noteId);
 
+    void updateNote(MultipartFile file,Long noteId);
+
     Long addNote(Long authorId,Long paperId);
 
     Page<Note> getNoteList(int pageSize, int pageNumber, int sortRule);
 
     Page<BriefNote> searchNote(SearchNoteRequest searchNoteRequest);
+
+    Note getNoteDetails(Long noteId);
 }

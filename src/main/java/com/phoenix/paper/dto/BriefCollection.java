@@ -1,4 +1,4 @@
-package com.phoenix.paper.entity;
+package com.phoenix.paper.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,35 +11,24 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@ApiModel("comment 评论记录")
-
-public class Comment {
-    @Id
-    @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
-    @ApiModelProperty("评论id")
+@ApiModel("BriefCollection 收藏列表")
+public class BriefCollection {
+    @ApiModelProperty("收藏id")
     private Long id;
 
     @ApiModelProperty("对象id")
     private Long objectId;
 
-    @ApiModelProperty("对象类型(0为笔记，1为评论,2为论文)")
+    @ApiModelProperty("对象类型(0为论文,1为笔记)")
     private Integer objectType;
 
     @ApiModelProperty("用户id")
     private Long userId;
 
-    @ApiModelProperty("评论时间")
-    private String createTime;
-
-    @ApiModelProperty("删除时间")
-    private String  deleteTime;
-
-    @ApiModelProperty("评论内容")
-    private String contents;
-
+    @ApiModelProperty("收藏时间")
+    private String  collectTime;
 }

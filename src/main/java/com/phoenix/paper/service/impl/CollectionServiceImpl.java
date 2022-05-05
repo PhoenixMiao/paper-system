@@ -1,5 +1,10 @@
 package com.phoenix.paper.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.phoenix.paper.common.Page;
+import com.phoenix.paper.dto.BriefCollection;
+import com.phoenix.paper.mapper.CollectionMapper;
 import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.service.CollectionService;
@@ -23,6 +28,9 @@ public class CollectionServiceImpl implements CollectionService {
 
     @Autowired
     private NoteMapper noteMapper;
+
+    @Autowired
+    private CollectionMapper collectionMapper;
 
     private String COLLECT_INFORMATION_KEY(Long userId,Integer objectType,Long objectId,Integer status) {
         return userId+" "+objectType+objectId+" "+status;
@@ -81,5 +89,11 @@ public class CollectionServiceImpl implements CollectionService {
         collectCount.put(COLLECT_COUNT_KEY(type,objectId),collectNumber-1);
         redisUtils.hmset("COLLECT_COUNT", collectCount );
         return collectNumber-1;
+    }
+
+    @Override
+    public Page<BriefCollection> getCollectionList(Integer pageSize, Integer pageNum, Long userId){
+        PageHelper.startPage(pageNum,pageSize,"collect_time desc");
+        return new Page<>(new PageInfo<>(collectionMapper.getCollectionList(userId)));
     }
 }
