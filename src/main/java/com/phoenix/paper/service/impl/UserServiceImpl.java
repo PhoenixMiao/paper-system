@@ -8,8 +8,9 @@ import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.SessionData;
+import com.phoenix.paper.entity.Paper;
 import com.phoenix.paper.entity.User;
-import com.phoenix.paper.mapper.UserMapper;
+import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.UserService;
 import com.phoenix.paper.util.*;
 import com.phoenix.paper.util.SessionUtils;
@@ -19,11 +20,28 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PaperMapper paperMapper;
+
+    @Autowired
+    private NoteMapper noteMapper;
+
+    @Autowired
+    private CommentMapper commentMapper;
+
+    @Autowired
+    private LikesMapper likesMapper;
+
+    @Autowired
+    private CollectionMapper collectionMapper;
 
     @Autowired
     private SessionUtils sessionUtils;
@@ -73,22 +91,15 @@ public class UserServiceImpl implements UserService {
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
 
-
-
-//    @Override
-//    public void toAdmin(Long userId,Long adminId) {
-//        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-//        if(userMapper.selectByPrimaryKey(userId).getType()!=0) throw new CommonException(CommonErrorCode.USER_IS_ADMIN);
-//        userMapper.toAdmin(1,userId);
-//    }
-//
-//    @Override
-//    public void backToUser(Long userId, Long adminId) {
-//        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-//        if(userMapper.selectByPrimaryKey(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
-//        userMapper.toAdmin(0,userId);
-//        userMapper.classifyUser(null,userId);
-//    }
+    @Override
+    public void toAdmin(Long userId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if(user == null|| user.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        if(user.getType()==1) throw new CommonException(CommonErrorCode.USER_IS_ADMIN);
+        synchronized (this) {
+            userMapper.toAdmin(1, userId);
+        }
+    }
 
     @Override
     public SessionData getUserById(Long userId) throws CommonException{
@@ -182,7 +193,10 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId){
         User user=userMapper.selectByPrimaryKey(userId);
         if(user==null || user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        userMapper.updateByPrimaryKeySelective(User.builder().id(userId).deleteTime(TimeUtil.getCurrentTimestamp()).build());
+        String deleteTime = TimeUtil.getCurrentTimestamp();
+        userMapper.updateByPrimaryKeySelective(User.builder().id(userId).deleteTime(deleteTime).build());
+        List<Paper> papers = paperMapper.select(Paper.builder().uploaderId(userId).build());
+        paperMapper.deletePaperByUploaderId(deleteTime,userId);
     }
 
     @Override
@@ -192,21 +206,4 @@ public class UserServiceImpl implements UserService {
         userMapper.updateByPrimaryKeySelective(User.builder().id(userId).type(type).build());
     }
 
-
-//
-//
-//
-//
-//
-//    @Override
-//    public void classifyUser(Long organizerId, Long userId, Long adminId) {
-//        if(userMapper.selectByPrimaryKey(adminId).getType()!=2) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-//        if(userMapper.selectByPrimaryKey(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_ADMIN);
-//        userMapper.classifyUser(organizerId,userId);
-//    }
-//
-//
-//
-//
-//
 }

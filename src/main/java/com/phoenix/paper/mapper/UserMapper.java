@@ -25,12 +25,6 @@ public interface UserMapper extends MyMapper<User> {
     @Update("UPDATE user SET nickname=#{nickname},name=#{name},gender=#{gender},grade=#{grade},school=#{school},major=#{major},grade=#{grade}, email=#{email}, telephone=#{telephone},portrait=#{portrait}, type=#{type} WHERE id=#{id};")
     void updateUser(@Param("nickname")String nickname, @Param("name")String name, @Param("gender") Integer gender, @Param("school")String school, @Param("major")String major, @Param("grade")String grade, @Param("email")String email, @Param("telephone")String telephone,@Param("poatrait")String poatrait, @Param("type")Integer type, @Param("id")Long id);
 
-    @Update("UPDATE user SET is_mute=#{is_mute} WHERE id=#{id}")
-    void muteUser(@Param("is_mute")Integer isMute,@Param("id")Long id);
-
-    @Update("UPDATE user SET organizer_id=#{organizer_id} WHERE id=#{id}")
-    void classifyUser(@Param("organizer_id")Long organizerId,@Param("id")Long id);
-
     @Select("SELECT * FROM user WHERE account_num = #{account_num}")
     User getUserByNum(@Param("account_num")String number);
 }

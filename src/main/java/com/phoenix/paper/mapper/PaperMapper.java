@@ -33,4 +33,7 @@ public interface PaperMapper extends MyMapper<Paper> {
 
     @Select("SELECT COUNT(*) FROM paper where uploader_id=#{userId} and DATEDIFF(curdate(),date_format(upload_time,'%y-%m-%d'))<=7")
     Long getUserPaperNumberInThisWeek(@Param("userId")Long userId);
+
+    @Update("UPDATE paper SET delete_time = #{delete_time} WHERE uploader_id = #{uploader_id};")
+    void deletePaperByUploaderId(@Param("delete_time")String deleteTime,@Param("uploader_id")Long uploader_id);
 }

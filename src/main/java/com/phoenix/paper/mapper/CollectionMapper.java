@@ -9,4 +9,7 @@ public interface CollectionMapper extends MyMapper<Collection> {
 
     @Update("UPDATE collection SET delete_time=#{delete_time} where object_id=#{object_id} and object_type=#{object_type}")
     void cancelCollect(@Param("delete_time")String delete_time, @Param("object_id")long object_id, @Param("object_type")Integer object_type);
+
+    @Update("UPDATE collection SET delete_time = #{delete_time} WHERE user_id = #{user_id};")
+    void deleteCollect(@Param("delete_time")String delete_time,@Param("user_id")Long user_id);
 }

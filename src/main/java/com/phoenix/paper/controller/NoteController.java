@@ -42,6 +42,7 @@ public class NoteController {
 
     @Auth
     @PostMapping("/add")
+    @ApiOperation(value = "增加笔记空壳及相关信息")
     @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
     public Result addNote(@NotNull @RequestParam("paperId")Long paperId){
         try{
@@ -53,6 +54,7 @@ public class NoteController {
 
     @Auth
     @PostMapping("/upload")
+    @ApiOperation(value = "上传笔记附件（请先使用add接口增加笔记相关信息）")
     @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
     public Result uploadNote(MultipartFile file,@NotNull @RequestParam("noteId")Long noteId){
         try{
@@ -63,12 +65,13 @@ public class NoteController {
     }
 
     @GetMapping("/download/{flag}")
+    @ApiOperation(value = "下载笔记附件（pdf或markdown）,整个链接可以通过note_link获得或者upload接口曾经给过你")
     public Result downloadNote(@PathVariable String flag, HttpServletResponse response){
         OutputStream os;
         String basePath = System.getProperty("user.dir") + "/src/main/resources/files";
         List<String> fileNames = FileUtil.listFileNames(basePath);
         String fileName = fileNames.stream().filter(name -> name.contains(flag)).findAny().orElse("");
-        if(fileName=="") return Result.result(CommonErrorCode.FILE_NOT_EXIST);
+        if(fileName.equals("")) return Result.result(CommonErrorCode.FILE_NOT_EXIST);
         try{
             if(StrUtil.isNotEmpty(fileName)){
                 response.addHeader("Content-Disposition","attachment;filename=" + URLEncoder.encode(fileName,"UTF-8"));
