@@ -207,7 +207,7 @@ public class UserServiceImpl implements UserService {
                 for (Note note : notes) {
                     likesMapper.cancelLike(deleteTime, note.getId(), 1);
                     collectionMapper.cancelCollect(deleteTime, note.getId(), 1);
-                    List<Comment> comments = commentMapper.select(Comment.builder().objectId(note.getId()).objectType(0).build())
+                    List<Comment> comments = commentMapper.select(Comment.builder().objectId(note.getId()).objectType(0).build());
                     for (Comment comment : comments) {
                         commentMapper.cancelComment(deleteTime, comment.getObjectId(), 1);
                     }
@@ -223,7 +223,7 @@ public class UserServiceImpl implements UserService {
             for (Note note : notes) {
                 likesMapper.cancelLike(deleteTime, note.getId(), 1);
                 collectionMapper.cancelCollect(deleteTime, note.getId(), 1);
-                List<Comment> comments = commentMapper.select(Comment.builder().objectId(note.getId()).objectType(0).build())
+                List<Comment> comments = commentMapper.select(Comment.builder().objectId(note.getId()).objectType(0).build());
                 for (Comment comment : comments) {
                     commentMapper.cancelComment(deleteTime, comment.getObjectId(), 1);
                 }
