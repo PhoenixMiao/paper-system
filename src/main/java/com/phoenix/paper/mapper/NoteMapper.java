@@ -24,4 +24,10 @@ public interface NoteMapper extends MyMapper<Note> {
 
     @Select("SELECT * FROM note WHERE delete_time IS NULL")
     List<Note> getNoteList();
+
+    @Update("UPDATE note SET delete_time = #{delete_time} WHERE author_id = #{author_id};")
+    void deleteNoteByAuthorId(@Param("delete_time")String deleteTime,@Param("author_id")Long uploader_id);
+
+    @Update("UPDATE note SET delete_time = #{delete_time} WHERE paper_id = #{paper_id};")
+    void deleteNoteByPaperId(@Param("delete_time")String deleteTime,@Param("paper_id")Long paperId);
 }

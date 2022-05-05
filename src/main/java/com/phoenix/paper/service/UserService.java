@@ -19,10 +19,8 @@ public interface UserService {
 
     Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId);
 
-    void deleteUser(Long userId);
-//
-//    void toAdmin(Long userId,Long adminId);
-//
+    void toAdmin(Long userId);
+
     String sendEmail(String email,int flag);
 
     LoginResponse signUp(String email,String password);
@@ -34,10 +32,10 @@ public interface UserService {
     void updatePassword(String accountNum,String password);
 
     SessionData getUserById(Long userId);
-//
+
     Integer updateUser(Long userId, UpdateUserRequest updateUserRequest);
 
     void authorizeUser(Long userId, Integer type);
-//
-//    void classifyUser(Long organizerId,Long userId,Long adminId);
+
+    void deleteUser(Long userId);
 }
