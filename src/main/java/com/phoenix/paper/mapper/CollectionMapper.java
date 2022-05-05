@@ -1,9 +1,14 @@
 package com.phoenix.paper.mapper;
 
 import com.phoenix.paper.MyMapper;
+import com.phoenix.paper.dto.BriefCollection;
+import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.entity.Collection;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 public interface CollectionMapper extends MyMapper<Collection> {
 
@@ -12,4 +17,7 @@ public interface CollectionMapper extends MyMapper<Collection> {
 
     @Update("UPDATE collection SET delete_time = #{delete_time} WHERE user_id = #{user_id};")
     void deleteCollect(@Param("delete_time")String delete_time,@Param("user_id")Long user_id);
+
+    @Select("SELECT * FROM collection WHERE user_id=#{userId} and delete_time IS NULL")
+    List<BriefCollection> getCollectionList(@Param("userId")Long userId);
 }

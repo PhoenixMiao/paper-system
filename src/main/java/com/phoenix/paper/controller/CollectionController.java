@@ -48,8 +48,19 @@ public class CollectionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "对象id",required = true,paramType = "query",dataType = "Long"),
             @ApiImplicitParam(name = "type",value = "对象类型(0:论文 1:笔记)",required = true,paramType = "query",dataType = "Integer"),})
-    public Result cancelLike(@NotNull @RequestParam("id") Long objectId, @NotNull @Min(value=0,message="无效类型") @Max(value = 1,message ="无效类型" ) @RequestParam("type") Integer type) {
+    public Result cancelCollect(@NotNull @RequestParam("id") Long objectId, @NotNull @Min(value=0,message="无效类型") @Max(value = 1,message ="无效类型" ) @RequestParam("type") Integer type) {
         return Result.success(collectionService.cancelCollect(objectId, type, sessionUtils.getUserId()));
+    }
+
+    @Auth
+    @GetMapping(value = "/list",produces = "application/json")
+    @ApiOperation(value = "收藏列表", response = String.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
+            @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result getCollectionList(@NotNull @RequestParam("pageSize") Integer pageSize,@NotNull @RequestParam("pageNum") Integer pageNum) {
+        return Result.success(collectionService.getCollectionList(pageSize,pageNum ,sessionUtils.getUserId()));
     }
 
 
