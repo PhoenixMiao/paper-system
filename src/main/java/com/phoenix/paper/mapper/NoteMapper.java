@@ -26,7 +26,7 @@ public interface NoteMapper extends MyMapper<Note> {
     List<Note> getNoteList();
 
     @Update("UPDATE note SET delete_time = #{delete_time} WHERE author_id = #{author_id};")
-    void deleteNoteByAuthorId(@Param("delete_time")String deleteTime,@Param("author_id")Long uploader_id);
+    void deleteNoteByAuthorId(@Param("delete_time")String deleteTime,@Param("author_id")Long author_id);
 
     @Update("UPDATE note SET delete_time = #{delete_time} WHERE paper_id = #{paper_id};")
     void deleteNoteByPaperId(@Param("delete_time")String deleteTime,@Param("paper_id")Long paperId);
