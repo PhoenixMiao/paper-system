@@ -8,6 +8,8 @@ import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.SessionData;
+import com.phoenix.paper.entity.Comment;
+import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.entity.Paper;
 import com.phoenix.paper.entity.User;
 import com.phoenix.paper.mapper.*;
@@ -54,6 +56,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordUtil passwordUtil;
+
+    @Autowired
+    private PaperQuotationMapper paperQuotationMapper;
 
     //读取配置文件邮箱账号参数
     @Value("${spring.mail.username}")
@@ -194,9 +199,41 @@ public class UserServiceImpl implements UserService {
         User user=userMapper.selectByPrimaryKey(userId);
         if(user==null || user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         String deleteTime = TimeUtil.getCurrentTimestamp();
-        userMapper.updateByPrimaryKeySelective(User.builder().id(userId).deleteTime(deleteTime).build());
-        List<Paper> papers = paperMapper.select(Paper.builder().uploaderId(userId).build());
-        paperMapper.deletePaperByUploaderId(deleteTime,userId);
+        synchronized (this) {
+            userMapper.updateByPrimaryKeySelective(User.builder().id(userId).deleteTime(deleteTime).build());
+            List<Paper> papers = paperMapper.select(Paper.builder().uploaderId(userId).build());
+            for (Paper paper : papers) {
+                List<Note> notes = noteMapper.select(Note.builder().paperId(paper.getId()).build());
+                for (Note note : notes) {
+                    likesMapper.cancelLike(deleteTime, note.getId(), 1);
+                    collectionMapper.cancelCollect(deleteTime, note.getId(), 1);
+                    List<Comment> comments = commentMapper.select(Comment.builder().objectId(note.getId()).objectType(0).build())
+                    for (Comment comment : comments) {
+                        commentMapper.cancelComment(deleteTime, comment.getObjectId(), 1);
+                    }
+                    commentMapper.cancelComment(deleteTime, note.getId(), 0);
+                }
+                noteMapper.deleteNoteByPaperId(deleteTime, paper.getId());
+                likesMapper.cancelLike(deleteTime, paper.getId(), 0);
+                collectionMapper.cancelCollect(deleteTime, paper.getId(), 0);
+                paperQuotationMapper.deletePaper(deleteTime, paper.getId(), paper.getId());
+            }
+            paperMapper.deletePaperByUploaderId(deleteTime, userId);
+            List<Note> notes = noteMapper.select(Note.builder().authorId(userId).build());
+            for (Note note : notes) {
+                likesMapper.cancelLike(deleteTime, note.getId(), 1);
+                collectionMapper.cancelCollect(deleteTime, note.getId(), 1);
+                List<Comment> comments = commentMapper.select(Comment.builder().objectId(note.getId()).objectType(0).build())
+                for (Comment comment : comments) {
+                    commentMapper.cancelComment(deleteTime, comment.getObjectId(), 1);
+                }
+                commentMapper.cancelComment(deleteTime, note.getId(), 0);
+            }
+            noteMapper.deleteNoteByAuthorId(deleteTime, userId);
+            likesMapper.deleteLike(deleteTime, userId);
+            collectionMapper.deleteCollect(deleteTime, userId);
+            commentMapper.deleteComment(deleteTime, userId);
+        }
     }
 
     @Override

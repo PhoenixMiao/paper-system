@@ -24,8 +24,11 @@ public class Comment {
     @ApiModelProperty("评论id")
     private Long id;
 
-    @ApiModelProperty("笔记id")
-    private Long noteId;
+    @ApiModelProperty("对象id")
+    private Long objectId;
+
+    @ApiModelProperty("对象类型(0为笔记，1为评论)")
+    private Integer objectType;
 
     @ApiModelProperty("用户id")
     private Long userId;
@@ -37,6 +40,6 @@ public class Comment {
     private String  deleteTime;
 
     @ApiModelProperty("评论内容")
-    private String comment;
+    private String contents;
 
 }

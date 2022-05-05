@@ -28,7 +28,7 @@ public class Collection {
     @ApiModelProperty("对象id")
     private Long objectId;
 
-    @ApiModelProperty("对象类型")
+    @ApiModelProperty("对象类型(0为论文,1为笔记)")
     private Integer objectType;
 
     @ApiModelProperty("用户id")
