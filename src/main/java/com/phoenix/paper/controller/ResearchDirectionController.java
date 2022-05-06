@@ -61,4 +61,32 @@ public class ResearchDirectionController {
             return Result.result(e.getCommonErrorCode());
         }
     }
+
+    @Admin
+    @PostMapping("delete")
+    @ApiOperation(value = "删除某一研究方向")
+    @ApiImplicitParam(name = "id",value = "节点再表中的行id",paramType = "query",required = true,dataType = "Long")
+    public Result deleteNode(@NotNull @RequestParam("id")Long id){
+        try{
+            researchDirectionService.deleteNode((id));
+            return Result.success("操作成功");
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @Admin
+    @GetMapping("/rename")
+    @ApiOperation(value = "重命名某一研究方向")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id",value = "研究方向的节点id",required = true,paramType = "query",dataType = "Long"),
+            @ApiImplicitParam(name = "name",value = "需要重命名的新名字",required = true,paramType = "query",dataType = "Integer"),})
+    public Result authorizeUser(@NotNull @RequestParam("id")Long id,@NotNull @RequestParam("name")String name){
+        try{
+            researchDirectionService.updateNode(id,name);
+        }catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+        return Result.success("重命名成功");
+    }
 }

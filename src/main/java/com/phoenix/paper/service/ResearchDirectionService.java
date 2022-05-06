@@ -11,4 +11,8 @@ public interface ResearchDirectionService {
     List<BriefNode> getSons(Long father);
 
     List<Long> getAllSons(Long father);
+
+    void deleteNode(Long id);
+
+    void updateNode(Long id,String name);
 }

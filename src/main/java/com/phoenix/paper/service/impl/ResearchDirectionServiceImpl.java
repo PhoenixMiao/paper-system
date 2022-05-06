@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,5 +75,22 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
         ResearchDirection researchDirection = researchDirectionMapper.selectByPrimaryKey(father);
         if(researchDirection == null || researchDirection.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.RESEARCH_DIRECTION_NOT_EXIST);
         return researchDirectionMapper.getAllSons(researchDirection.getRootId(),researchDirection.getPath()+'%');
+    }
+
+    @Override
+    public void deleteNode(Long id) throws CommonException{
+        List<Long> sonList = getAllSons(id);
+        String deleteTime = TimeUtil.getCurrentTimestamp();
+        for(Long node:sonList){
+            researchDirectionMapper.updateByPrimaryKeySelective(ResearchDirection.builder().id(node).deleteTime(deleteTime).build());
+            //todo 删除该研究方向所有论文以及论文的所有依附品
+        }
+    }
+
+    @Override
+    public void updateNode(Long id,String name) throws CommonException{
+        ResearchDirection researchDirection = researchDirectionMapper.selectByPrimaryKey(id);
+        if(researchDirection==null || researchDirection.getDeleteTime() != null) throw new CommonException(CommonErrorCode.RESEARCH_DIRECTION_NOT_EXIST);
+        researchDirectionMapper.updateByPrimaryKeySelective(ResearchDirection.builder().id(id).name(name).build());
     }
 }
