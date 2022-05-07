@@ -57,7 +57,7 @@ public class VersionInterceptor implements Interceptor {
         }
         // 获取版本号
         Object originalVersion = metaObject.getValue("delegate.boundSql.parameterObject." + VERSION_COLUMN_NAME);
-        if(originalVersion == null || Long.valueOf(originalVersion.toString()) <= 0){
+        if(originalVersion == null || Long.parseLong(originalVersion.toString()) <= 0){
             return invocation.proceed();
         }
         // 获取绑定的SQL

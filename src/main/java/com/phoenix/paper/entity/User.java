@@ -1,11 +1,17 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.reflection.MetaObject;
+import org.springframework.data.annotation.Version;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -68,4 +74,8 @@ public class User {
 
     @ApiModelProperty("类型(0为普通用户，1为管理员)")
     private Integer type;
+
+    @Version
+    @ApiModelProperty("用户信息乐观锁组件")
+    private int version;
 }
