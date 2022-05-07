@@ -27,4 +27,9 @@ public interface UserMapper extends MyMapper<User> {
 
     @Select("SELECT * FROM user WHERE account_num = #{account_num}")
     User getUserByNum(@Param("account_num")String number);
+
+    @Update("UPDATE user SET password = #{password} WHERE id = #{id};")
+    int updateById(@Param("password")String password,@Param("id")Long id);
+
+
 }

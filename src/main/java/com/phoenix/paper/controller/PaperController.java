@@ -89,7 +89,7 @@ public class PaperController {
         String basePath = System.getProperty("user.dir") + "/src/main/resources/files";
         List<String> fileNames = FileUtil.listFileNames(basePath);
         String fileName = fileNames.stream().filter(name -> name.contains(flag)).findAny().orElse("");
-        if(fileName=="") return Result.result(CommonErrorCode.FILE_NOT_EXIST);
+        if(fileName.equals("")) return Result.result(CommonErrorCode.FILE_NOT_EXIST);
         try{
             if(StrUtil.isNotEmpty(fileName)){
                 response.addHeader("Content-Disposition","attachment;filename=" + URLEncoder.encode(fileName,"UTF-8"));

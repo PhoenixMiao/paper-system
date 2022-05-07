@@ -1,11 +1,14 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Version;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -63,4 +66,9 @@ public class Paper {
 
     @ApiModelProperty("收藏数")
     private Integer collectNumber;
+
+    @Version
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty("论文信息乐观锁组件")
+    private Integer version;
 }

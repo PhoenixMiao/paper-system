@@ -18,6 +18,7 @@ import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.PaperService;
 import com.phoenix.paper.util.TimeUtil;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.index.PathBasedRedisIndexDefinition;
 import org.springframework.stereotype.Service;

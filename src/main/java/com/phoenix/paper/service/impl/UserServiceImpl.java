@@ -134,6 +134,7 @@ public class UserServiceImpl implements UserService {
                 .password(passwordUtil.convert(password))
                 .type(0)
                 .nickname("论文平台用户")
+                .version(1)
                 .build();
         userMapper.insert(user);
         user.setAccountNum("ps" + String.format("%08d", user.getId()));
@@ -152,9 +153,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updatePassword(String accountNum,String password){
-        if(userMapper.selectOne(User.builder().accountNum(accountNum).build())==null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        User user = userMapper.selectByPrimaryKey(Long.parseLong(accountNum.substring(2)));
+        if(user==null || user.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
-        userMapper.updateByPrimaryKeySelective(User.builder().accountNum(accountNum).password(passwordUtil.convert(password)).build());
+        userMapper.updateById(passwordUtil.convert(password), user.getId());
     }
 
     @Override

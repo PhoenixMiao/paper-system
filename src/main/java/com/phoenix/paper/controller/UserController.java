@@ -104,7 +104,7 @@ public class UserController {
     @Auth
     @GetMapping("")
     @ApiOperation(value = "获取个人信息")
-    public Result getUsergetSessionData(){
+    public Result getUserSessionData(){
         try{
             return Result.success(sessionUtils.getSessionData());
         }catch (CommonException e){
@@ -169,7 +169,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/signUp")
+    @PostMapping(value = "/signUp",produces = "application/json")
     @ApiOperation(value = "注册")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query"),
@@ -207,7 +207,7 @@ public class UserController {
         return Result.success(userService.findNumber(email));
     }
 
-    @PostMapping("/password")
+    @PostMapping(value = "/password", produces = "application/json")
     @ApiOperation(value = "更新密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "number",value = "账号",required = true,paramType = "query"),
