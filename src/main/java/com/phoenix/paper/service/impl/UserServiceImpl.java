@@ -22,6 +22,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.util.List;
 
 @Service
@@ -84,7 +85,9 @@ public class UserServiceImpl implements UserService {
         AssertUtil.isTrue(passwordUtil.convert(password).equals(user.getPassword()),CommonErrorCode.PASSWORD_NOT_RIGHT);
 
         sessionUtils.setSessionId(sessionId);
+
         redisUtils.set(sessionId,new SessionData(user),1440);
+
         return new LoginResponse(new SessionData(user),sessionId);
     }
 
@@ -129,6 +132,7 @@ public class UserServiceImpl implements UserService {
         String sessionId = sessionUtils.generateSessionId();
         User user =  User.builder()
                 .createTime(TimeUtil.getCurrentTimestamp())
+                .updateTime(TimeUtil.getCurrentTimestamp())
                 .email(email)
                 .gender(0)
                 .password(passwordUtil.convert(password))
@@ -139,6 +143,7 @@ public class UserServiceImpl implements UserService {
         userMapper.insert(user);
         user.setAccountNum("ps" + String.format("%08d", user.getId()));
         userMapper.updateByPrimaryKeySelective(User.builder().id(user.getId()).accountNum(user.getAccountNum()).build());
+        redisUtils.set(sessionId,new SessionData(user),1440);
         return new LoginResponse(new SessionData(user),sessionId);
     }
 
@@ -156,7 +161,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.selectByPrimaryKey(Long.parseLong(accountNum.substring(2)));
         if(user==null || user.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
-        userMapper.updateById(passwordUtil.convert(password), user.getId());
+        userMapper.updateById(passwordUtil.convert(password), user.getId(), TimeUtil.getCurrentTimestamp());
     }
 
     @Override

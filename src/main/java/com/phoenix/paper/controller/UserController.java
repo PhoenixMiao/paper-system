@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -32,6 +33,9 @@ public class UserController {
 
     @Autowired
     private RedisUtils redisUtils;
+
+    @Autowired
+    private HttpServletRequest request;
 
     @GetMapping(value = "/login" , produces = "application/json")
     @ApiOperation(value = "登录",response = SessionData.class)
@@ -125,19 +129,21 @@ public class UserController {
         }
     }
 
-    @Admin
-    @GetMapping("/delete")
-    @ApiOperation(value = "删除用户")
+    @Auth
+    @PostMapping("/delete")
+    @ApiOperation(value = "注销用户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
     public Result deleteUser(@NotNull @RequestParam("userId")Long userId){
         try{
             userService.deleteUser(userId);
+            if(sessionUtils.getSessionData().getType()==0) redisUtils.del(request.getHeader("session"));
         }catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
         return Result.success("删除成功");
     }
+
 
     @Admin
     @GetMapping("/authorize")

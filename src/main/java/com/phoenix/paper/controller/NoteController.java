@@ -54,7 +54,7 @@ public class NoteController {
 
     @Auth
     @PostMapping("/upload")
-    @ApiOperation(value = "上传笔记附件（请先使用add接口增加笔记相关信息）")
+    @ApiOperation(value = "上传笔记附件（请先使用add接口增加笔记相关信息，并且add和upload之间不要有其他接口调用（对单个用户来说））")
     @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
     public Result uploadNote(MultipartFile file,@NotNull @RequestParam("noteId")Long noteId){
         try{

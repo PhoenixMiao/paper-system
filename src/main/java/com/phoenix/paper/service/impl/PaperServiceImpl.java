@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Time;
 
 @Service
 public class PaperServiceImpl implements PaperService {
@@ -63,6 +64,8 @@ public class PaperServiceImpl implements PaperService {
     public Long addPaper(Long userId){
         Paper paper=Paper.builder().uploaderId(userId).build();
         paperMapper.insert(paper);
+        User user = userMapper.selectByPrimaryKey(userId);
+        userMapper.updateByPrimaryKeySelective(User.builder().id(userId).paperNum(user.getPaperNum()+1).paperWeekNum(user.getPaperWeekNum()+1).build());
         return paper.getId();
     }
 

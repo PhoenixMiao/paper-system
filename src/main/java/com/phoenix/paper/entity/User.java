@@ -78,4 +78,19 @@ public class User {
     @Version
     @ApiModelProperty("用户信息乐观锁组件")
     private int version;
+
+    @ApiModelProperty("此周论文数")
+    private int paperWeekNum;
+
+    @ApiModelProperty("此周笔记数")
+    private int noteWeekNum;
+
+    @ApiModelProperty("发布论文总数")
+    private int paperNum;
+
+    @ApiModelProperty("发布笔记总数")
+    private int noteNum;
+
+    @ApiModelProperty("更新时间")
+    private String updateTime;
 }
