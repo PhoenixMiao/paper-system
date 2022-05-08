@@ -80,6 +80,8 @@ public class NoteServiceImpl implements NoteService{
                 .paperId(paperId)
                 .build();
         noteMapper.insert(note);
+        User user = userMapper.selectByPrimaryKey(authorId);
+        userMapper.updateByPrimaryKeySelective(User.builder().id(authorId).noteNum(user.getNoteNum()+1).paperWeekNum(user.getPaperWeekNum()+1).build());
         return note.getId();
     }
 

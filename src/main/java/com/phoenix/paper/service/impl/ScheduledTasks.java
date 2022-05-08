@@ -2,13 +2,12 @@ package com.phoenix.paper.service.impl;
 
 
 
+import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.Likes;
 import com.phoenix.paper.entity.Paper;
-import com.phoenix.paper.mapper.CollectionMapper;
-import com.phoenix.paper.mapper.LikesMapper;
-import com.phoenix.paper.mapper.NoteMapper;
-import com.phoenix.paper.mapper.PaperMapper;
+import com.phoenix.paper.entity.User;
+import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.util.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +37,9 @@ public class ScheduledTasks {
 
     @Autowired
     private CollectionMapper collectionMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Scheduled(cron = "0 0/10 * * * ? ")
     //@Scheduled(cron = "0 0 0/2 * * ? ")
@@ -117,6 +120,12 @@ public class ScheduledTasks {
             e.printStackTrace();
         }
 
+    }
+
+    @Scheduled(cron = "0 0 0 0/7 * ? ")
+    public void clearTheUserNum(){
+        List<BriefUser> briefUserList = userMapper.getBriefUserList();
+        for(BriefUser briefUser:briefUserList) userMapper.updateByPrimaryKeySelective(User.builder().id(briefUser.getId()).noteWeekNum(0).paperWeekNum(0).build());
     }
 
 }

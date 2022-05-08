@@ -6,7 +6,6 @@ import com.phoenix.paper.entity.User;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -28,8 +27,6 @@ public interface UserMapper extends MyMapper<User> {
     @Select("SELECT * FROM user WHERE account_num = #{account_num}")
     User getUserByNum(@Param("account_num")String number);
 
-    @Update("UPDATE user SET password = #{password} WHERE id = #{id};")
-    int updateById(@Param("password")String password,@Param("id")Long id);
-
-
+    @Update("UPDATE user SET password = #{password},update_time = #{update_time} WHERE id = #{id};")
+    void updateById(@Param("password")String password,@Param("id")Long id,@Param("update_time")String updateTime);
 }

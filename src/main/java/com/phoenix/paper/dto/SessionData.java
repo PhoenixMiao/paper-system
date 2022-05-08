@@ -68,6 +68,21 @@ public class SessionData implements Serializable {
     @ApiModelProperty("类型(0为普通用户，1为管理员)")
     private Integer type;
 
+    @ApiModelProperty("此周论文数")
+    private int paperWeekNum;
+
+    @ApiModelProperty("此周笔记数")
+    private int noteWeekNum;
+
+    @ApiModelProperty("发布论文总数")
+    private int paperNum;
+
+    @ApiModelProperty("发布笔记总数")
+    private int noteNum;
+
+    @ApiModelProperty("更新时间")
+    private String updateTime;
+
 
     public SessionData(User user){
         AssertUtil.notNull(user, CommonErrorCode.USER_NOT_EXIST);
@@ -84,5 +99,10 @@ public class SessionData implements Serializable {
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.portrait = user.getPortrait();
+        this.noteWeekNum = user.getNoteWeekNum();
+        this.paperWeekNum = user.getPaperWeekNum();
+        this.noteNum = user.getNoteNum();
+        this.paperNum = user.getPaperNum();
+        this.updateTime = user.getUpdateTime();
     }
 }
