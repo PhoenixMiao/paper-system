@@ -19,6 +19,7 @@ import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.PaperService;
 import com.phoenix.paper.util.TimeUtil;
 import org.apache.ibatis.annotations.Param;
+import org.elasticsearch.common.recycler.Recycler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.index.PathBasedRedisIndexDefinition;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public Paper getPaperById(Long paperId){
-        return paperMapper.selectByPrimaryKey(paperId);
+        return paperMapper.selectById(paperId);
     }
 
     @Override
@@ -54,24 +55,26 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public GetUserPaperListResponse getUserPaperList(Integer pageNum, Integer pageSize, Long userId){
-        User user=userMapper.selectByPrimaryKey(userId);
+        User user=userMapper.selectById(userId);
         if(user==null||user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         PageHelper.startPage(pageNum,pageSize,"upload_time desc");
         return new GetUserPaperListResponse(paperMapper.getUserTotalPaperNumber(userId),paperMapper.getUserPaperNumberInThisWeek(userId),new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId))));
     }
 
     @Override
-    public Long addPaper(Long userId){
+    public Long addPaper(Long userId) throws CommonException{
         Paper paper=Paper.builder().uploaderId(userId).build();
         paperMapper.insert(paper);
-        User user = userMapper.selectByPrimaryKey(userId);
-        userMapper.updateByPrimaryKeySelective(User.builder().id(userId).paperNum(user.getPaperNum()+1).paperWeekNum(user.getPaperWeekNum()+1).build());
+        User user = userMapper.selectById(userId);
+        user.setPaperWeekNum(user.getPaperWeekNum()+1);
+        user.setPaperNum(user.getPaperWeekNum()+1);
+        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         return paper.getId();
     }
 
     @Override
-    public  String uploadPaper(MultipartFile file, Long paperId){
-        Paper paper = paperMapper.selectByPrimaryKey(paperId);
+    public  String uploadPaper(MultipartFile file, Long paperId)throws CommonException{
+        Paper paper = paperMapper.selectById(paperId);
         if(paper==null || paper.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
@@ -82,7 +85,8 @@ public class PaperServiceImpl implements PaperService {
             throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
         }
         String link = CommonConstants.DOWNLOAD_PATH + flag;
-        paperMapper.updateByPrimaryKeySelective(Paper.builder().id(paperId).fileLink(link).build());
+        paper.setFileLink(link);
+        if(paperMapper.updateById(paper)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         return link;
     }
 }

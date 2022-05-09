@@ -1,6 +1,6 @@
 package com.phoenix.paper.mapper;
 
-import com.phoenix.paper.MyMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.entity.User;
 import org.apache.ibatis.annotations.Param;
@@ -14,7 +14,7 @@ import java.util.List;
  * @version 2020/11/7 9:17
  */
 
-public interface UserMapper extends MyMapper<User> {
+public interface UserMapper extends BaseMapper<User>{
     @Select("SELECT id,name,nickname,portrait,type FROM user WHERE user.delete_time IS NULL")
     List<BriefUser> getBriefUserList();
 
@@ -26,7 +26,4 @@ public interface UserMapper extends MyMapper<User> {
 
     @Select("SELECT * FROM user WHERE account_num = #{account_num}")
     User getUserByNum(@Param("account_num")String number);
-
-    @Update("UPDATE user SET password = #{password},update_time = #{update_time} WHERE id = #{id};")
-    void updateById(@Param("password")String password,@Param("id")Long id,@Param("update_time")String updateTime);
 }

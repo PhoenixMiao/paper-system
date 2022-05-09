@@ -2,6 +2,7 @@ package com.phoenix.paper.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.phoenix.paper.common.*;
@@ -15,11 +16,9 @@ import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.TimeUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import tk.mybatis.mapper.entity.Example;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public String uploadNote(MultipartFile file,Long noteId) throws CommonException {
-        Note note = noteMapper.selectByPrimaryKey(noteId);
+        Note note = noteMapper.selectById(noteId);
         if(note==null || note.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
@@ -50,13 +49,14 @@ public class NoteServiceImpl implements NoteService{
             throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
         }
         String link = CommonConstants.DOWNLOAD_PATH + flag;
-        noteMapper.updateByPrimaryKeySelective(Note.builder().id(noteId).noteLink(link).build());
+        note.setNoteLink(link);
+        if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         return link;
     }
 
     @Override
-    public void updateNote(MultipartFile file,Long noteId){
-        Note note = noteMapper.selectByPrimaryKey(noteId);
+    public void updateNote(MultipartFile file,Long noteId) throws CommonException{
+        Note note = noteMapper.selectById(noteId);
         if(note==null || note.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
@@ -67,12 +67,13 @@ public class NoteServiceImpl implements NoteService{
             throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
         }
         String link = CommonConstants.DOWNLOAD_PATH + flag;
-        noteMapper.updateByPrimaryKeySelective(Note.builder().id(noteId).noteLink(link).build());
+        note.setNoteLink(link);
+        if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
     @Override
     public Long addNote(Long authorId,Long paperId) throws CommonException{
-        Paper paper = paperMapper.selectByPrimaryKey(paperId);
+        Paper paper = paperMapper.selectById(paperId);
         if(paper == null || paper.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
         Note note = Note.builder()
                 .authorId(authorId)
@@ -80,8 +81,10 @@ public class NoteServiceImpl implements NoteService{
                 .paperId(paperId)
                 .build();
         noteMapper.insert(note);
-        User user = userMapper.selectByPrimaryKey(authorId);
-        userMapper.updateByPrimaryKeySelective(User.builder().id(authorId).noteNum(user.getNoteNum()+1).paperWeekNum(user.getPaperWeekNum()+1).build());
+        User user = userMapper.selectById(authorId);
+        user.setNoteNum(user.getNoteNum()+1);
+        user.setNoteWeekNum(user.getNoteWeekNum()+1);
+        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         return note.getId();
     }
 
@@ -101,8 +104,8 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public Note getNoteDetails(Long noteId){
-        Note note=noteMapper.selectByPrimaryKey(noteId);
+    public Note getNoteDetails(Long noteId) throws CommonException{
+        Note note=noteMapper.selectById(noteId);
         if(note==null || note.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
         return note;
     }

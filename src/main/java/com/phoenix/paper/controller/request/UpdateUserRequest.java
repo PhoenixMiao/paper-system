@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @ApiModel("UpdateUserRequest 更改用户信息请求")
 public class UpdateUserRequest {
 
-    @ApiModelProperty("密码")
-    private String password;
-
     @ApiModelProperty("昵称")
     private String nickname;
 
@@ -35,16 +32,10 @@ public class UpdateUserRequest {
     @ApiModelProperty("年级")
     private String grade;
 
-    @ApiModelProperty("邮箱")
-    private String email;
-
     @ApiModelProperty("电话号")
     private String telephone;
 
     @ApiModelProperty("头像")
     private String portrait;
-
-    @ApiModelProperty("类型(0为普通用户，1为管理员)")
-    private Integer type;
 
 }

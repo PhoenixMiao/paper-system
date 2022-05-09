@@ -1,5 +1,8 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -48,4 +51,9 @@ public class Note {
 
     @ApiModelProperty("收藏数")
     private Integer collectNumber;
+
+    @Version
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty("笔记信息乐观锁组件")
+    private Integer version;
 }

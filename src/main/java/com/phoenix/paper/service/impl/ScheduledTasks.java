@@ -2,6 +2,7 @@ package com.phoenix.paper.service.impl;
 
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.Likes;
@@ -124,8 +125,12 @@ public class ScheduledTasks {
 
     @Scheduled(cron = "0 0 0 0/7 * ? ")
     public void clearTheUserNum(){
-        List<BriefUser> briefUserList = userMapper.getBriefUserList();
-        for(BriefUser briefUser:briefUserList) userMapper.updateByPrimaryKeySelective(User.builder().id(briefUser.getId()).noteWeekNum(0).paperWeekNum(0).build());
+        List<User> userList = userMapper.selectList(new QueryWrapper<>());
+        for(User user:userList){
+            user.setPaperWeekNum(0);
+            user.setNoteWeekNum(0);
+            userMapper.updateById(user);
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 package com.phoenix.paper.mapper;
 
-import com.phoenix.paper.MyMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.phoenix.paper.entity.Note;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
-public interface NoteMapper extends MyMapper<Note> {
+public interface NoteMapper extends BaseMapper<Note> {
 
     @Select("SELECT like_number FROM note where id=#{id}")
     Long getNoteLikes(@Param("id")Long id);

@@ -63,4 +63,8 @@ public class SessionUtils {
         response.setHeader(CommonConstants.SESSION, sessionId);
         return sessionId;
     }
+
+    public void ChangeContentType(){
+        response.setHeader("Content-Type","application/json");
+    }
 }

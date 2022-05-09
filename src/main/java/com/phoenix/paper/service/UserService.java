@@ -33,9 +33,11 @@ public interface UserService {
 
     SessionData getUserById(Long userId);
 
-    Integer updateUser(Long userId, UpdateUserRequest updateUserRequest);
+    void updateUser(Long userId, UpdateUserRequest updateUserRequest);
 
     void authorizeUser(Long userId, Integer type);
 
     void deleteUser(Long userId);
+
+    void updateEmail(String email,Long userId);
 }

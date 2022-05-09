@@ -40,7 +40,9 @@ public enum CommonErrorCode {
     VERIFICATION_CODE_WRONG(2026,"邮箱验证码错误","请输入正确的邮箱验证码"),
     EMAIL_NOT_SIGNED_UP(2027,"该邮箱尚未注册账号","请输入正确的邮箱或先用此邮箱注册账号"),
     PASSWORD_NOT_QUANTIFIED(2028,"密码强度不够","请输入符合要求的密码"),
+    UPDATE_FAILED(2029,"更新出现竞态条件","请稍后重试"),
     ;
+
 
     /**
      * 错误码
