@@ -1,8 +1,8 @@
 package com.phoenix.paper.service;
 
-import com.phoenix.paper.common.Page;
-import com.phoenix.paper.dto.BriefCollection;
-import com.phoenix.paper.dto.BriefPaper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.phoenix.paper.entity.Collection;
 
 public interface CollectionService {
 
@@ -12,5 +12,5 @@ public interface CollectionService {
 
     Long getCollectNumber(Long objectId, Integer type);
 
-    Page<BriefCollection> getCollectionList(Integer pageSize, Integer pageNum, Long UserId);
+    IPage<Collection> getCollectionList(Integer pageSize, Integer pageNum, Long UserId);
 }

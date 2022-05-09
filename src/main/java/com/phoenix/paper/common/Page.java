@@ -1,5 +1,6 @@
 package com.phoenix.paper.common;
 
+
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

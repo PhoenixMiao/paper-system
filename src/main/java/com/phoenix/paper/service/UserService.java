@@ -1,12 +1,11 @@
 package com.phoenix.paper.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.phoenix.paper.common.Page;
 import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.SessionData;
-import com.phoenix.paper.entity.User;
-import io.swagger.models.auth.In;
 
 public interface UserService {
     /**
@@ -17,7 +16,7 @@ public interface UserService {
      */
     LoginResponse login(String number, String password);
 
-    Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId);
+    Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId);
 
     void toAdmin(Long userId);
 
