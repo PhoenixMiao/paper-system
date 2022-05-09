@@ -21,16 +21,17 @@
 			<elasticsearch.version>6.8.23</elasticsearch.version>
 	</properties>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<!--通用mapper-->
+		<!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
 		<dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
-			<version>2.1.1</version>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>3.0.5</version>
 		</dependency>
 
 		<dependency>
@@ -38,6 +39,7 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -71,13 +73,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-
-		<!--通用mapper-->
-		<dependency>
-			<groupId>tk.mybatis</groupId>
-			<artifactId>mapper-spring-boot-starter</artifactId>
-			<version>2.1.5</version>
 		</dependency>
 
 		<!-- pagehelper -->
@@ -187,13 +182,6 @@
 			<version>3.0.6</version>
 		</dependency>
 
-<!--			&lt;!&ndash; https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter &ndash;&gt;-->
-<!--		<dependency>-->
-<!--				<groupId>com.baomidou</groupId>-->
-<!--				<artifactId>mybatis-plus-boot-starter</artifactId>-->
-<!--				<version>3.4.2</version>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>org.apache.rocketmq</groupId>
 			<artifactId>rocketmq-spring-boot-starter</artifactId>
@@ -213,11 +201,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<version>2.1.6.RELEASE</version>
-		</dependency>
+
 		<!--引入邮件 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -260,16 +244,15 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-annotation</artifactId>
-            <version>3.4.2</version>
+            <version>3.0.5</version>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-extension</artifactId>
-            <version>3.4.2</version>
+            <version>3.0.5</version>
         </dependency>
 
-
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>

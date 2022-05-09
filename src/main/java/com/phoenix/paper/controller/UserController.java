@@ -16,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Api("用户相关操作")
@@ -123,7 +122,8 @@ public class UserController {
     @ApiOperation(value = "更改用户信息")
     public Result updateUser(@NotNull @RequestBody UpdateUserRequest updateUserRequest){
         try{
-            return Result.success(userService.updateUser(sessionUtils.getUserId(), updateUserRequest));
+            userService.updateUser(sessionUtils.getUserId(), updateUserRequest);
+            return Result.success("更新成功");
         }catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
@@ -213,7 +213,7 @@ public class UserController {
         return Result.success(userService.findNumber(email));
     }
 
-    @PostMapping(value = "/password", produces = "application/json")
+    @PostMapping( "/password")
     @ApiOperation(value = "更新密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "number",value = "账号",required = true,paramType = "query"),
@@ -227,5 +227,18 @@ public class UserController {
             return Result.result(e.getCommonErrorCode());
         }
         return Result.success("更新成功");
+    }
+
+    @Auth
+    @PostMapping("/email")
+    @ApiOperation(value = "更改邮箱")
+    @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query")
+    public Result changeEmail(@NotNull @RequestParam("email")String email){
+        try{
+            userService.updateEmail(email,sessionUtils.getUserId());
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+        return Result.success("更改成功");
     }
 }

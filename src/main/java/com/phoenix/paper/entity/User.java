@@ -2,6 +2,7 @@ package com.phoenix.paper.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.ibatis.reflection.MetaObject;
-import org.springframework.data.annotation.Version;
+
 import org.springframework.stereotype.Component;
 
 import javax.persistence.GeneratedValue;
@@ -90,7 +91,4 @@ public class User {
 
     @ApiModelProperty("发布笔记总数")
     private int noteNum;
-
-    @ApiModelProperty("更新时间")
-    private String updateTime;
 }

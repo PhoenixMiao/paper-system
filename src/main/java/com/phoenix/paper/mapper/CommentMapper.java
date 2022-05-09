@@ -1,12 +1,11 @@
 package com.phoenix.paper.mapper;
 
-import com.phoenix.paper.MyMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.phoenix.paper.entity.Comment;
-import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
-public interface CommentMapper extends MyMapper<Comment> {
+public interface CommentMapper extends BaseMapper<Comment> {
     @Update("UPDATE comment SET delete_time = #{delete_time} WHERE use_id = #{user_id};")
     void deleteComment(@Param("delete_time")String deleteTime, @Param("user_id")Long userId);
 

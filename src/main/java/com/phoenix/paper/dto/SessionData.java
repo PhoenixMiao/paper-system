@@ -80,9 +80,6 @@ public class SessionData implements Serializable {
     @ApiModelProperty("发布笔记总数")
     private int noteNum;
 
-    @ApiModelProperty("更新时间")
-    private String updateTime;
-
 
     public SessionData(User user){
         AssertUtil.notNull(user, CommonErrorCode.USER_NOT_EXIST);
@@ -103,6 +100,5 @@ public class SessionData implements Serializable {
         this.paperWeekNum = user.getPaperWeekNum();
         this.noteNum = user.getNoteNum();
         this.paperNum = user.getPaperNum();
-        this.updateTime = user.getUpdateTime();
     }
 }

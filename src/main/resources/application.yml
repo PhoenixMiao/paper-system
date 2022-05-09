@@ -49,7 +49,7 @@ spring:
     password: Lishuai0923
     timeout: 1000
 
-mybatis:
+mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
 
