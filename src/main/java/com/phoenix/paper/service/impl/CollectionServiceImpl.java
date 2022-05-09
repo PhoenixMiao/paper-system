@@ -1,9 +1,12 @@
 package com.phoenix.paper.service.impl;
 
+import cn.hutool.core.util.PageUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.phoenix.paper.common.Page;
-import com.phoenix.paper.dto.BriefCollection;
+import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.mapper.CollectionMapper;
 import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.PaperMapper;
@@ -92,8 +95,11 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     @Override
-    public Page<BriefCollection> getCollectionList(Integer pageSize, Integer pageNum, Long userId){
-        PageHelper.startPage(pageNum,pageSize,"collect_time desc");
-        return new Page<>(new PageInfo<>(collectionMapper.getCollectionList(userId)));
+    public IPage<Collection> getCollectionList(Integer pageSize, Integer pageNum, Long userId){
+        QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
+        collectionQueryWrapper.eq("user_id",userId).isNull("delete_time");
+        collectionQueryWrapper.select("id","object_id","object_type","user_id","collect_time");
+        collectionQueryWrapper.orderByAsc("collect_time");
+        return collectionMapper.selectPage(new Page<Collection>(pageNum,pageSize),collectionQueryWrapper);
     }
 }

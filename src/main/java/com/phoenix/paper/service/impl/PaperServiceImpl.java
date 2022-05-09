@@ -8,25 +8,18 @@ import com.phoenix.paper.common.CommonConstants;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Page;
-import com.phoenix.paper.controller.request.AddPaperRequest;
 import com.phoenix.paper.controller.response.GetUserPaperListResponse;
 import com.phoenix.paper.dto.BriefPaper;
-import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.entity.Paper;
 import com.phoenix.paper.entity.User;
 import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.PaperService;
-import com.phoenix.paper.util.TimeUtil;
-import org.apache.ibatis.annotations.Param;
-import org.elasticsearch.common.recycler.Recycler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.index.PathBasedRedisIndexDefinition;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Time;
 
 @Service
 public class PaperServiceImpl implements PaperService {

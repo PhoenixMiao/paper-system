@@ -39,8 +39,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
             }
             synchronized (this) {
                 QueryWrapper<ResearchDirection> researchDirectionQueryWrapper1 = new QueryWrapper<>();
-                researchDirectionQueryWrapper1.eq("root_id",fatherResearchDirection.getRootId());
-                researchDirectionQueryWrapper1.eq("father_id",fatherResearchDirection.getFatherId());
+                researchDirectionQueryWrapper1.eq("root_id",fatherResearchDirection.getRootId()).eq("father_id",fatherResearchDirection.getFatherId());
                 int nodeNum = researchDirectionMapper.selectCount(researchDirectionQueryWrapper1);
                 researchDirection = ResearchDirection.builder()
                         .fatherId(fatherResearchDirection.getId())
