@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CommentServiceImpl implements CommentService {
+
     @Autowired
     private CommentMapper commentMapper;
 
@@ -55,4 +56,14 @@ public class CommentServiceImpl implements CommentService {
         return new Page<>(new PageInfo<>());
     }
 
+    @Override
+    public Page<Comment> getCommentList(Long objectId, Integer objectType,Integer pageSize,Integer pageNum){
+        if(objectType==0 || objectType==1){
+            PageHelper.startPage(pageNum,pageSize,"create_time desc");
+            return new Page<>(new PageInfo<>(commentMapper.getCommentList(objectId,objectType)));
+        }
+//        else if(objectType==2){
+//        }
+        return new Page<>(new PageInfo<>());
+    }
 }

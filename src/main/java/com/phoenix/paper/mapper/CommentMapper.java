@@ -1,6 +1,7 @@
 package com.phoenix.paper.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.phoenix.paper.dto.BriefComment;
 import com.phoenix.paper.entity.Comment;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

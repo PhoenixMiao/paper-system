@@ -32,6 +32,7 @@ public enum CommonErrorCode {
     PAPER_NOT_EXIST(2018,"该论文不存在","只能在目前存在的论文上添加笔记"),
     RESEARCH_DIRECTION_NOT_EXIST(2019,"该研究方向不存在","请输入存在的研究方向id"),
     NOTE_NOT_EXIST(2020,"该笔记不存在","请输入目前系统中存在的笔记"),
+    COMMENT_NOT_EXIST(2020,"该评论不存在","请输入目前系统中存在的评论"),
     FILE_NOT_EXIST(2021,"该文件不存在","请输入有效的文件名"),
     VERIFICATION_CODE_HAS_EXPIRED(2022,"验证码已过期","请重新申请发送验证码"),
     HAS_NOT_SENT_EMAIL(2023,"未发送验证码","请先用此邮箱申请验证码"),
