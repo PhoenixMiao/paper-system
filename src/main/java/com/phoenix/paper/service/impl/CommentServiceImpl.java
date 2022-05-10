@@ -1,8 +1,11 @@
 package com.phoenix.paper.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
+import com.phoenix.paper.common.Page;
 import com.phoenix.paper.entity.Comment;
 import com.phoenix.paper.entity.User;
 import com.phoenix.paper.mapper.CommentMapper;
@@ -33,6 +36,23 @@ public class CommentServiceImpl implements CommentService {
             commentQueryWrapper.eq("object_id",commentId).eq("object_type",1);
             if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(),commentQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         }
+    }
+
+    @Override
+    public void addComment(Long objectId,Integer objectType,Long userId,String content){
+        Comment comment=Comment.builder().objectType(objectType).objectId(objectId).userId(userId).createTime(TimeUtil.getCurrentTimestamp()).contents(content).build();
+        commentMapper.insert(comment);
+    }
+
+    @Override
+    public Page<Comment> getCommentList(Long objectId, Integer objectType, Integer pageSize, Integer pageNum){
+        if(objectType==0 || objectType==1){
+            PageHelper.startPage(pageNum,pageSize,"create_time desc");
+            return new Page<>(new PageInfo<>(commentMapper.getCommentList(objectId,objectType)));
+        }
+//        else if(objectType==2){
+//        }
+        return new Page<>(new PageInfo<>());
     }
 
 }
