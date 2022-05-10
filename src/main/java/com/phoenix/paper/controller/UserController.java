@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @Admin
-    @GetMapping("/list")
+    @GetMapping(value = "/list",produces = "application/json")
     @ApiOperation(value = "获取用户列表",response = BriefUser.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @Auth
-    @GetMapping("/info")
+    @GetMapping(value = "/info",produces = "application/json")
     @ApiOperation(value = "获取我的信息")
     public Result getMyInformation(){
 
@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @Admin
-    @GetMapping("/userInfo")
+    @GetMapping(value = "/userInfo",produces = "application/json")
     @ApiOperation(value = "获取用户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
@@ -92,7 +92,7 @@ public class UserController {
 
 
     @Admin
-    @GetMapping("/admin")
+    @GetMapping(value = "/admin",produces = "application/json")
     @ApiOperation(value = "超管将普通用户改为管理员",response = Long.class)
     @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
     public Result toAdmin(@NotNull@RequestParam("userId")Long userId){
@@ -105,7 +105,7 @@ public class UserController {
     }
 
     @Auth
-    @GetMapping("")
+    @GetMapping(value = "",produces = "application/json")
     @ApiOperation(value = "获取个人信息")
     public Result getUserSessionData(){
         try{
@@ -118,7 +118,7 @@ public class UserController {
 
 
     @Auth
-    @PostMapping("/update")
+    @PostMapping(value = "/update",produces = "application/json")
     @ApiOperation(value = "更改用户信息")
     public Result updateUser(@NotNull @RequestBody UpdateUserRequest updateUserRequest){
         try{
@@ -130,7 +130,7 @@ public class UserController {
     }
 
     @Auth
-    @PostMapping("/delete")
+    @PostMapping(value = "/delete",produces = "application/json")
     @ApiOperation(value = "注销用户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
@@ -146,7 +146,7 @@ public class UserController {
 
 
     @Admin
-    @GetMapping("/authorize")
+    @GetMapping(value = "/authorize",produces = "application/json")
     @ApiOperation(value = "设置用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),
@@ -160,7 +160,7 @@ public class UserController {
         return Result.success("设置成功");
     }
 
-    @GetMapping("/send")
+    @GetMapping(value = "/send",produces = "application/json")
     @ApiOperation(value = "发送验证邮箱")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "emailOrNumber",value = "注册和找回账号输入邮箱，找回密码输入账号",required = true,paramType = "query"),
@@ -190,7 +190,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/check")
+    @GetMapping(value = "/check",produces = "application/json")
     @ApiOperation(value = "校验验证码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query"),
@@ -206,14 +206,14 @@ public class UserController {
         return Result.success("验证码正确");
     }
 
-    @GetMapping("/number")
+    @GetMapping(value = "/number",produces = "application/json")
     @ApiOperation(value = "找回账号")
     @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query")
     public Result findNumber(@NotNull @RequestParam("email")String email){
         return Result.success(userService.findNumber(email));
     }
 
-    @PostMapping( "/password")
+    @PostMapping( value = "/password",produces = "application/json")
     @ApiOperation(value = "更新密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "number",value = "账号",required = true,paramType = "query"),
@@ -230,7 +230,7 @@ public class UserController {
     }
 
     @Auth
-    @PostMapping("/email")
+    @PostMapping(value = "/email",produces = "application/json")
     @ApiOperation(value = "更改邮箱")
     @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query")
     public Result changeEmail(@NotNull @RequestParam("email")String email){

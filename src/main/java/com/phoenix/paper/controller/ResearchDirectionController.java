@@ -29,7 +29,7 @@ public class ResearchDirectionController {
     private SessionUtils sessionUtils;
 
     @Admin
-    @PostMapping("/add")
+    @PostMapping(value = "/add",produces = "application/json")
     @ApiOperation(value = "添加研究方向")
     public Result updateUser(@NotNull @RequestBody AddResearchDirectionRequest addResearchDirectionRequest){
         Long userId=sessionUtils.getUserId();
@@ -40,7 +40,7 @@ public class ResearchDirectionController {
         }
     }
 
-    @GetMapping("/son")
+    @GetMapping(value = "/son",produces = "application/json")
     @ApiOperation(value = "根据节点id获取该节点的子节点列表(若为0则获取根节点列表)")
     @ApiImplicitParam(name = "id",value = "节点在表中的行id",required = true,paramType = "query",dataType = "Long")
     public Result getSons(@NotNull @RequestParam("id") Long id){
@@ -51,7 +51,7 @@ public class ResearchDirectionController {
         }
     }
 
-    @GetMapping("/allson")
+    @GetMapping(value = "/allson",produces = "application/json")
     @ApiOperation(value = "根据节点id获取该节点的所有小辈节点（包括自己、儿子、孙子，一直到叶子")
     @ApiImplicitParam(name = "id",value = "节点在表中的行id",paramType = "query",required = true,dataType = "Long")
     public Result getAllSons(@NotNull @RequestParam("id") Long id){
@@ -63,7 +63,7 @@ public class ResearchDirectionController {
     }
 
     @Admin
-    @PostMapping("delete")
+    @PostMapping(value = "delete",produces = "application/json")
     @ApiOperation(value = "删除某一研究方向")
     @ApiImplicitParam(name = "id",value = "节点再表中的行id",paramType = "query",required = true,dataType = "Long")
     public Result deleteNode(@NotNull @RequestParam("id")Long id){
@@ -76,7 +76,7 @@ public class ResearchDirectionController {
     }
 
     @Admin
-    @GetMapping("/rename")
+    @GetMapping(value = "/rename",produces = "application/json")
     @ApiOperation(value = "重命名某一研究方向")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "研究方向的节点id",required = true,paramType = "query",dataType = "Long"),
