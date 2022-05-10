@@ -32,7 +32,7 @@ public class CollectionController {
     private SessionUtils sessionUtils;
 
     @Auth
-    @GetMapping("")
+    @GetMapping(value = "",produces = "application/json")
     @ApiOperation(value = "收藏", response = String.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "对象id",required = true,paramType = "query",dataType = "Long"),
@@ -43,7 +43,7 @@ public class CollectionController {
 
 
     @Auth
-    @GetMapping("/cancel")
+    @GetMapping(value = "/cancel",produces = "application/json")
     @ApiOperation(value = "取消收藏", response = String.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "对象id",required = true,paramType = "query",dataType = "Long"),

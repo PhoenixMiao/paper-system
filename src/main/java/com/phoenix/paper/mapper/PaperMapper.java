@@ -36,4 +36,5 @@ public interface PaperMapper extends BaseMapper<Paper> {
 
     @Update("UPDATE paper SET delete_time = #{delete_time} WHERE uploader_id = #{uploader_id};")
     void deletePaperByUploaderId(@Param("delete_time")String deleteTime,@Param("uploader_id")Long uploader_id);
+
 }

@@ -33,7 +33,7 @@ public class LikeController {
     private SessionUtils sessionUtils;
 
     @Auth
-    @GetMapping("")
+    @GetMapping(value = "",produces = "application/json")
     @ApiOperation(value = "点赞", response = String.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "对象id",required = true,paramType = "query",dataType = "Long"),
@@ -44,7 +44,7 @@ public class LikeController {
 
 
     @Auth
-    @GetMapping("/cancel")
+    @GetMapping(value = "/cancel",produces = "application/json")
     @ApiOperation(value = "取消点赞", response = String.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "对象id",required = true,paramType = "query",dataType = "Long"),
