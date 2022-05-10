@@ -16,8 +16,9 @@ public interface CommentMapper extends BaseMapper<Comment> {
     @Update("UPDATE comment SET delete_time = #{delete_time} WHERE object_id = #{object_id} AND object_type = #{object_type};")
     void cancelComment(@Param("delete_time")String deleteTime, @Param("objectId")Long objectId, @Param("object_type")Integer object_type);
 
-    @Select("SELECT * FROM comment where object_id=#{objectId} AND object_type=#{objectType} WHERE delete_time IS NULL")
+    @Select("SELECT * FROM comment WHERE object_id=#{objectId} AND object_type=#{objectType} AND delete_time IS NULL")
     List<Comment> getCommentList( @Param("objectId")Long objectId, @Param("object_type")Integer object_type);
 
-    List<Comment> getMultilevelCommentList( @Param("commentId")String commentId);
+    @Select("SELECT * FROM comment WHERE object_id=#{objectId} AND object_type=#{objectType} AND delete_time IS NULL AND FIND_IN_SET(ID,{idString})")
+    List<Comment> getMultilevelCommentList( @Param("idString")String idString);
 }

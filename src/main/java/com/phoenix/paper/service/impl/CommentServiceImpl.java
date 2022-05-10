@@ -42,10 +42,8 @@ public class CommentServiceImpl implements CommentService {
             PageHelper.startPage(pageNum,pageSize,"create_time desc");
             return new Page<>(new PageInfo<>(commentMapper.getCommentList(objectId,objectType)));
         }
-        else if(objectType==2){
-            PageHelper.startPage(pageNum,pageSize,"create_time desc");
-            return new Page<>(new PageInfo<>(commentMapper.getMultilevelCommentList(objectId.toString())));
-        }
+//        else if(objectType==2){
+//        }
         return new Page<>(new PageInfo<>());
     }
 }
