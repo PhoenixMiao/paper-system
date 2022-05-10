@@ -50,6 +50,10 @@ spring:
     timeout: 1000
 
 mybatis-plus:
+  global-config:
+    db-config:
+      #字段策略，默认非NULL判断
+      field-strategy: not_null
   configuration:
     map-underscore-to-camel-case: true
 

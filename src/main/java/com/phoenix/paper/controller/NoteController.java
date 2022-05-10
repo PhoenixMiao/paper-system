@@ -10,6 +10,7 @@ import com.phoenix.paper.controller.request.SearchNoteRequest;
 import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.SessionUtils;
+import com.phoenix.paper.util.TimeUtil;
 import io.netty.handler.codec.CodecException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -107,8 +108,7 @@ public class NoteController {
 
     @GetMapping("")
     @ApiOperation(value = "笔记详情")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long"),})
+    @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
     public Result getNoteDetails(@NotNull @RequestParam("noteId")Long noteId){
         try{
             return Result.success(noteService.getNoteDetails(noteId));
@@ -120,8 +120,7 @@ public class NoteController {
     @Auth
     @PostMapping(value = "/update",produces = "application/json")
     @ApiOperation(value = "更新笔记")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long"),})
+    @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
     public Result updateNote(MultipartFile file,@NotNull @RequestParam("noteId")Long noteId){
         try{
             noteService.updateNote(file,noteId);
@@ -129,5 +128,18 @@ public class NoteController {
             return Result.result(e.getCommonErrorCode());
         }
         return Result.success("更新成功");
+    }
+
+    @Auth
+    @PostMapping(value = "/delete",produces = "application/json")
+    @ApiOperation(value = "删除笔记")
+    @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
+    public Result deleteNote(@NotNull @RequestParam("noteId")Long noteId){
+        try{
+            noteService.deleteNote(noteId,sessionUtils.getUserId());
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+        return Result.success("删除成功");
     }
 }

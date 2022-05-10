@@ -17,4 +17,6 @@ public interface PaperService {
     Long addPaper(Long userId);
 
     String uploadPaper(MultipartFile file, Long paperId);
+
+    void deletePaper(Long paperId,Long userId);
 }

@@ -41,6 +41,7 @@ public enum CommonErrorCode {
     EMAIL_NOT_SIGNED_UP(2027,"该邮箱尚未注册账号","请输入正确的邮箱或先用此邮箱注册账号"),
     PASSWORD_NOT_QUANTIFIED(2028,"密码强度不够","请输入符合要求的密码"),
     UPDATE_FAILED(2029,"更新出现竞态条件","请稍后重试"),
+    CAN_NOT_DELETE(2030,"您没有删除该实体的权限","请选择您能操作的实体进行删除"),
     ;
 
 

@@ -14,6 +14,7 @@ import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.UserService;
 import com.phoenix.paper.util.*;
 import com.phoenix.paper.util.SessionUtils;
+import org.elasticsearch.common.recycler.Recycler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -73,30 +74,34 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private MessageUtil messageUtil;
 
+    @Autowired
+    private PaperDirectionMapper paperDirectionMapper;
+
     @Override
-    public LoginResponse login(String number, String password) throws CommonException{
+    public LoginResponse login(String number, String password) throws CommonException {
 
         String sessionId = sessionUtils.generateSessionId();
 
         User user = userMapper.getUserByNum(number);
 
-        AssertUtil.notNull(user,CommonErrorCode.USER_NOT_EXIST);
+        AssertUtil.notNull(user, CommonErrorCode.USER_NOT_EXIST);
 
-        AssertUtil.isNull(user.getDeleteTime(),CommonErrorCode.USER_NOT_EXIST);
+        AssertUtil.isNull(user.getDeleteTime(), CommonErrorCode.USER_NOT_EXIST);
 
-        AssertUtil.isTrue(passwordUtil.convert(password).equals(user.getPassword()),CommonErrorCode.PASSWORD_NOT_RIGHT);
+        AssertUtil.isTrue(passwordUtil.convert(password).equals(user.getPassword()), CommonErrorCode.PASSWORD_NOT_RIGHT);
 
         sessionUtils.setSessionId(sessionId);
 
-        redisUtils.set(sessionId,new SessionData(user),1440);
+        redisUtils.set(sessionId, new SessionData(user), 1440);
 
-        return new LoginResponse(new SessionData(user),sessionId);
+        return new LoginResponse(new SessionData(user), sessionId);
     }
 
     @Override
-    public Page<BriefUser> getBriefUserList(int pageSize, int pageNum,Long userId) {
-        if(userMapper.selectById(userId).getType()!=1) throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        PageHelper.startPage(pageNum,pageSize,"create_time desc");
+    public Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId) {
+        if (userMapper.selectById(userId).getType() != 1)
+            throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
+        PageHelper.startPage(pageNum, pageSize, "create_time desc");
         //List<BriefUser> briefUsers = briefUserList.stream().parallel().filter(user -> user.getDeleteTime() == null).collect(Collectors.toList());
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
@@ -104,55 +109,56 @@ public class UserServiceImpl implements UserService {
     @Override
     public void toAdmin(Long userId) {
         User user = userMapper.selectById(userId);
-        if(user == null|| user.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        if(user.getType()==1) throw new CommonException(CommonErrorCode.USER_IS_ADMIN);
-        synchronized (this) {
-            userMapper.toAdmin(1, userId);
-        }
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        if (user.getType() == 1) throw new CommonException(CommonErrorCode.USER_IS_ADMIN);
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("id",userId);
+        if(userMapper.update(User.builder().type(1).build(), userQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
     }
 
     @Override
-    public SessionData getUserById(Long userId) throws CommonException{
+    public SessionData getUserById(Long userId) throws CommonException {
         User user = userMapper.selectById(userId);
-        if(user == null|| user.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         return new SessionData(user);
     }
 
     @Override
-    public void updateEmail(String email,Long userId) throws CommonException{
-        User user=userMapper.selectById(userId);
+    public void updateEmail(String email, Long userId) throws CommonException {
+        User user = userMapper.selectById(userId);
         user.setEmail(email);
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("email",email);
-        if(userMapper.selectList(userQueryWrapper).size()!=0) throw new CommonException(CommonErrorCode.EMAIL_HAS_BEEN_SIGNED_UP);
+        userQueryWrapper.eq("email", email);
+        if (userMapper.selectList(userQueryWrapper).size() != 0)
+            throw new CommonException(CommonErrorCode.EMAIL_HAS_BEEN_SIGNED_UP);
         user.setEmail(email);
-        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
     @Override
-    public void updateUser(Long userId, UpdateUserRequest updateUserRequest) throws CommonException{
-        User user=userMapper.selectById(userId);
+    public void updateUser(Long userId, UpdateUserRequest updateUserRequest) throws CommonException {
+        User user = userMapper.selectById(userId);
 
-        if(updateUserRequest.getPortrait()!=null) user.setPortrait(updateUserRequest.getPortrait());
-        if(updateUserRequest.getGender()!=null) user.setGender(updateUserRequest.getGender()) ;
-        if(updateUserRequest.getGrade()!=null) user.setGrade(updateUserRequest.getGrade());
-        if(updateUserRequest.getSchool()!=null) user.setSchool(updateUserRequest.getSchool());
-        if(updateUserRequest.getNickname()!=null) user.setNickname(updateUserRequest.getNickname());
-        if(updateUserRequest.getMajor()!=null) user.setMajor(updateUserRequest.getMajor());
-        if(updateUserRequest.getTelephone()!=null) user.setTelephone(updateUserRequest.getTelephone());
-        if(updateUserRequest.getName()!=null) user.setName(updateUserRequest.getName());
+        if (updateUserRequest.getPortrait() != null) user.setPortrait(updateUserRequest.getPortrait());
+        if (updateUserRequest.getGender() != null) user.setGender(updateUserRequest.getGender());
+        if (updateUserRequest.getGrade() != null) user.setGrade(updateUserRequest.getGrade());
+        if (updateUserRequest.getSchool() != null) user.setSchool(updateUserRequest.getSchool());
+        if (updateUserRequest.getNickname() != null) user.setNickname(updateUserRequest.getNickname());
+        if (updateUserRequest.getMajor() != null) user.setMajor(updateUserRequest.getMajor());
+        if (updateUserRequest.getTelephone() != null) user.setTelephone(updateUserRequest.getTelephone());
+        if (updateUserRequest.getName() != null) user.setName(updateUserRequest.getName());
 
-        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
     @Override
-    public LoginResponse signUp(String email,String password)throws CommonException{
-        if(userMapper.selectByMap((Map<String, Object>) new HashMap<String,Object>().put("email",email)).size()!=0){
+    public LoginResponse signUp(String email, String password) throws CommonException {
+        if (userMapper.selectByMap((Map<String, Object>) new HashMap<String, Object>().put("email", email)).size() != 0) {
             throw new CommonException(CommonErrorCode.EMAIL_HAS_BEEN_SIGNED_UP);
         }
-        if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
+        if (!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
         String sessionId = sessionUtils.generateSessionId();
-        User user =  User.builder()
+        User user = User.builder()
                 .createTime(TimeUtil.getCurrentTimestamp())
                 .email(email)
                 .gender(0)
@@ -163,15 +169,15 @@ public class UserServiceImpl implements UserService {
                 .build();
         userMapper.insert(user);
         user.setAccountNum("ps" + String.format("%08d", user.getId()));
-        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
-        redisUtils.set(sessionId,new SessionData(user),1440);
-        return new LoginResponse(new SessionData(user),sessionId);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        redisUtils.set(sessionId, new SessionData(user), 1440);
+        return new LoginResponse(new SessionData(user), sessionId);
     }
 
     @Override
-    public String findNumber(String email){
-        List<User> userList = userMapper.selectByMap((Map<String, Object>) new HashMap<String,Object>().put("email",email));
-        if(userList.size()==0){
+    public String findNumber(String email) {
+        List<User> userList = userMapper.selectByMap((Map<String, Object>) new HashMap<String, Object>().put("email", email));
+        if (userList.size() == 0) {
             throw new CommonException(CommonErrorCode.EMAIL_NOT_SIGNED_UP);
         }
         User user = userList.get(0);
@@ -179,16 +185,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword(String accountNum,String password) throws CommonException{
+    public void updatePassword(String accountNum, String password) throws CommonException {
         User user = userMapper.selectById(Long.parseLong(accountNum.substring(2)));
-        if(user==null || user.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        if(!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        if (!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
         user.setPassword(passwordUtil.convert(password));
-        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
     @Override
-    public void checkCode(String email,String code) throws CommonException{
+    public void checkCode(String email, String code) throws CommonException {
         if (!redisUtils.hasKey(email)) throw new CommonException((CommonErrorCode.HAS_NOT_SENT_EMAIL));
         if (redisUtils.isExpire(email)) throw new CommonException(CommonErrorCode.VERIFICATION_CODE_HAS_EXPIRED);
         if (redisUtils.get(email) != code)
@@ -197,32 +203,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String sendEmail(String emailOrNumber,int flag){
-        Map<String,Object> map = new HashMap<>();
-        if(flag==0){
-            map.put("email",emailOrNumber);
-            if(userMapper.selectByMap(map).size()!=0){
+    public String sendEmail(String emailOrNumber, int flag) {
+        Map<String, Object> map = new HashMap<>();
+        if (flag == 0) {
+            map.put("email", emailOrNumber);
+            if (userMapper.selectByMap(map).size() != 0) {
                 throw new CommonException(CommonErrorCode.EMAIL_HAS_BEEN_SIGNED_UP);
             }
-        }else if(flag==1){
-            map.put("email",emailOrNumber);
-            if(userMapper.selectByMap(map).size()==0){
+        } else if (flag == 1) {
+            map.put("email", emailOrNumber);
+            if (userMapper.selectByMap(map).size() == 0) {
                 throw new CommonException(CommonErrorCode.EMAIL_NOT_SIGNED_UP);
             }
-        }else{
+        } else {
             QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-            userQueryWrapper.eq("account_num",emailOrNumber);
+            userQueryWrapper.eq("account_num", emailOrNumber);
             User user = userMapper.selectOne(userQueryWrapper);
-            if(user==null){
+            if (user == null) {
                 throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
             }
             emailOrNumber = user.getEmail();
         }
         //if(redisUtils.hasKey(email)) redisUtils.del(email);
         String verificationCode = RandomVerifyCodeUtil.getRandomVerifyCode();
-        redisUtils.set(emailOrNumber,verificationCode,5);
+        redisUtils.set(emailOrNumber, verificationCode, 5);
         try {
-            messageUtil.sendMail(sender,emailOrNumber,verificationCode,jms,flag);
+            messageUtil.sendMail(sender, emailOrNumber, verificationCode, jms, flag);
         } catch (Exception e) {
             throw new CommonException(CommonErrorCode.SEND_EMAIL_FAILED);
         }
@@ -230,67 +236,69 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long userId){
-        User user=userMapper.selectById(userId);
-        if(user==null || user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+    public void deleteUser(Long userId) throws CommonException{
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         String deleteTime = TimeUtil.getCurrentTimestamp();
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        user.setDeleteTime(TimeUtil.getCurrentTimestamp());
+        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
-        QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
-        QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-        QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
-
-        synchronized (this) {
-            user.setDeleteTime(TimeUtil.getCurrentTimestamp());
-            userMapper.updateById(user);
-            paperQueryWrapper.eq("uploader_id",userId);
-            List<Paper> papers = paperMapper.selectList(paperQueryWrapper);
-            for (Paper paper : papers) {
-                noteQueryWrapper.eq("paper_id",paper.getId());
-                List<Note> notes = noteMapper.selectList(noteQueryWrapper);
-                for (Note note : notes) {
-                    likesMapper.cancelLike(deleteTime, note.getId(), 1);
-                    collectionMapper.cancelCollect(deleteTime, note.getId(), 1);
-                    commentQueryWrapper.eq("object_id",note.getId());
-                    commentQueryWrapper.eq("object_type",0);
-                    List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
-                    for (Comment comment : comments) {
-                        commentMapper.cancelComment(deleteTime, comment.getObjectId(), 1);
-                    }
-                    commentMapper.cancelComment(deleteTime, note.getId(), 0);
-                }
-                noteMapper.deleteNoteByPaperId(deleteTime, paper.getId());
-                likesMapper.cancelLike(deleteTime, paper.getId(), 0);
-                collectionMapper.cancelCollect(deleteTime, paper.getId(), 0);
-                paperQuotationMapper.deletePaper(deleteTime, paper.getId(), paper.getId());
-            }
-            paperMapper.deletePaperByUploaderId(deleteTime, userId);
-            noteQueryWrapper = new QueryWrapper<>();
-            noteQueryWrapper.eq("author_id",userId);
+        paperQueryWrapper.eq("uploader_id", userId);
+        List<Paper> papers = paperMapper.selectList(paperQueryWrapper);
+        for (Paper paper : papers) {
+            QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
+            noteQueryWrapper.eq("paper_id",paper.getId());
             List<Note> notes = noteMapper.selectList(noteQueryWrapper);
             for (Note note : notes) {
-                likesMapper.cancelLike(deleteTime, note.getId(), 1);
-                collectionMapper.cancelCollect(deleteTime, note.getId(), 1);
-                commentQueryWrapper = new QueryWrapper<>();
-                commentQueryWrapper.eq("object_id",note.getId());
-                commentQueryWrapper.eq("object_type",0);
+                note.setDeleteTime(deleteTime);
+                if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
+                likesQueryWrapper.eq("object_id",note.getId()).eq("object_type",1);
+                if(likesMapper.update(Likes.builder().deleteTime(deleteTime).build(),likesQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
+                collectionQueryWrapper.eq("object_id",note.getId()).eq("object_type",1);
+                if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
+                commentQueryWrapper.eq("object_id",note.getId()).eq("object_type",0);
                 List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
                 for (Comment comment : comments) {
-                    commentMapper.cancelComment(deleteTime, comment.getObjectId(), 1);
+                    QueryWrapper<Comment> commentQueryWrapper1 = new QueryWrapper<>();
+                    commentQueryWrapper1.eq("object_id",comment.getId()).eq("object_type",1);
+                    if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
                 }
-                commentMapper.cancelComment(deleteTime, note.getId(), 0);
+                if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+
             }
-            noteMapper.deleteNoteByAuthorId(deleteTime, userId);
-            likesMapper.deleteLike(deleteTime, userId);
-            collectionMapper.deleteCollect(deleteTime, userId);
-            commentMapper.deleteComment(deleteTime, userId);
+            QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
+            likesQueryWrapper.eq("object_id",paper.getId()).eq("object_type",0);
+            if(likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
+            collectionQueryWrapper.eq("object_id",paper.getId()).eq("object_type",0);
+            if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            QueryWrapper<PaperQuotation> paperQuotationQueryWrapper = new QueryWrapper<>();
+            paperQuotationQueryWrapper.eq("paper_id",paper.getId());
+            if(paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
+            if(paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(),paperDirectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         }
+        QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
+        noteQueryWrapper.eq("author_id",userId);
+        if(noteMapper.update(Note.builder().deleteTime(deleteTime).build(), noteQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
+        likesQueryWrapper.eq("user_id",userId);
+        if(likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
+        collectionQueryWrapper.eq("user_id",userId);
+        if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
+        commentQueryWrapper.eq("user_id",userId);
+        if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
     }
 
     @Override
-    public void authorizeUser(Long userId,Integer type){
-        User user=userMapper.selectById(userId);
-        if (user==null || user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+    public void authorizeUser(Long userId, Integer type) {
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         user.setType(type);
         userMapper.updateById(user);
     }

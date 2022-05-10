@@ -19,4 +19,6 @@ public interface NoteService {
     Page<BriefNote> searchNote(SearchNoteRequest searchNoteRequest);
 
     Note getNoteDetails(Long noteId);
+
+    void deleteNote(Long noteId,Long userId);
 }

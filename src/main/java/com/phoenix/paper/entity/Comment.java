@@ -27,7 +27,7 @@ public class Comment {
     @ApiModelProperty("对象id")
     private Long objectId;
 
-    @ApiModelProperty("对象类型(0为笔记，1为评论,2为论文)")
+    @ApiModelProperty("对象类型(0为笔记，1为评论)")
     private Integer objectType;
 
     @ApiModelProperty("用户id")
