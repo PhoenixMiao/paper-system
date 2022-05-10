@@ -19,7 +19,7 @@ import javax.persistence.Id;
 public class PaperDirection {
     @Id
     @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
-    @ApiModelProperty("方向id")
+    @ApiModelProperty("论文方向id")
     private Long id;
 
     @ApiModelProperty("论文id")

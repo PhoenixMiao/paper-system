@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
 public interface PaperQuotationMapper extends BaseMapper<PaperQuotation> {
-    @Update("UPDATE paper_quotation SET delete_time = #{delete_time} WHERE quoter_id = #{quoter_id} OR quoted_id = #{quoted_id};")
-    void deletePaper(@Param("delete_time")String deleteTime,@Param("quoter_id")Long quoterId,@Param("quoted_id")Long quotedId);
+    @Update("UPDATE paper_quotation SET delete_time = #{delete_time} WHERE quoter_id = #{paper_id} OR quoted_id = #{paper_id};")
+    void deletePaper(@Param("delete_time")String deleteTime,@Param("paper_id")Long paperId);
 
 }

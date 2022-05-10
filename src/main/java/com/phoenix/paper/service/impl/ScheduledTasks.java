@@ -3,11 +3,10 @@ package com.phoenix.paper.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.phoenix.paper.common.CommonErrorCode;
+import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.dto.BriefUser;
-import com.phoenix.paper.entity.Collection;
-import com.phoenix.paper.entity.Likes;
-import com.phoenix.paper.entity.Paper;
-import com.phoenix.paper.entity.User;
+import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.util.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -60,17 +59,23 @@ public class ScheduledTasks {
                 likesMapper.insert(like);
             }
             else if(splitInfo[2].equals("0")){
-                likesMapper.cancelLike(time,Long.parseLong(splitInfo[1].substring(1)), (int) splitInfo[1].charAt(0) -48);
+                QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
+                likesQueryWrapper.eq("object_id",Long.parseLong(splitInfo[1].substring(1))).eq("object_type",(int) splitInfo[1].charAt(0) -48);
+                likesMapper.update(Likes.builder().deleteTime(time).build(),likesQueryWrapper);
             }
         }
         for (Map.Entry<Object, Object> entry : likeCount.entrySet()){
             String object=(String) entry.getKey();
             Long likeNumber=(Long) entry.getValue();
             if(object.charAt(0)=='1'){
-                paperMapper.setPaperLikes(Long.valueOf(object.substring(2)),likeNumber);
+                QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
+                paperQueryWrapper.eq("like_number",likeNumber);
+                paperMapper.update(Paper.builder().id(Long.valueOf(object.substring(2))).build(),paperQueryWrapper);
             }
             else if(object.charAt(0)=='0'){
-                noteMapper.setNoteLikes(Long.valueOf(object.substring(2)),likeNumber);
+                QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
+                noteQueryWrapper.eq("like_number",likeNumber);
+                if(noteMapper.update(Note.builder().id(Long.valueOf(object.substring(2))).build(),noteQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
             }
         }
         try {
@@ -100,17 +105,24 @@ public class ScheduledTasks {
                 collectionMapper.insert(collection);
             }
             else if(splitInfo[2].equals("0")){
-                collectionMapper.cancelCollect(time,Long.parseLong(splitInfo[1].substring(1)), (int) splitInfo[1].charAt(0) -48);
+                QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
+                collectionQueryWrapper.eq("object_id",Long.parseLong(splitInfo[1].substring(1))).eq("object_type", (int) splitInfo[1].charAt(0) -48);
+                if(collectionMapper.update(Collection.builder().deleteTime(time).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
             }
         }
         for (Map.Entry<Object, Object> entry : collectCount.entrySet()){
             String object=(String) entry.getKey();
             Long collectNumber=(Long) entry.getValue();
             if(object.charAt(0)=='1'){
-                paperMapper.setPaperCollects(Long.valueOf(object.substring(2)),collectNumber);
+                QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
+                paperQueryWrapper.eq("collect_number",collectNumber);
+                paperMapper.update(Paper.builder().id(Long.valueOf(object.substring(2))).build(),paperQueryWrapper);
+
             }
-            else if(object.charAt(0)=='0'){
-                noteMapper.setNoteCollects(Long.valueOf(object.substring(2)),collectNumber);
+            else if(object.charAt(0)=='0') {
+                QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
+                noteQueryWrapper.eq("collect_number", collectNumber);
+                noteMapper.update(Note.builder().id(Long.valueOf(object.substring(2))).build(), noteQueryWrapper);
             }
         }
         try {
