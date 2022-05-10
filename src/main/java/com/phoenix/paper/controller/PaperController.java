@@ -39,7 +39,7 @@ public class PaperController {
     @Autowired
     private SessionUtils sessionUtils;
 
-    @GetMapping("")
+    @GetMapping(value = "",produces = "application/json")
     @ApiOperation(value = "论文详情")
     @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
     public Result getPaperById( @RequestParam("paperId")Long paperId){
@@ -51,7 +51,7 @@ public class PaperController {
 
     }
 
-    @GetMapping("/list")
+    @GetMapping(value = "/list",produces = "application/json")
     @ApiOperation(value = "论文列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
@@ -63,7 +63,7 @@ public class PaperController {
     }
 
     @Auth
-    @PostMapping("/add")
+    @PostMapping(value = "/add",produces = "application/json")
     public Result addPPaper() {
         try {
             return Result.success(paperService.addPaper(sessionUtils.getUserId()));
@@ -73,7 +73,7 @@ public class PaperController {
     }
 
     @Auth
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload",produces = "application/json")
     @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
     public Result uploadNote(MultipartFile file, @NotNull @RequestParam("paperId")Long paperId){
         try{
@@ -83,7 +83,7 @@ public class PaperController {
         }
     }
 
-    @GetMapping("/download/{flag}")
+    @GetMapping(value = "/download/{flag}",produces = "application/json")
     public Result downloadPpaer(@PathVariable String flag, HttpServletResponse response){
         OutputStream os;
         String basePath = System.getProperty("user.dir") + "/src/main/resources/files";

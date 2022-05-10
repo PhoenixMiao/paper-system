@@ -42,7 +42,7 @@ public class NoteController {
     private SessionUtils sessionUtils;
 
     @Auth
-    @PostMapping("/add")
+    @PostMapping(value = "/add",produces = "application/json")
     @ApiOperation(value = "增加笔记空壳及相关信息")
     @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
     public Result addNote(@NotNull @RequestParam("paperId")Long paperId){
@@ -54,7 +54,7 @@ public class NoteController {
     }
 
     @Auth
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload",produces = "application/json")
     @ApiOperation(value = "上传笔记附件（请先使用add接口增加笔记相关信息，并且add和upload之间不要有其他接口调用（对单个用户来说））")
     @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
     public Result uploadNote(MultipartFile file,@NotNull @RequestParam("noteId")Long noteId){
@@ -65,7 +65,7 @@ public class NoteController {
         }
     }
 
-    @GetMapping("/download/{flag}")
+    @GetMapping(value = "/download/{flag}",produces = "application/json")
     @ApiOperation(value = "下载笔记附件（pdf或markdown）,整个链接可以通过note_link获得或者upload接口曾经给过你")
     public Result downloadNote(@PathVariable String flag, HttpServletResponse response){
         OutputStream os;
@@ -89,7 +89,7 @@ public class NoteController {
         return Result.success("下载成功");
     }
 
-    @GetMapping("/list")
+    @GetMapping(value = "/list",produces = "application/json")
     @ApiOperation(value = "笔记列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
@@ -100,13 +100,13 @@ public class NoteController {
         return Result.success(noteService.getNoteList(pageSize,pageNum,orderBy));
     }
 
-    @GetMapping("/search")
+    @GetMapping(value = "/search",produces = "application/json")
     @ApiOperation(value = "搜索笔记")
     public Result searchNote(@NotNull @RequestBody SearchNoteRequest searchNoteRequest){
         return Result.success(noteService.searchNote(searchNoteRequest));
     }
 
-    @GetMapping("")
+    @GetMapping(value = "",produces = "application/json")
     @ApiOperation(value = "笔记详情")
     @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
     public Result getNoteDetails(@NotNull @RequestParam("noteId")Long noteId){

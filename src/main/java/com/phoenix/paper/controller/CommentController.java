@@ -32,7 +32,7 @@ public class CommentController {
     private SessionUtils sessionUtils;
 
     @Auth
-    @PostMapping("/delete")
+    @PostMapping(value = "/delete",produces = "application/json")
     @ApiOperation(value = "删除评论")
     @ApiImplicitParam(name = "commentId",value = "评论id",required = true,paramType = "query",dataType = "Long")
     public Result deleteUser(@NotNull @RequestParam("commentId")Long commentId){
