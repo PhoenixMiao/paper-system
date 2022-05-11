@@ -7,9 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,20 +26,17 @@ public class AddPaperRequest {
     private String publishConference;
 
     @ApiModelProperty("论文发布日期（真实）")
-    private String paperDate;
+    private String publishDate;
 
     @ApiModelProperty("摘要")
     private String summary;
 
-    @ApiModelProperty("论文类型")
+    @ApiModelProperty("论文类型(0:证明型,1:综述型,2:实验型,3:工具型,4:数据集型)")
     private Integer paperType;
 
-    @ApiModelProperty("文献链接")
+    @ApiModelProperty("文献链接(一个网址、指向其他网站中论文的所在（如知网）)")
     private String link;
 
-    @ApiModelProperty("上传者id")
-    private Long uploaderId;
-
-    @ApiModelProperty("附加文件")
-    private String fileLink;
+    @ApiModelProperty("研究方向id列表")
+    private List<Long> researchDirectionList;
 }

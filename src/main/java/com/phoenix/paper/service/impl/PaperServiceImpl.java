@@ -5,12 +5,15 @@ import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.phoenix.paper.common.*;
+import com.phoenix.paper.common.CommonConstants;
+import com.phoenix.paper.common.CommonErrorCode;
+import com.phoenix.paper.common.CommonException;
+import com.phoenix.paper.common.Page;
+import com.phoenix.paper.controller.request.AddPaperRequest;
 import com.phoenix.paper.controller.response.GetUserPaperListResponse;
 import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
-import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.service.PaperService;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -72,13 +76,26 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public Long addPaper(Long userId) throws CommonException{
-        Paper paper=Paper.builder().uploaderId(userId).build();
+    public Long addPaper(Long userId, AddPaperRequest addPaperRequest) throws CommonException {
+        Paper paper = Paper.builder()
+                .uploaderId(userId)
+                .paperType(addPaperRequest.getPaperType())
+                .author(addPaperRequest.getAuthor())
+                .collectNumber(0)
+                .likeNumber(0)
+                .publishConference(addPaperRequest.getPublishConference())
+                .publishDate(TimeUtil.getCurrentTimestamp())
+                .link(addPaperRequest.getLink())
+                .summary(addPaperRequest.getSummary())
+                .build();
         paperMapper.insert(paper);
         User user = userMapper.selectById(userId);
-        user.setPaperWeekNum(user.getPaperWeekNum()+1);
-        user.setPaperNum(user.getPaperWeekNum()+1);
-        if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        user.setPaperWeekNum(user.getPaperWeekNum() + 1);
+        user.setPaperNum(user.getPaperWeekNum() + 1);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        for (Long directionId : addPaperRequest.getResearchDirectionList()) {
+            paperDirectionMapper.insert(PaperDirection.builder().paperId(paper.getId()).directionId(directionId).createTime(TimeUtil.getCurrentTimestamp()).build());
+        }
         return paper.getId();
     }
 
@@ -96,6 +113,7 @@ public class PaperServiceImpl implements PaperService {
         }
         String link = CommonConstants.DOWNLOAD_PATH + flag;
         paper.setFileLink(link);
+        paper.setUploadTime(TimeUtil.getCurrentTimestamp());
         if(paperMapper.updateById(paper)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         return link;
     }
@@ -131,14 +149,44 @@ public class PaperServiceImpl implements PaperService {
         }
         QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
         likesQueryWrapper.eq("object_id",paper.getId()).eq("object_type",0);
-        if(likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        if (likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper) == 0)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
-        collectionQueryWrapper.eq("object_id",paper.getId()).eq("object_type",0);
-        if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        collectionQueryWrapper.eq("object_id", paper.getId()).eq("object_type", 0);
+        if (collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper) == 0)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         QueryWrapper<PaperQuotation> paperQuotationQueryWrapper = new QueryWrapper<>();
-        paperQuotationQueryWrapper.eq("paper_id",paper.getId());
-        if(paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        paperQuotationQueryWrapper.eq("paper_id", paper.getId());
+        if (paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper) == 0)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
-        if(paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(),paperDirectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        if (paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(), paperDirectionQueryWrapper) == 0)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+    }
+
+    @Override
+    public Page<BriefPaper> findPaperByTitle(Integer pageNum, Integer pageSize, String title) {
+        QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
+        paperQueryWrapper.like("title", title);
+        paperQueryWrapper.select("title", "id", "publish_time", "summary", "file_link");
+        PageHelper.startPage(pageNum, pageSize);
+        List<Paper> papers = paperMapper.selectList(paperQueryWrapper);
+        List<BriefPaper> briefPaperList = new ArrayList<>();
+        for (Paper paper : papers)
+            briefPaperList.add(BriefPaper.builder()
+                    .fileLink(paper.getFileLink())
+                    .id(paper.getId())
+                    .title(paper.getTitle())
+                    .summary(paper.getSummary())
+                    .publishDate(paper.getPublishDate())
+                    .build());
+        return new Page<>(new PageInfo<>(briefPaperList));
+    }
+
+    @Override
+    public Long addPaperQuotation(Long quoterId, Long quotedId) {
+        PaperQuotation paperQuotation = PaperQuotation.builder().quoterId(quoterId).quotedId(quotedId).build();
+        paperQuotationMapper.insert(paperQuotation);
+        return paperQuotation.getId();
     }
 }

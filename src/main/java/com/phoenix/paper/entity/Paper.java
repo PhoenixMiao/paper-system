@@ -34,11 +34,8 @@ public class Paper {
     @ApiModelProperty("发布会议")
     private String publishConference;
 
-    @ApiModelProperty("发布日期（平台上用户的上传时间）")
+    @ApiModelProperty("发布日期（真实）")
     private String publishDate;
-
-    @ApiModelProperty("论文发布日期（真实）")
-    private String paperDate;
 
     @ApiModelProperty("摘要")
     private String summary;
