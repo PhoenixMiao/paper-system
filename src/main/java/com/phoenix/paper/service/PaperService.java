@@ -1,6 +1,7 @@
 package com.phoenix.paper.service;
 
 import com.phoenix.paper.common.Page;
+import com.phoenix.paper.controller.request.AddPaperRequest;
 import com.phoenix.paper.controller.response.GetUserPaperListResponse;
 import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.entity.Paper;
@@ -14,9 +15,13 @@ public interface PaperService {
 
     GetUserPaperListResponse getUserPaperList(Integer pageNum, Integer pageSize, Long userId);
 
-    Long addPaper(Long userId);
+    Long addPaper(Long userId, AddPaperRequest addPaperRequest);
 
     String uploadPaper(MultipartFile file, Long paperId);
 
-    void deletePaper(Long paperId,Long userId);
+    void deletePaper(Long paperId, Long userId);
+
+    Page<BriefPaper> findPaperByTitle(Integer pageNum, Integer pageSize, String title);
+
+    Long addPaperQuotation(Long quoterId, Long quotedId);
 }

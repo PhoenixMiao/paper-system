@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,16 +20,13 @@ public class BriefPaper {
     @ApiModelProperty("标题")
     private String title;
 
-    @ApiModelProperty("发布日期（平台上用户的上传时间）")
-    private String publishDate;
-
     @ApiModelProperty("论文发布日期（真实）")
-    private String paperDate;
+    private String publishDate;
 
     @ApiModelProperty("摘要")
     private String summary;
 
-    @ApiModelProperty("文献链接")
-    private String link;
+    @ApiModelProperty("附件链接")
+    private String fileLink;
 
 }
