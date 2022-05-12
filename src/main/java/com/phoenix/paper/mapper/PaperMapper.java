@@ -5,7 +5,6 @@ import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.entity.Paper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -21,10 +20,4 @@ public interface PaperMapper extends BaseMapper<Paper> {
 
     @Select("SELECT collect_number FROM paper where id=#{id}")
     Long getPaperCollects(@Param("id")Long id);
-
-    @Select("SELECT COUNT(*) FROM paper where uploader_id=#{userId}")
-    Long getUserTotalPaperNumber(@Param("userId")Long userId);
-
-    @Select("SELECT COUNT(*) FROM paper where uploader_id=#{userId} and DATEDIFF(curdate(),date_format(upload_time,'%y-%m-%d'))<=7")
-    Long getUserPaperNumberInThisWeek(@Param("userId")Long userId);
 }

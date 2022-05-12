@@ -10,11 +10,12 @@ import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Page;
 import com.phoenix.paper.controller.request.AddPaperRequest;
-import com.phoenix.paper.controller.response.GetUserPaperListResponse;
+import com.phoenix.paper.controller.request.SearchPaperRequest;
 import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.PaperService;
+import com.phoenix.paper.service.ResearchDirectionService;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -51,28 +53,23 @@ public class PaperServiceImpl implements PaperService {
     @Autowired
     private PaperDirectionMapper paperDirectionMapper;
 
+    @Autowired
+    private ResearchDirectionService researchDirectionService;
+
     @Override
-    public Paper getPaperById(Long paperId){
+    public Paper getPaperById(Long paperId) {
         return paperMapper.selectById(paperId);
     }
 
     @Override
-    public Page<BriefPaper> getPaperList(int pageNum, int pageSize, int orderBy){
-        if(orderBy == 0){
-            PageHelper.startPage(pageNum,pageSize,"paper_date desc");
+    public Page<BriefPaper> getPaperList(int pageNum, int pageSize, int orderBy) {
+        if (orderBy == 0) {
+            PageHelper.startPage(pageNum, pageSize, "paper_date desc");
         }else{
             PageHelper.startPage(pageNum,pageSize,"like_number+collect_number desc");
         }
         return new Page<>(new PageInfo<>(paperMapper.getPaperList()));
 
-    }
-
-    @Override
-    public GetUserPaperListResponse getUserPaperList(Integer pageNum, Integer pageSize, Long userId){
-        User user=userMapper.selectById(userId);
-        if(user==null||user.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        PageHelper.startPage(pageNum,pageSize,"upload_time desc");
-        return new GetUserPaperListResponse(paperMapper.getUserTotalPaperNumber(userId),paperMapper.getUserPaperNumberInThisWeek(userId),new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId))));
     }
 
     @Override
@@ -188,5 +185,49 @@ public class PaperServiceImpl implements PaperService {
         PaperQuotation paperQuotation = PaperQuotation.builder().quoterId(quoterId).quotedId(quotedId).build();
         paperQuotationMapper.insert(paperQuotation);
         return paperQuotation.getId();
+    }
+
+    @Override
+    public Page<BriefPaper> searchPaper(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest) {
+        QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
+        if (searchPaperRequest.getTitle() != null) paperQueryWrapper.like("title", searchPaperRequest.getTitle());
+        else if (searchPaperRequest.getSummary() != null)
+            paperQueryWrapper.like("summary", searchPaperRequest.getSummary());
+        else if (searchPaperRequest.getAuthor() != null)
+            paperQueryWrapper.like("author", searchPaperRequest.getAuthor());
+        if (searchPaperRequest.getResearchDirectionIds().length != 0) {
+            HashSet<Long> longHashSet = new HashSet<>();
+            for (long id : searchPaperRequest.getResearchDirectionIds()) {
+                List<Long> ids = researchDirectionService.getAllSons(id);
+                QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
+                paperDirectionQueryWrapper.isNotNull("delete_time");
+                paperDirectionQueryWrapper.and(w -> {
+                    for (Long x : ids) {
+                        w.or().eq("direction_id", x);
+                    }
+                    return w;
+                });
+                List<PaperDirection> paperDirections = paperDirectionMapper.selectList(paperDirectionQueryWrapper);
+                for (PaperDirection paperDirection : paperDirections) longHashSet.add(paperDirection.getPaperId());
+            }
+            paperQueryWrapper.in("id", longHashSet);
+        }
+        paperQueryWrapper.select("id", "title", "publish_date", "summary", "author", "file_link");
+        if (orderBy == 0) {
+            PageHelper.startPage(pageNum, pageSize, "paper_date desc");
+        } else {
+            PageHelper.startPage(pageNum, pageSize, "like_number+collect_number desc");
+        }
+        List<Paper> papers = paperMapper.selectList(paperQueryWrapper);
+        List<BriefPaper> briefPaperList = new ArrayList<>();
+        for (Paper paper : papers)
+            briefPaperList.add(BriefPaper.builder()
+                    .fileLink(paper.getFileLink())
+                    .id(paper.getId())
+                    .title(paper.getTitle())
+                    .summary(paper.getSummary())
+                    .publishDate(paper.getPublishDate())
+                    .build());
+        return new Page<>(new PageInfo<>(briefPaperList));
     }
 }

@@ -10,7 +10,11 @@ import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.service.UserService;
 import com.phoenix.paper.util.RedisUtils;
 import com.phoenix.paper.util.SessionUtils;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -232,13 +236,28 @@ public class UserController {
     @Auth
     @PostMapping(value = "/email",produces = "application/json")
     @ApiOperation(value = "更改邮箱")
-    @ApiImplicitParam(name = "email",value = "用户邮箱",required = true,paramType = "query")
-    public Result changeEmail(@NotNull @RequestParam("email")String email){
-        try{
-            userService.updateEmail(email,sessionUtils.getUserId());
-        }catch (CommonException e){
+    @ApiImplicitParam(name = "email", value = "用户邮箱", required = true, paramType = "query")
+    public Result changeEmail(@NotNull @RequestParam("email") String email) {
+        try {
+            userService.updateEmail(email, sessionUtils.getUserId());
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
         return Result.success("更改成功");
+    }
+
+    @Auth
+    @GetMapping(value = "/paper", produces = "application/json")
+    @ApiOperation(value = "获取该用户的论文列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页显示数量 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result getUserPaperList(@NotNull @RequestParam("pageSize") Integer pageSize, @NotNull @Param("pageNum") Integer pageNum) {
+        try {
+            return Result.success(userService.getUserPaperList(pageNum, pageSize, sessionUtils.getUserId()));
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
     }
 }

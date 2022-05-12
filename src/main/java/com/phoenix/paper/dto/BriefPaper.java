@@ -26,6 +26,9 @@ public class BriefPaper {
     @ApiModelProperty("摘要")
     private String summary;
 
+    @ApiModelProperty("author")
+    private String author;
+
     @ApiModelProperty("附件链接")
     private String fileLink;
 
