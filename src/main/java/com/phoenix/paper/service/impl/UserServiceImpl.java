@@ -3,27 +3,24 @@ package com.phoenix.paper.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.phoenix.paper.common.*;
+import com.phoenix.paper.common.CommonErrorCode;
+import com.phoenix.paper.common.CommonException;
+import com.phoenix.paper.common.Page;
 import com.phoenix.paper.config.YmlConfig;
 import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
+import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.UserService;
 import com.phoenix.paper.util.*;
-import com.phoenix.paper.util.SessionUtils;
-import org.elasticsearch.common.recycler.Recycler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Wrapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -292,7 +289,8 @@ public class UserServiceImpl implements UserService {
         if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
         commentQueryWrapper.eq("user_id",userId);
-        if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        if (commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper) == 0)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
     }
 
     @Override
@@ -301,6 +299,14 @@ public class UserServiceImpl implements UserService {
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         user.setType(type);
         userMapper.updateById(user);
+    }
+
+    @Override
+    public Page<BriefPaper> getUserPaperList(Integer pageNum, Integer pageSize, Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        PageHelper.startPage(pageNum, pageSize, "upload_time desc");
+        return new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId)));
     }
 
 }

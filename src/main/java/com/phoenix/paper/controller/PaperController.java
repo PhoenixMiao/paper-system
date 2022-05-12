@@ -8,6 +8,7 @@ import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Result;
 import com.phoenix.paper.controller.request.AddPaperRequest;
+import com.phoenix.paper.controller.request.SearchPaperRequest;
 import com.phoenix.paper.service.PaperService;
 import com.phoenix.paper.util.SessionUtils;
 import io.swagger.annotations.Api;
@@ -144,5 +145,16 @@ public class PaperController {
         } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
+    }
+
+    @PostMapping(value = "/search", produces = "application/json")
+    @ApiOperation(value = "论文搜索")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页显示数量 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "orderBy", value = "排序规则(0为热度,1为论文在现实世界中发布时间)", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result searchPaper(@NotNull @RequestParam("pageSize") Integer pageSize, @NotNull @Param("pageNum") Integer pageNum, @NotNull @Param("orderBy") Integer orderBy, @NotNull @RequestBody SearchPaperRequest searchPaperRequest) {
+        return Result.success(paperService.searchPaper(pageNum, pageSize, orderBy, searchPaperRequest));
     }
 }
