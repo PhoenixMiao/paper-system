@@ -59,7 +59,7 @@ public class CollectionController {
             @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
             @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
     })
-    public Result getCollectionList(@NotNull @RequestParam("pageSize") Integer pageSize,@NotNull @RequestParam("pageNum") Integer pageNum) {
+    public Result getCollectionList(@NotNull @Min(value = 0) @RequestParam("pageSize") Integer pageSize,@NotNull @Min(value = 1) @RequestParam("pageNum") Integer pageNum) {
         return Result.success(collectionService.getCollectionList(pageSize,pageNum ,sessionUtils.getUserId()));
     }
 

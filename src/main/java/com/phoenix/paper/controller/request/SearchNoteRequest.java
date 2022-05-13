@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -23,10 +25,19 @@ public class SearchNoteRequest {
     @ApiModelProperty("笔记作者")
     private String author;
 
-    @ApiModelProperty("相关文献")
-    private String paper;
+    @NotNull
+    @ApiModelProperty("每页显示数量")
+    @Min(value = 0,message = "每页显示数量应非负")
+    private Integer pageSize;
 
     @NotNull
-    @ApiModelProperty("分页参数")
-    private PageParam pageParam;
+    @ApiModelProperty("页数")
+    @Min(value = 1,message = "页数应为正数")
+    private Integer pageNum;
+
+    @NotNull
+    @ApiModelProperty("排序规则(0为热度,1为论文在现实世界中发布时间)")
+    @Min(value = 0,message = "无效排序")
+    @Max(value = 1,message = "无效排序")
+    private Integer orderby;
 }

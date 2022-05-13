@@ -8,6 +8,7 @@ import com.github.pagehelper.PageInfo;
 import com.phoenix.paper.common.*;
 import com.phoenix.paper.controller.request.SearchNoteRequest;
 import com.phoenix.paper.dto.BriefNote;
+import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.NoteService;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -105,7 +107,30 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public  Page<BriefNote> searchNote(SearchNoteRequest searchNoteRequest){
-        return new Page<>(new PageInfo<>());
+        QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
+        if (searchNoteRequest.getTitle() != null)
+            noteQueryWrapper.like("title", searchNoteRequest.getTitle());
+        else if (searchNoteRequest.getAuthor() != null)
+            noteQueryWrapper.like("author", searchNoteRequest.getAuthor());
+        noteQueryWrapper.select("id", "author_id", "title", "cover", "create_time", "like_number","collect_number");
+        if (searchNoteRequest.getOrderby() == 0) {
+            PageHelper.startPage(searchNoteRequest.getPageNum(), searchNoteRequest.getPageSize(), "create_time desc");
+        } else {
+            PageHelper.startPage(searchNoteRequest.getPageNum(), searchNoteRequest.getPageSize(), "like_number+collect_number desc");
+        }
+        List<Note> notes = noteMapper.selectList(noteQueryWrapper);
+        List<BriefNote> briefNoteList = new ArrayList<>();
+        for (Note note : notes)
+            briefNoteList.add(BriefNote.builder()
+                    .id(note.getId())
+                    .authorId(note.getAuthorId())
+                    .collectNumber(note.getCollectNumber())
+                    .cover(note.getCover())
+                    .title(note.getTitle())
+                    .createTime(note.getCreateTime())
+                    .likeNumber(note.getLikeNumber())
+                    .build());
+        return new Page<>(new PageInfo<>(briefNoteList));
     }
 
     @Override
