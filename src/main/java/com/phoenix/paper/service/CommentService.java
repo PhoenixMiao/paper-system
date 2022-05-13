@@ -2,6 +2,7 @@ package com.phoenix.paper.service;
 
 
 import com.phoenix.paper.common.Page;
+import com.phoenix.paper.dto.BriefComment;
 import com.phoenix.paper.entity.Comment;
 
 public interface CommentService {
@@ -10,5 +11,5 @@ public interface CommentService {
 
     void addComment(Long objectId,Integer objectType,Long userId,String content);
 
-    Page<Comment> getCommentList(Long objectId, Integer objectType, Integer pageSize, Integer pageNum);
+    Page<BriefComment> getCommentList(Long objectId, Integer objectType, Integer pageSize, Integer pageNum);
 }

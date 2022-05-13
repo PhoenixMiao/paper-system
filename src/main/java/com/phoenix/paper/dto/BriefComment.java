@@ -20,6 +20,9 @@ public class BriefComment {
     @ApiModelProperty("用户id")
     private Long userId;
 
+    @ApiModelProperty("评论id")
+    private Long commentId;
+
     @ApiModelProperty("评论时间")
     private String createTime;
 

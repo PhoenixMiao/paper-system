@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -16,6 +17,7 @@ import java.util.List;
 @ApiModel("AddPaperRequest 添加论文请求")
 public class AddPaperRequest {
 
+    @NotNull
     @ApiModelProperty("标题")
     private String title;
 

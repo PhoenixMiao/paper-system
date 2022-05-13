@@ -10,9 +10,9 @@ import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 public interface CommentMapper extends BaseMapper<Comment> {
-    @Select("SELECT * FROM comment WHERE object_id=#{objectId} AND object_type=#{objectType} AND delete_time IS NULL")
-    List<Comment> getCommentList( @Param("objectId")Long objectId, @Param("object_type")Integer object_type);
+    @Select("SELECT * FROM comment WHERE note_id=#{objectId} AND delete_time IS NULL")
+    List<BriefComment> getNoteCommentList( @Param("objectId")Long objectId);
 
-    @Select("SELECT * FROM comment WHERE object_id=#{objectId} AND object_type=#{objectType} AND delete_time IS NULL AND FIND_IN_SET(ID,{idString})")
-    List<Comment> getMultilevelCommentList(@Param("idString")String idString);
+    @Select("SELECT * FROM comment WHERE comment_id=#{objectId} AND delete_time IS NULL")
+    List<BriefComment> getSecondLevelCommentList( @Param("objectId")Long objectId);
 }

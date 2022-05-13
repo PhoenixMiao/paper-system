@@ -100,7 +100,7 @@ public class NoteController {
         return Result.success(noteService.getNoteList(pageSize,pageNum,orderBy));
     }
 
-    @GetMapping(value = "/search",produces = "application/json")
+    @PostMapping(value = "/search",produces = "application/json")
     @ApiOperation(value = "搜索笔记")
     public Result searchNote(@NotNull @RequestBody SearchNoteRequest searchNoteRequest){
         return Result.success(noteService.searchNote(searchNoteRequest));
