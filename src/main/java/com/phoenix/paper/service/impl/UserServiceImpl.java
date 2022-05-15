@@ -201,6 +201,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String sendEmail(String emailOrNumber, int flag) {
+        if (redisUtils.hasKey(emailOrNumber)) {
+
+        }
         Map<String, Object> map = new HashMap<>();
         if (flag == 0) {
             map.put("email", emailOrNumber);
@@ -221,7 +224,6 @@ public class UserServiceImpl implements UserService {
             }
             emailOrNumber = user.getEmail();
         }
-        //if(redisUtils.hasKey(email)) redisUtils.del(email);
         String verificationCode = RandomVerifyCodeUtil.getRandomVerifyCode();
         redisUtils.set(emailOrNumber, verificationCode, 5);
         try {

@@ -1,5 +1,5 @@
 server:
-  port: 8000
+  port: 8010
 #  domain: https://www.xxxx.cn
 spring:
   http:
