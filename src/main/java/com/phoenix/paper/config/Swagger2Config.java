@@ -13,6 +13,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * 接口文档，生产时关闭
+ *
  * @author yan on 2020-02-27
  */
 @Configuration
@@ -20,18 +21,44 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @ConditionalOnExpression("${dev.enable:true}")//当enable为true时才选择加载该配置类
 public class Swagger2Config {
 
-    private static final String GROUP_NAME = "read";
-    private static final String BASE_PACKAGE = "com.phoenix.read.controller";
-    private static final String TITLE = "read API Documentation";
-    private static final String DESCRIPTION = "花狮读书汇接口文档";
+    private static final String BASE_PACKAGE1 = "com.phoenix.paper.controller";
+    private static final String GROUP_NAME1 = "controller";
+    private static final String BASE_PACKAGE2 = "com.phoenix.paper.entity";
+    private static final String GROUP_NAME2 = "entity";
+    private static final String BASE_PACKAGE3 = "com.phoenix.paper.dto";
+    private static final String GROUP_NAME3 = "dto";
+    private static final String TITLE = "paper API Documentation";
+    private static final String DESCRIPTION = "论文管理系统";
 
     @Bean
-    public Docket createTestApi() {
+    public Docket createControllerApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName(GROUP_NAME)
+                .groupName(GROUP_NAME1)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE))//设定扫描范围
+                .apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE1))//设定扫描范围
+                .paths(PathSelectors.any())
+                .build();
+    }
+
+    @Bean
+    public Docket createEntityApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName(GROUP_NAME2)
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE2))//设定扫描范围
+                .paths(PathSelectors.any())
+                .build();
+    }
+
+    @Bean
+    public Docket createDtoApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName(GROUP_NAME3)
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE3))//设定扫描范围
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -40,7 +67,7 @@ public class Swagger2Config {
         return new ApiInfoBuilder()
                 .title(TITLE)
                 .description(DESCRIPTION)
-                //.termsOfServiceUrl("http://localhost:8080/swagger-ui.html")//数据源
+                //.termsOfServiceUrl("http://124.222.112.118:8081/swagger-ui.html")//数据源
                 .version("1.0")
                 .build();
     }
