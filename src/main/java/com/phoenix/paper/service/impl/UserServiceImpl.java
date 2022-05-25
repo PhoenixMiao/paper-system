@@ -194,16 +194,12 @@ public class UserServiceImpl implements UserService {
     public void checkCode(String email, String code) throws CommonException {
         if (!redisUtils.hasKey(email)) throw new CommonException((CommonErrorCode.HAS_NOT_SENT_EMAIL));
         if (redisUtils.isExpire(email)) throw new CommonException(CommonErrorCode.VERIFICATION_CODE_HAS_EXPIRED);
-        if (!redisUtils.get(email).equals(code))
-            throw new CommonException(CommonErrorCode.VERIFICATION_CODE_WRONG);
-        redisUtils.del(email);
+        if (!redisUtils.get(email).equals(code)) throw new CommonException(CommonErrorCode.VERIFICATION_CODE_WRONG);
+        else redisUtils.del(email);
     }
 
     @Override
     public String sendEmail(String emailOrNumber, int flag) {
-        if (redisUtils.hasKey(emailOrNumber)) {
-
-        }
         Map<String, Object> map = new HashMap<>();
         if (flag == 0) {
             map.put("email", emailOrNumber);
@@ -223,6 +219,11 @@ public class UserServiceImpl implements UserService {
                 throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
             }
             emailOrNumber = user.getEmail();
+        }
+        if (redisUtils.hasKey(emailOrNumber) && redisUtils.getExpire(emailOrNumber) > 240) {
+            throw new CommonException(CommonErrorCode.DO_NOT_SEND_VERIFICATION_CODE_AGAIN);
+        } else if (redisUtils.isExpire(emailOrNumber)) {
+            redisUtils.del(emailOrNumber);
         }
         String verificationCode = RandomVerifyCodeUtil.getRandomVerifyCode();
         redisUtils.set(emailOrNumber, verificationCode, 5);
