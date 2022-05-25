@@ -18,11 +18,11 @@ spring:
     properties.mail.smtp.ssl.enable: true #开启SSL
     default-encoding: utf-8
 
-  rabbitmq:
-    host: 124.222.112.118
-    port: 5672
-    username: root
-    password: Lishuai0923
+#  rabbitmq:
+#    host: 124.222.112.118
+#    port: 5672
+#    username: root
+#    password: Lishuai0923
 
 
   datasource:
