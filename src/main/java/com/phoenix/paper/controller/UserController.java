@@ -85,36 +85,36 @@ public class UserController {
     @GetMapping(value = "/userInfo",produces = "application/json")
     @ApiOperation(value = "获取用户信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
-    public Result getUserInformation(@RequestParam("userId")Long userId){
-        try{
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true, paramType = "query", dataType = "Long"),})
+    public Result getUserInformation(@RequestParam("userId") Long userId) {
+        try {
             return Result.success(userService.getUserById(userId));
-        }catch (CommonException e){
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
     }
 
-
-    @Admin
-    @GetMapping(value = "/admin",produces = "application/json")
-    @ApiOperation(value = "超管将普通用户改为管理员",response = Long.class)
-    @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
-    public Result toAdmin(@NotNull@RequestParam("userId")Long userId){
-        try{
-            userService.toAdmin(userId);
-            return Result.success(userId);
-        }catch (CommonException e){
-            return Result.result(e.getCommonErrorCode());
-        }
-    }
+//todo
+//    @Admin
+//    @GetMapping(value = "/admin",produces = "application/json")
+//    @ApiOperation(value = "超管将普通用户改为管理员",response = Long.class)
+//    @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
+//    public Result toAdmin(@NotNull@RequestParam("userId")Long userId){
+//        try{
+//            userService.toAdmin(userId);
+//            return Result.success(userId);
+//        }catch (CommonException e){
+//            return Result.result(e.getCommonErrorCode());
+//        }
+//    }
 
     @Auth
-    @GetMapping(value = "",produces = "application/json")
+    @GetMapping(value = "", produces = "application/json")
     @ApiOperation(value = "获取个人信息")
-    public Result getUserSessionData(){
-        try{
+    public Result getUserSessionData() {
+        try {
             return Result.success(sessionUtils.getSessionData());
-        }catch (CommonException e){
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
 
@@ -138,41 +138,41 @@ public class UserController {
     @ApiOperation(value = "注销用户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),})
-    public Result deleteUser(@NotNull @RequestParam("userId")Long userId){
-        try{
+    public Result deleteUser(@NotNull @RequestParam("userId") Long userId) {
+        try {
             userService.deleteUser(userId);
-            if(sessionUtils.getSessionData().getType()==0) redisUtils.del(request.getHeader("session"));
-        }catch (CommonException e) {
+            if (sessionUtils.getSessionData().getType() == 0) redisUtils.del(request.getHeader("session"));
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
         return Result.success("删除成功");
     }
 
+//todo
+//    @Admin
+//    @GetMapping(value = "/authorize",produces = "application/json")
+//    @ApiOperation(value = "设置用户权限")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),
+//            @ApiImplicitParam(name = "type",value = "权限(0普通用户 1管理员)",required = true,paramType = "query",dataType = "Integer"),})
+//    public Result authorizeUser(@NotNull @RequestParam("userId")Long userId,@NotNull @RequestParam("type")Integer type){
+//        try{
+//            userService.authorizeUser(userId,type);
+//        }catch (CommonException e) {
+//            return Result.result(e.getCommonErrorCode());
+//        }
+//        return Result.success("设置成功");
+//    }
 
-    @Admin
-    @GetMapping(value = "/authorize",produces = "application/json")
-    @ApiOperation(value = "设置用户权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),
-            @ApiImplicitParam(name = "type",value = "权限(0普通用户 1管理员)",required = true,paramType = "query",dataType = "Integer"),})
-    public Result authorizeUser(@NotNull @RequestParam("userId")Long userId,@NotNull @RequestParam("type")Integer type){
-        try{
-            userService.authorizeUser(userId,type);
-        }catch (CommonException e) {
-            return Result.result(e.getCommonErrorCode());
-        }
-        return Result.success("设置成功");
-    }
-
-    @GetMapping(value = "/send",produces = "application/json")
+    @GetMapping(value = "/send", produces = "application/json")
     @ApiOperation(value = "发送验证邮箱")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "emailOrNumber",value = "注册和找回账号输入邮箱，找回密码输入账号",required = true,paramType = "query"),
-            @ApiImplicitParam(name = "type",value = "0为注册，1为找回账号，2为找回密码",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "emailOrNumber", value = "注册和找回账号输入邮箱，找回密码输入账号", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "type", value = "0为注册，1为找回账号，2为找回密码", required = true, paramType = "query"),
     })
-    public Result sendEmail(@NotNull @RequestParam("emailOrNumber")String emailOrNumber,
-                            @NotNull @RequestParam("type")int type){
-        try{
+    public Result sendEmail(@NotNull @RequestParam("emailOrNumber") String emailOrNumber,
+                            @NotNull @RequestParam("type") int type) {
+        try {
             return Result.success(userService.sendEmail(emailOrNumber,type));
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());

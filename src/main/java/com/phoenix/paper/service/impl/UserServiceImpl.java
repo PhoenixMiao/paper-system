@@ -163,6 +163,8 @@ public class UserServiceImpl implements UserService {
                 .type(0)
                 .nickname("论文平台用户")
                 .version(1)
+                .canComment(1)
+                .canModify(0)
                 .build();
         userMapper.insert(user);
         user.setAccountNum("ps" + String.format("%08d", user.getId()));

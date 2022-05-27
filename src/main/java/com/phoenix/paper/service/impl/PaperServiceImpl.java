@@ -2,6 +2,7 @@ package com.phoenix.paper.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -12,11 +13,20 @@ import com.phoenix.paper.common.Page;
 import com.phoenix.paper.controller.request.AddPaperRequest;
 import com.phoenix.paper.controller.request.SearchPaperRequest;
 import com.phoenix.paper.dto.BriefPaper;
+import com.phoenix.paper.dto.SearchPaper;
+import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.PaperService;
 import com.phoenix.paper.service.ResearchDirectionService;
+import com.phoenix.paper.util.AssertUtil;
+import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,6 +58,9 @@ public class PaperServiceImpl implements PaperService {
     private CommentMapper commentMapper;
 
     @Autowired
+    private ResearchDirectionMapper researchDirectionMapper;
+
+    @Autowired
     private PaperQuotationMapper paperQuotationMapper;
 
     @Autowired
@@ -55,6 +68,12 @@ public class PaperServiceImpl implements PaperService {
 
     @Autowired
     private ResearchDirectionService researchDirectionService;
+
+    @Autowired
+    private RestHighLevelClient restHighLevelClient;
+
+    @Autowired
+    private SessionUtils sessionUtils;
 
     @Override
     public Paper getPaperById(Long paperId) {
@@ -74,6 +93,8 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public Long addPaper(Long userId, AddPaperRequest addPaperRequest) throws CommonException {
+        SessionData sessionData = sessionUtils.getSessionData();
+        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Paper paper = Paper.builder()
                 .uploaderId(userId)
                 .paperType(addPaperRequest.getPaperType())
@@ -93,19 +114,44 @@ public class PaperServiceImpl implements PaperService {
         for (Long directionId : addPaperRequest.getResearchDirectionList()) {
             paperDirectionMapper.insert(PaperDirection.builder().paperId(paper.getId()).directionId(directionId).createTime(TimeUtil.getCurrentTimestamp()).build());
         }
+        IndexRequest request = new IndexRequest("paper");
+        request.id(paper.getId().toString());
+        request.timeout(TimeValue.timeValueSeconds(1));
+        request.timeout("1s");
+
+        request.source(JSON.toJSONString(SearchPaper.builder()
+                .id(paper.getId())
+                .author(paper.getAuthor())
+                .link(paper.getLink())
+                .uploader(user.getNickname())
+                .publishConference(paper.getPublishConference())
+                .title(paper.getTitle())
+                .summary(paper.getSummary())
+                .publishDate(paper.getPublishDate())
+                .paperType(paper.getPaperType())), XContentType.JSON);
+        try {
+            if (!restHighLevelClient.index(request, RequestOptions.DEFAULT).status().toString().equals("CREATED")) {
+                throw new CommonException(CommonErrorCode.CREATE_INDEX_FAILED);
+            }
+        } catch (IOException e) {
+            throw new CommonException(CommonErrorCode.CREATE_INDEX_FAILED);
+        }
+
         return paper.getId();
     }
 
     @Override
-    public  String uploadPaper(MultipartFile file, Long paperId)throws CommonException{
+    public  String uploadPaper(MultipartFile file, Long paperId)throws CommonException {
+        SessionData sessionData = sessionUtils.getSessionData();
+        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Paper paper = paperMapper.selectById(paperId);
-        if(paper==null || paper.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
+        if (paper == null || paper.getDeleteTime() != null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
         String rootFilePath = System.getProperty("user.dir") + "/src/main/resources/files/" + flag + "-" + originalFilename;
-        try{
-            FileUtil.writeBytes(file.getBytes(),rootFilePath);
-        }catch (IOException e){
+        try {
+            FileUtil.writeBytes(file.getBytes(), rootFilePath);
+        } catch (IOException e) {
             throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
         }
         String link = CommonConstants.DOWNLOAD_PATH + flag;
@@ -119,7 +165,8 @@ public class PaperServiceImpl implements PaperService {
     public void deletePaper(Long paperId,Long userId) throws CommonException{
         Paper paper = paperMapper.selectById(paperId);
         User user = userMapper.selectById(userId);
-        if(!paper.getUploaderId().equals(userId) && user.getType()!=1) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        if (!paper.getUploaderId().equals(userId) && user.getType() != 1 && user.getCanModify() != 1)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         String deleteTime = TimeUtil.getCurrentTimestamp();
         QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
         noteQueryWrapper.eq("paper_id",paper.getId());
@@ -182,13 +229,15 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public Long addPaperQuotation(Long quoterId, Long quotedId) {
+        SessionData sessionData = sessionUtils.getSessionData();
+        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         PaperQuotation paperQuotation = PaperQuotation.builder().quoterId(quoterId).quotedId(quotedId).build();
         paperQuotationMapper.insert(paperQuotation);
         return paperQuotation.getId();
     }
 
     @Override
-    public Page<BriefPaper> searchPaper(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest) {
+    public Page<BriefPaper> searchPaperByDirection(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest) {
         QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
         if (searchPaperRequest.getTitle() != null) paperQueryWrapper.like("title", searchPaperRequest.getTitle());
         else if (searchPaperRequest.getSummary() != null)
@@ -230,4 +279,6 @@ public class PaperServiceImpl implements PaperService {
                     .build());
         return new Page<>(new PageInfo<>(briefPaperList));
     }
+
+
 }

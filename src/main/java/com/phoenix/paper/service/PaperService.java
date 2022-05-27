@@ -23,5 +23,8 @@ public interface PaperService {
 
     Long addPaperQuotation(Long quoterId, Long quotedId);
 
-    Page<BriefPaper> searchPaper(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest);
+    Page<BriefPaper> searchPaperByDirection(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest);
+
+
+    //void addPaperIndex(String paperContents, Paper paper) throws IOException;
 }
