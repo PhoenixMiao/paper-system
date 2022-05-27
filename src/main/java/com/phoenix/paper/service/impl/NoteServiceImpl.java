@@ -5,13 +5,18 @@ import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.phoenix.paper.common.*;
+import com.phoenix.paper.common.CommonConstants;
+import com.phoenix.paper.common.CommonErrorCode;
+import com.phoenix.paper.common.CommonException;
+import com.phoenix.paper.common.Page;
 import com.phoenix.paper.controller.request.SearchNoteRequest;
 import com.phoenix.paper.dto.BriefNote;
-import com.phoenix.paper.dto.BriefPaper;
+import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.NoteService;
+import com.phoenix.paper.util.AssertUtil;
+import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -43,16 +47,21 @@ public class NoteServiceImpl implements NoteService{
     @Autowired
     private CollectionMapper collectionMapper;
 
+    @Autowired
+    private SessionUtils sessionUtils;
+
     @Override
-    public String uploadNote(MultipartFile file,Long noteId) throws CommonException {
+    public String uploadNote(MultipartFile file, Long noteId) throws CommonException {
+        SessionData sessionData = sessionUtils.getSessionData();
+        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Note note = noteMapper.selectById(noteId);
-        if(note==null || note.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
+        if (note == null || note.getDeleteTime() != null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
         String rootFilePath = System.getProperty("user.dir") + "/src/main/resources/files/" + flag + "-" + originalFilename;
-        try{
-            FileUtil.writeBytes(file.getBytes(),rootFilePath);
-        }catch (IOException e){
+        try {
+            FileUtil.writeBytes(file.getBytes(), rootFilePath);
+        } catch (IOException e) {
             throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
         }
         String link = CommonConstants.DOWNLOAD_PATH + flag;
@@ -63,7 +72,9 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public void updateNote(MultipartFile file,Long noteId) throws CommonException{
+        SessionData sessionData = sessionUtils.getSessionData();
         Note note = noteMapper.selectById(noteId);
+        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || note.getAuthorId() == sessionData.getId(), CommonErrorCode.CAN_NOT_MODIFY);
         if(note==null || note.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
@@ -79,9 +90,11 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public Long addNote(Long authorId,Long paperId) throws CommonException{
+    public Long addNote(Long authorId,Long paperId) throws CommonException {
+        SessionData sessionData = sessionUtils.getSessionData();
+        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Paper paper = paperMapper.selectById(paperId);
-        if(paper == null || paper.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
+        if (paper == null || paper.getDeleteTime() != null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
         Note note = Note.builder()
                 .authorId(authorId)
                 .createTime(TimeUtil.getCurrentTimestamp())
@@ -89,7 +102,7 @@ public class NoteServiceImpl implements NoteService{
                 .build();
         noteMapper.insert(note);
         User user = userMapper.selectById(authorId);
-        user.setNoteNum(user.getNoteNum()+1);
+        user.setNoteNum(user.getNoteNum() + 1);
         user.setNoteWeekNum(user.getNoteWeekNum()+1);
         if(userMapper.updateById(user)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         return note.getId();
@@ -144,7 +157,8 @@ public class NoteServiceImpl implements NoteService{
     public void deleteNote(Long noteId,Long userId)throws CommonException{
         Note note = noteMapper.selectById(noteId);
         User user = userMapper.selectById(userId);
-        if(!note.getAuthorId().equals(userId) && user.getType()!= 1) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        if (!note.getAuthorId().equals(userId) && user.getType() != 1 && user.getCanModify() != 1)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         String deleteTime = TimeUtil.getCurrentTimestamp();
         note.setDeleteTime(deleteTime);
         if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);

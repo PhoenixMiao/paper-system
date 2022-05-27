@@ -80,8 +80,14 @@ public class SessionData implements Serializable {
     @ApiModelProperty("发布笔记总数")
     private int noteNum;
 
+    @ApiModelProperty("评论权限")
+    private int canComment;
 
-    public SessionData(User user){
+    @ApiModelProperty("修改/删除权限")
+    private int canModify;
+
+
+    public SessionData(User user) {
         AssertUtil.notNull(user, CommonErrorCode.USER_NOT_EXIST);
         this.id = user.getId();
         this.accountNum = user.getAccountNum();
@@ -100,5 +106,7 @@ public class SessionData implements Serializable {
         this.paperWeekNum = user.getPaperWeekNum();
         this.noteNum = user.getNoteNum();
         this.paperNum = user.getPaperNum();
+        this.canComment = user.getCanComment();
+        this.canModify = user.getCanModify();
     }
 }

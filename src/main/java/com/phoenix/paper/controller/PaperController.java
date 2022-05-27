@@ -155,6 +155,6 @@ public class PaperController {
             @ApiImplicitParam(name = "orderBy", value = "排序规则(0为热度,1为论文在现实世界中发布时间)", required = true, paramType = "query", dataType = "Integer"),
     })
     public Result searchPaper(@NotNull @RequestParam("pageSize") Integer pageSize, @NotNull @Param("pageNum") Integer pageNum, @NotNull @Param("orderBy") Integer orderBy, @NotNull @RequestBody SearchPaperRequest searchPaperRequest) {
-        return Result.success(paperService.searchPaper(pageNum, pageSize, orderBy, searchPaperRequest));
+        return Result.success(paperService.searchPaperByDirection(pageNum, pageSize, orderBy, searchPaperRequest));
     }
 }

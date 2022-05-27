@@ -34,4 +34,10 @@ public class BriefUser {
     @ApiModelProperty("删除时间")
     private String deleteTime;
 
+    @ApiModelProperty("评论权限")
+    private int canComment;
+
+    @ApiModelProperty("修改/删除权限")
+    private int canModify;
+
 }

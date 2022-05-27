@@ -7,11 +7,14 @@ import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Page;
 import com.phoenix.paper.dto.BriefComment;
+import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.Comment;
 import com.phoenix.paper.entity.User;
 import com.phoenix.paper.mapper.CommentMapper;
 import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.CommentService;
+import com.phoenix.paper.util.AssertUtil;
+import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,15 +28,19 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private SessionUtils sessionUtils;
+
     @Override
-    public void deleteComment(Long commentId,Long userId) throws CommonException{
+    public void deleteComment(Long commentId, Long userId) throws CommonException {
         Comment comment = commentMapper.selectById(commentId);
         User user = userMapper.selectById(userId);
-        if(!comment.getUserId().equals(userId) && user.getType()!=1) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        if (!comment.getUserId().equals(userId) && user.getType() != 1 && user.getCanComment() != 1)
+            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         String deleteTime = TimeUtil.getCurrentTimestamp();
         comment.setDeleteTime(deleteTime);
         commentMapper.updateById(comment);
-        if(comment.getNoteId()!=null){
+        if (comment.getNoteId() != null) {
             QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
             commentQueryWrapper.eq("comment_id",commentId);
 //            Integer count = commentMapper.selectCount(commentQueryWrapper);
@@ -54,13 +61,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<BriefComment> getCommentList(Long objectId, Integer objectType, Integer pageSize, Integer pageNum){
-        if(objectType==0){
-            PageHelper.startPage(pageNum,pageSize,"create_time desc");
+    public Page<BriefComment> getCommentList(Long objectId, Integer objectType, Integer pageSize, Integer pageNum) {
+        SessionData sessionData = sessionUtils.getSessionData();
+        AssertUtil.isTrue(sessionData.getCanComment() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_COMMENT);
+        if (objectType == 0) {
+            PageHelper.startPage(pageNum, pageSize, "create_time desc");
             return new Page<>(new PageInfo<>(commentMapper.getNoteCommentList(objectId)));
-        }
-        else if(objectType==1){
-            PageHelper.startPage(pageNum,pageSize,"create_time desc");
+        } else if (objectType == 1) {
+            PageHelper.startPage(pageNum, pageSize, "create_time desc");
             return new Page<>(new PageInfo<>(commentMapper.getSecondLevelCommentList(objectId)));
         }
         return new Page<>(new PageInfo<>());
