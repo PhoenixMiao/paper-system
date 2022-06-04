@@ -44,7 +44,7 @@ public enum CommonErrorCode {
     UPDATE_FAILED(2029, "更新出现竞态条件", "请稍后重试"),
     CAN_NOT_DELETE(2030, "您没有删除该实体的权限", "请选择您能操作的实体进行删除"),
     DO_NOT_SEND_VERIFICATION_CODE_AGAIN(2031, "您上一次验证码尚未失效", "请勿重复发送验证码"),
-    CREATE_INDEX_FAILED(2032, "创建新索引失败", "请等待少许后重试"),
+    DOC_INDEX_FAILED(2032, "索引或文档操作失败", "请等待少许后重试"),
     CAN_NOT_COMMENT(2033, "该用户没有评论的权限", "请联系超管修改权限"),
     CAN_NOT_MODIFY(2034, "该用户没有修改/删除的权限", "请联系超管修改权限"),
     ;

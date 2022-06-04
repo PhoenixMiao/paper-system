@@ -1,12 +1,12 @@
 server:
   port: 8010
-#  domain: https://www.xxxx.cn
-spring:
-  http:
+  servlet:
     encoding:
       charset: UTF-8
       force: true
       enabled: true
+#  domain: https://www.xxxx.cn
+spring:
   mail:
     host: smtp.exmail.qq.com #这个是QQ邮箱的，发件人邮箱的 SMTP 服务器地址, 必须准确, 不同邮件服务器地址不同, 一般(只是一般, 绝非绝对)格式为: smtp.xxx.com，可以百度
     username: 10205101490@stu.ecnu.edu.cn #qq邮箱
@@ -18,11 +18,11 @@ spring:
     properties.mail.smtp.ssl.enable: true #开启SSL
     default-encoding: utf-8
 
-#  rabbitmq:
+  #  rabbitmq:
 #    host: 124.222.112.118
-#    port: 5672
-#    username: root
-#    password: Lishuai0923
+  #    port: 5672
+  #    username: root
+  #    password: Lishuai0923
 
 
   datasource:
@@ -30,13 +30,13 @@ spring:
     url: jdbc:mysql://124.222.112.118:3306/paper?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: abc123400197
-    hikari:
-      minimum-idle: 10
-      maximum-pool-size: 100
-      idle-timeout: 120000
-      pool-name: HikarPool-ls&zy
-      max-lifetime: 300000
-      connection-timeout: 120000
+  #    hikari:
+  #      minimum-idle: 10
+  #      maximum-pool-size: 100
+  #      idle-timeout: 120000
+  #      pool-name: HikariPool-ls&zy
+  #      max-lifetime: 300000
+  #      connection-timeout: 120000
 
   jackson:
     time-zone: GMT+8

@@ -60,23 +60,31 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize",value = "每页显示数量 (不小于0)",required = true,paramType = "query",dataType = "Integer"),
             @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),})
-    public Result getBriefUserList(@NotNull @RequestParam("pageSize")Integer pageSize,
-                                   @NotNull @RequestParam("pageNum")Integer pageNum){
-        try{
-            return Result.success(userService.getBriefUserList(pageSize,pageNum, sessionUtils.getUserId()));
-        }catch (CommonException e){
+    public Result getBriefUserList(@NotNull @RequestParam("pageSize") Integer pageSize,
+                                   @NotNull @RequestParam("pageNum") Integer pageNum) {
+        try {
+            return Result.success(userService.getBriefUserList(pageSize, pageNum, sessionUtils.getUserId()));
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
     }
 
-    @Auth
-    @GetMapping(value = "/info",produces = "application/json")
-    @ApiOperation(value = "获取我的信息")
-    public Result getMyInformation(){
 
-        try{
+    @Auth
+    @GetMapping(value = "/whoami", produces = "application/json")
+    @ApiOperation(value = "检测登录状态")
+    public Result whoami() {
+        return Result.success(sessionUtils.getSessionData());
+    }
+
+    @Auth
+    @GetMapping(value = "/info", produces = "application/json")
+    @ApiOperation(value = "获取我的信息")
+    public Result getMyInformation() {
+
+        try {
             return Result.success(userService.getUserById(sessionUtils.getUserId()));
-        }catch (CommonException e){
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
     }
@@ -94,19 +102,6 @@ public class UserController {
         }
     }
 
-//todo
-//    @Admin
-//    @GetMapping(value = "/admin",produces = "application/json")
-//    @ApiOperation(value = "超管将普通用户改为管理员",response = Long.class)
-//    @ApiImplicitParam(name = "userId",value = "所需要被设置的用户的id",required = true,paramType = "query")
-//    public Result toAdmin(@NotNull@RequestParam("userId")Long userId){
-//        try{
-//            userService.toAdmin(userId);
-//            return Result.success(userId);
-//        }catch (CommonException e){
-//            return Result.result(e.getCommonErrorCode());
-//        }
-//    }
 
     @Auth
     @GetMapping(value = "", produces = "application/json")
@@ -148,21 +143,34 @@ public class UserController {
         return Result.success("删除成功");
     }
 
-//todo
-//    @Admin
-//    @GetMapping(value = "/authorize",produces = "application/json")
-//    @ApiOperation(value = "设置用户权限")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "query",dataType = "Long"),
-//            @ApiImplicitParam(name = "type",value = "权限(0普通用户 1管理员)",required = true,paramType = "query",dataType = "Integer"),})
-//    public Result authorizeUser(@NotNull @RequestParam("userId")Long userId,@NotNull @RequestParam("type")Integer type){
-//        try{
-//            userService.authorizeUser(userId,type);
-//        }catch (CommonException e) {
-//            return Result.result(e.getCommonErrorCode());
-//        }
-//        return Result.success("设置成功");
-//    }
+    @Admin
+    @GetMapping(value = "/upgrade", produces = "application/json")
+    @ApiOperation(value = "将用户升级为审核/返回普通用户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true, paramType = "query", dataType = "Long"),
+            @ApiImplicitParam(name = "canModify", value = "是否可以修改或删除别人的论文和笔记", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result authorizeUser(@NotNull @RequestParam("userId") Long userId, @NotNull @RequestParam("canModify") Integer canModify) {
+        try {
+            userService.upgradeUser(userId, canModify);
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+        return Result.success("升级成功");
+    }
+
+    @Admin
+    @GetMapping(value = "/mute", produces = "application/json")
+    @ApiOperation(value = "将用户禁言三天")
+    @ApiImplicitParam(name = "userId", value = "用户id", required = true, paramType = "query", dataType = "Long")
+    public Result mute(@NotNull @RequestParam("userId") Long userId) {
+        try {
+            userService.muteUser(userId);
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+        return Result.success("升级成功");
+    }
 
     @GetMapping(value = "/send", produces = "application/json")
     @ApiOperation(value = "发送验证邮箱")

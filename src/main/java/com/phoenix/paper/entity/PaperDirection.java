@@ -1,5 +1,8 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -33,4 +36,9 @@ public class PaperDirection {
 
     @ApiModelProperty("删除时间")
     private String deleteTime;
+
+    @Version
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty("论文方向信息乐观锁组件")
+    private Integer version;
 }

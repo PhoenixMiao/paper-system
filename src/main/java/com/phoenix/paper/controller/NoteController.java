@@ -1,17 +1,15 @@
 package com.phoenix.paper.controller;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.phoenix.paper.annotation.Auth;
-import com.phoenix.paper.common.*;
+import com.phoenix.paper.common.CommonErrorCode;
+import com.phoenix.paper.common.CommonException;
+import com.phoenix.paper.common.Result;
 import com.phoenix.paper.controller.request.SearchNoteRequest;
 import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.SessionUtils;
-import com.phoenix.paper.util.TimeUtil;
-import io.netty.handler.codec.CodecException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,9 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -110,24 +106,14 @@ public class NoteController {
     @ApiOperation(value = "笔记详情")
     @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
     public Result getNoteDetails(@NotNull @RequestParam("noteId")Long noteId){
-        try{
-            return Result.success(noteService.getNoteDetails(noteId));
+        try {
+            Note note = noteService.getNoteDetails(noteId);
+            if (note.getAuthorId().equals(sessionUtils.getUserId()) || sessionUtils.getSessionData().getCanModify() == 1 || sessionUtils.getSessionData().getType() == 1)
+                return Result.success("该用户有编辑和修改权限", note);
+            else return Result.success("该用户无编辑和修改权限", note);
         }catch (CommonException e){
             return Result.result(e.getCommonErrorCode());
         }
-    }
-
-    @Auth
-    @PostMapping(value = "/update",produces = "application/json")
-    @ApiOperation(value = "更新笔记")
-    @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
-    public Result updateNote(MultipartFile file,@NotNull @RequestParam("noteId")Long noteId){
-        try{
-            noteService.updateNote(file,noteId);
-        }catch (CommonException e){
-            return Result.result(e.getCommonErrorCode());
-        }
-        return Result.success("更新成功");
     }
 
     @Auth

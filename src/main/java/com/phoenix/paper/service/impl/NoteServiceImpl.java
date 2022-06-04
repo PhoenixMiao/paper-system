@@ -71,25 +71,6 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public void updateNote(MultipartFile file,Long noteId) throws CommonException{
-        SessionData sessionData = sessionUtils.getSessionData();
-        Note note = noteMapper.selectById(noteId);
-        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || note.getAuthorId() == sessionData.getId(), CommonErrorCode.CAN_NOT_MODIFY);
-        if(note==null || note.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
-        String originalFilename = file.getOriginalFilename();
-        String flag = IdUtil.fastSimpleUUID();
-        String rootFilePath = System.getProperty("user.dir") + "/src/main/resources/files/" + flag + "-" + originalFilename;
-        try{
-            FileUtil.writeBytes(file.getBytes(),rootFilePath);
-        }catch (IOException e){
-            throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
-        }
-        String link = CommonConstants.DOWNLOAD_PATH + flag;
-        note.setNoteLink(link);
-        if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
-    }
-
-    @Override
     public Long addNote(Long authorId,Long paperId) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
         AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);

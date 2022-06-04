@@ -24,17 +24,19 @@ public interface UserService {
 
     LoginResponse signUp(String email,String password);
 
-    void checkCode(String email,String code);
+    void checkCode(String email, String code);
 
     String findNumber(String email);
 
-    void updatePassword(String accountNum,String password);
+    void updatePassword(String accountNum, String password);
 
     SessionData getUserById(Long userId);
 
     void updateUser(Long userId, UpdateUserRequest updateUserRequest);
 
-    void authorizeUser(Long userId, Integer type);
+    void upgradeUser(Long userId, Integer canModify);
+
+    void muteUser(Long userId);
 
     void deleteUser(Long userId);
 

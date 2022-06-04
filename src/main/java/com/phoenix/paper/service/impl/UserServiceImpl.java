@@ -12,18 +12,21 @@ import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.SessionData;
+import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.UserService;
 import com.phoenix.paper.util.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -98,7 +101,7 @@ public class UserServiceImpl implements UserService {
     public Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId) {
         if (userMapper.selectById(userId).getType() != 1)
             throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        PageHelper.startPage(pageNum, pageSize, "create_time desc");
+        PageHelper.startPage(pageNum, pageSize, "can_modify,name asc");
         //List<BriefUser> briefUsers = briefUserList.stream().parallel().filter(user -> user.getDeleteTime() == null).collect(Collectors.toList());
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
@@ -299,11 +302,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void authorizeUser(Long userId, Integer type) {
+    public void upgradeUser(Long userId, Integer canModify) {
         User user = userMapper.selectById(userId);
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
-        user.setType(type);
+        user.setCanModify(canModify);
         userMapper.updateById(user);
+    }
+
+    @Override
+    public void muteUser(Long userId) throws CommonException {
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        user.setCanComment(0);
+        userMapper.updateById(user);
+        new MuteThead(userId).updateStatus();
     }
 
     @Override
@@ -314,4 +326,51 @@ public class UserServiceImpl implements UserService {
         return new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId)));
     }
 
+}
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+class MuteThead {
+    private Long id;
+
+    public void updateStatus() {
+        SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, 3);
+        Date time = calendar.getTime();
+        Timer timer = new Timer();
+        timer.schedule(new Mute(id), time);
+    }
+}
+
+class Mute extends TimerTask {
+    private UserMapper userMapper;
+
+    private Long id;
+
+    public Mute(Long id) {
+        super();
+        userMapper = SpringContextUtil.getBean("UserMapper");
+        this.id = id;
+    }
+
+    public Mute() {
+        super();
+    }
+
+
+    @Override
+    public void run() {
+        try {
+            if (userMapper == null) {  //这个判断是用老方法@Autowired注入的时候 报空指针 测试的时候在这儿判断了一下 是因为service空 没有成功注入 所有service/dao注入需要SpringContextUtil.getBean才可以
+                System.out.println("---> null");
+            }
+            this.userMapper.updateById(User.builder().id(this.id).canComment(1).build());//这里 调用service的业务逻辑
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
