@@ -1,5 +1,7 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -71,6 +73,7 @@ public class User {
     private Integer type;
 
     @Version
+    @TableField(fill = FieldFill.INSERT)
     @ApiModelProperty("用户信息乐观锁组件")
     private int version;
 

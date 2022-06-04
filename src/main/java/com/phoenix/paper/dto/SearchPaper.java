@@ -1,11 +1,14 @@
 package com.phoenix.paper.dto;
 
+import com.phoenix.paper.entity.Paper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static com.phoenix.paper.common.CommonConstants.PAPER_TYPE;
 
 @Data
 @NoArgsConstructor
@@ -33,7 +36,7 @@ public class SearchPaper {
     private String summary;
 
     @ApiModelProperty("论文类型")
-    private Integer paperType;
+    private String paperType;
 
     @ApiModelProperty("文献链接")
     private String link;
@@ -43,4 +46,15 @@ public class SearchPaper {
 
     @ApiModelProperty("论文内容")
     private String context;
+
+    public SearchPaper(Paper paper) {
+        this.id = paper.getId();
+        this.author = paper.getAuthor();
+        this.link = paper.getLink();
+        this.paperType = PAPER_TYPE[paper.getPaperType()];
+        this.publishConference = paper.getPublishConference();
+        this.publishDate = paper.getPublishDate();
+        this.summary = paper.getSummary();
+        this.title = paper.getTitle();
+    }
 }

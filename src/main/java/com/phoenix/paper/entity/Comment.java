@@ -1,5 +1,8 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -34,7 +37,7 @@ public class Comment {
     private String createTime;
 
     @ApiModelProperty("删除时间")
-    private String  deleteTime;
+    private String deleteTime;
 
     @ApiModelProperty("评论内容")
     private String contents;
@@ -42,4 +45,8 @@ public class Comment {
     @ApiModelProperty("评论id")
     private Long commentId;
 
+    @Version
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty("评论乐观锁组件")
+    private Integer version;
 }

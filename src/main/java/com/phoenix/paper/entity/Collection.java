@@ -1,8 +1,14 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -35,8 +41,13 @@ public class Collection {
     private Long userId;
 
     @ApiModelProperty("收藏时间")
-    private String  collectTime;
+    private String collectTime;
 
     @ApiModelProperty("删除时间")
-    private String  deleteTime;
+    private String deleteTime;
+
+    @Version
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty("收藏乐观锁组件")
+    private Integer version;
 }

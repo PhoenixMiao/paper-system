@@ -1,11 +1,9 @@
 package com.phoenix.paper.service.impl;
 
 
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
-import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.util.RedisUtils;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -41,13 +38,13 @@ public class ScheduledTasks {
     @Autowired
     private UserMapper userMapper;
 
-    @Scheduled(cron = "0 0/10 * * * ? ")
-    //@Scheduled(cron = "0 0 0/2 * * ? ")
+    //@Scheduled(cron = "0 0/10 * * * ? ")
+    @Scheduled(cron = "0 0 0/12 * * ? ")
     public void likes2database() {
-        Map<Object,Object> likeInformation = new HashMap<>();
-        likeInformation=redisUtils.hmget("LIKE_INFORMATION");
-        Map<Object,Object> likeCount = new HashMap<>();
-        likeCount=redisUtils.hmget("LIKE_COUNT");
+        Map<Object, Object> likeInformation = new HashMap<>();
+        likeInformation = redisUtils.hmget("LIKE_INFORMATION");
+        Map<Object, Object> likeCount = new HashMap<>();
+        likeCount = redisUtils.hmget("LIKE_COUNT");
         redisUtils.del("LIKE_COUNT");
         redisUtils.del("LIKE_INFORMATION");
         for (Map.Entry<Object, Object> entry : likeInformation.entrySet()) {
@@ -79,7 +76,7 @@ public class ScheduledTasks {
             }
         }
         try {
-            Thread.sleep(1000*5);
+            Thread.sleep(1000 * 5);
             redisUtils.del("LIKE_COUNT");
             redisUtils.del("LIKE_INFORMATION");
         } catch (Exception e) {
@@ -87,13 +84,13 @@ public class ScheduledTasks {
         }
     }
 
-    @Scheduled(cron = "0 0/10 * * * ? ")
-    //@Scheduled(cron = "0 0 0/2 * * ? ")
+    //@Scheduled(cron = "0 0/10 * * * ? ")
+    @Scheduled(cron = "0 0 0/12 * * ? ")
     public void collections2database() {
-        Map<Object,Object> collectInformation = new HashMap<>();
-        collectInformation=redisUtils.hmget("COLLECT_INFORMATION");
-        Map<Object,Object> collectCount = new HashMap<>();
-        collectCount=redisUtils.hmget("LIKE_COUNT");
+        Map<Object, Object> collectInformation = new HashMap<>();
+        collectInformation = redisUtils.hmget("COLLECT_INFORMATION");
+        Map<Object, Object> collectCount = new HashMap<>();
+        collectCount = redisUtils.hmget("LIKE_COUNT");
         redisUtils.del("COLLECT_COUNT");
         redisUtils.del("COLLECT_INFORMATION");
         for (Map.Entry<Object, Object> entry : collectInformation.entrySet()) {
