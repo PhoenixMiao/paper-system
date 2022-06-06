@@ -5,7 +5,10 @@ import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.dto.BriefUser;
+import com.phoenix.paper.dto.PaperAndNoteData;
 import com.phoenix.paper.dto.SessionData;
+
+import java.util.List;
 
 public interface UserService {
     /**
@@ -43,4 +46,8 @@ public interface UserService {
     void updateEmail(String email, Long userId);
 
     Page<BriefPaper> getUserPaperList(Integer pageNum, Integer pageSize, Long userId);
+
+    List<PaperAndNoteData> getUserPaperData(Integer period, Long userId);
+
+    List<PaperAndNoteData> getUserNoteData(Integer period, Long userId);
 }

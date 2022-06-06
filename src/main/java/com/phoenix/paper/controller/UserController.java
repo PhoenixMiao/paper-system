@@ -268,4 +268,32 @@ public class UserController {
             return Result.result(e.getCommonErrorCode());
         }
     }
+
+    @Auth
+    @GetMapping(value = "/paperData", produces = "application/json")
+    @ApiOperation(value = "获取该用户的论文数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "period", value = "数据的时间段 7表示一周内 30表示30天内 365表示一年内", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result getUserPaperData(@NotNull @RequestParam("period")Integer period) {
+        try{
+            return Result.success(userService.getUserPaperData(period, sessionUtils.getUserId()));
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @Auth
+    @GetMapping(value = "/noteData", produces = "application/json")
+    @ApiOperation(value = "获取该用户的笔记数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "period", value = "数据的时间段 7表示一周内 30表示30天内 365表示一年内", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result getUserNoteData(@NotNull @RequestParam("period") Integer period) {
+        try {
+            return Result.success(userService.getUserNoteData(period, sessionUtils.getUserId()));
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
 }
