@@ -44,7 +44,7 @@ public class SessionUtils {
     public SessionData getSessionData() throws CommonException{
         String key = request.getHeader(CommonConstants.SESSION);
         if(key == null) throw new CommonException(CommonErrorCode.NEED_SESSION_ID);
-        if(!redisUtil.hasKey(key)) throw new CommonException(CommonErrorCode.SESSION_IS_INVALID);
+        //if(!redisUtil.hasKey(key)) throw new CommonException(CommonErrorCode.SESSION_IS_INVALID);
         if(redisUtil.isExpire(key)){
             redisUtil.del(key);
             throw new CommonException(CommonErrorCode.LOGIN_HAS_OVERDUE);

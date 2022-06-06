@@ -30,13 +30,13 @@ spring:
     url: jdbc:mysql://124.222.112.118:3306/paper?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: abc123400197
-  #    hikari:
-  #      minimum-idle: 10
-  #      maximum-pool-size: 100
-  #      idle-timeout: 120000
-  #      pool-name: HikariPool-ls&zy
-  #      max-lifetime: 300000
-  #      connection-timeout: 120000
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 100
+      idle-timeout: 1200
+      pool-name: HikariPool-ls&zy
+      max-lifetime: 3000
+      connection-timeout: 1200
 
   jackson:
     time-zone: GMT+8
