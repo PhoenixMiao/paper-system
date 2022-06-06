@@ -10,11 +10,8 @@ import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.service.ResearchDirectionService;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,20 +48,20 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
     @Override
     public Long addResearchDirection(AddResearchDirectionRequest addResearchDirectionRequest, Long creatorId) throws CommonException {
         QueryWrapper<ResearchDirection> researchDirectionQueryWrapper = new QueryWrapper<>();
-        researchDirectionQueryWrapper.eq("name",addResearchDirectionRequest.getName());
-        ResearchDirection researchDirectionOld = researchDirectionMapper.selectOne(researchDirectionQueryWrapper);
-        if (researchDirectionOld == null || researchDirectionOld.getDeleteTime()!=null)
-            throw new CommonException(CommonErrorCode.REPETITIVE_DIRECTION);
+        researchDirectionQueryWrapper.eq("name", addResearchDirectionRequest.getName());
+        int exist = researchDirectionMapper.selectCount(researchDirectionQueryWrapper);
+        if (exist != 0) throw new CommonException(CommonErrorCode.REPETITIVE_DIRECTION);
         ResearchDirection researchDirection;
         if (addResearchDirectionRequest.getFatherId() != 0) {
             ResearchDirection fatherResearchDirection = researchDirectionMapper.selectById(addResearchDirectionRequest.getFatherId());
-            if(fatherResearchDirection.getIsLeaf()==1){
+            if (fatherResearchDirection.getIsLeaf() == 1) {
                 fatherResearchDirection.setIsLeaf(0);
-                if(researchDirectionMapper.updateById(fatherResearchDirection)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+                if (researchDirectionMapper.updateById(fatherResearchDirection) == 0)
+                    throw new CommonException(CommonErrorCode.UPDATE_FAILED);
             }
-            synchronized (this) {
-                QueryWrapper<ResearchDirection> researchDirectionQueryWrapper1 = new QueryWrapper<>();
-                researchDirectionQueryWrapper1.eq("root_id",fatherResearchDirection.getRootId()).eq("father_id",fatherResearchDirection.getFatherId());
+            //synchronized (this) {
+            QueryWrapper<ResearchDirection> researchDirectionQueryWrapper1 = new QueryWrapper<>();
+            researchDirectionQueryWrapper1.eq("root_id", fatherResearchDirection.getRootId()).eq("father_id", fatherResearchDirection.getFatherId());
                 int nodeNum = researchDirectionMapper.selectCount(researchDirectionQueryWrapper1);
                 researchDirection = ResearchDirection.builder()
                         .fatherId(fatherResearchDirection.getId())
@@ -76,21 +73,20 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
                         .isLeaf(1)
                         .build();
                 researchDirectionMapper.insert(researchDirection);
-            }
+            //}
         } else {
-            synchronized (this) {
-                researchDirection = ResearchDirection.builder()
-                        .name(addResearchDirectionRequest.getName())
-                        .path("0")
-                        .createTime(TimeUtil.getCurrentTimestamp())
-                        .creatorId(creatorId)
-                        .fatherId((long) 0)
-                        .isLeaf(1)
-                        .build();
-                researchDirectionMapper.insert(researchDirection);
-                researchDirection.setRootId(researchDirection.getRootId());
-                if(researchDirectionMapper.updateById(researchDirection)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
-            }
+            researchDirection = ResearchDirection.builder()
+                    .name(addResearchDirectionRequest.getName())
+                    .path("0")
+                    .createTime(TimeUtil.getCurrentTimestamp())
+                    .creatorId(creatorId)
+                    .fatherId((long) 0)
+                    .isLeaf(1)
+                    .build();
+            researchDirectionMapper.insert(researchDirection);
+            researchDirection.setRootId(researchDirection.getId());
+            if (researchDirectionMapper.updateById(researchDirection) == 0)
+                throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         }
         return researchDirection.getId();
     }

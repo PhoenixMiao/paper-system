@@ -1,7 +1,9 @@
 package com.phoenix.paper.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -10,8 +12,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Version;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
@@ -21,7 +21,8 @@ import javax.persistence.Id;
 @ApiModel("ResearchDirection 研究方向")
 public class ResearchDirection {
     @Id
-    @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
+    @TableId(value = "id", type = IdType.AUTO)
+    //@GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
     @ApiModelProperty("研究方向id")
     private Long id;
 
