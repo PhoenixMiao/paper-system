@@ -22,7 +22,6 @@ import javax.persistence.Id;
 public class ResearchDirection {
     @Id
     @TableId(value = "id", type = IdType.AUTO)
-    //@GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
     @ApiModelProperty("研究方向id")
     private Long id;
 

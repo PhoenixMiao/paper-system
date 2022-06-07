@@ -13,7 +13,8 @@ public class CommonConstants {
     public final static String SEPARATOR = ",";
     public final static String CHAT_RECORD_COLLECTION_NAME = "chat_record";
     public final static String WX_SESSION_REQUEST_URL = "https://api.weixin.qq.com/sns/jscode2session";
-    public final static String DOWNLOAD_PATH = "http://127.0.0.1:8000/note/download/";
+    public final static String DOWNLOAD_PAPER_PATH = "http://124.222.112.118:8010/paper/download/";
+    public final static String DOWNLOAD_NOTE_PATH = "http://124.222.112.118:8010/note/download/";
     //https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_5_1.shtml
     public final static String WX_PAY_REQUEST_URL = "https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi";
     public final static String CNY_CURRENCY = "CNY";

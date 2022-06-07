@@ -44,6 +44,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -95,7 +96,7 @@ public class PaperServiceImpl implements PaperService {
     private SessionUtils sessionUtils;
 
     public static void main(String[] args) {
-        System.out.println(Arrays.toString(SEARCH_PAPER_FIELDS));
+        System.out.println(JSON.toJSONString("context:" + "1"));
     }
 
     @Override
@@ -125,16 +126,20 @@ public class PaperServiceImpl implements PaperService {
 
     }
 
+    @Transactional
     @Override
     public Long addPaper(Long userId, AddPaperRequest addPaperRequest) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
         AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Paper paper = Paper.builder()
+                .title(addPaperRequest.getTitle())
+                .paperType(addPaperRequest.getPaperType())
                 .uploaderId(userId)
                 .paperType(addPaperRequest.getPaperType())
                 .author(addPaperRequest.getAuthor())
                 .collectNumber(0)
                 .likeNumber(0)
+                .version(1)
                 .publishConference(addPaperRequest.getPublishConference())
                 .publishDate(TimeUtil.getCurrentTimestamp())
                 .link(addPaperRequest.getLink())
@@ -162,8 +167,8 @@ public class PaperServiceImpl implements PaperService {
                 .publishConference(paper.getPublishConference())
                 .title(paper.getTitle())
                 .summary(paper.getSummary())
-                .publishDate(paper.getPublishDate())
-                .paperType(PAPER_TYPE[paper.getPaperType()])), XContentType.JSON);
+                .publishDate(TimeUtil.parseToDate(paper.getPublishDate()))
+                .paperType(PAPER_TYPE[paper.getPaperType()]).build()), XContentType.JSON);
         try {
             if (!restHighLevelClient.index(request, RequestOptions.DEFAULT).status().toString().equals("CREATED")) {
                 throw new CommonException(CommonErrorCode.DOC_INDEX_FAILED);
@@ -175,6 +180,7 @@ public class PaperServiceImpl implements PaperService {
         return paper.getId();
     }
 
+    @Transactional
     @Override
     public  String uploadPaper(MultipartFile file, Long paperId)throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
@@ -189,7 +195,7 @@ public class PaperServiceImpl implements PaperService {
         } catch (IOException e) {
             throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
         }
-        String link = CommonConstants.DOWNLOAD_PATH + flag;
+        String link = CommonConstants.DOWNLOAD_PAPER_PATH + flag;
         paper.setFileLink(link);
         paper.setUploadTime(TimeUtil.getCurrentTimestamp());
         if (paperMapper.updateById(paper) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
@@ -210,7 +216,9 @@ public class PaperServiceImpl implements PaperService {
             String context = stripper.getText(document);
             UpdateRequest updateRequest = new UpdateRequest("paper", paperId.toString());
             updateRequest.timeout("1s");
-            updateRequest.doc(JSON.toJSONString(new Tmp(context)), XContentType.JSON);
+            //todo 这里直接在toJsonString里面直接new Tmp就不行
+            Tmp tmp = new Tmp(context);
+            updateRequest.doc(JSON.toJSONString(tmp), XContentType.JSON);
             UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
             if (!updateResponse.status().toString().equals("OK"))
                 throw new CommonException(CommonErrorCode.DOC_INDEX_FAILED);
@@ -295,6 +303,7 @@ public class PaperServiceImpl implements PaperService {
         return new Page<>(new PageInfo<>(briefPaperList));
     }
 
+    @Transactional
     @Override
     public void deletePaper(Long paperId, Long userId) throws CommonException {
         Paper paper = paperMapper.selectById(paperId);
@@ -307,43 +316,35 @@ public class PaperServiceImpl implements PaperService {
         List<Note> notes = noteMapper.selectList(noteQueryWrapper);
         for (Note note : notes) {
             note.setDeleteTime(deleteTime);
-            if (noteMapper.updateById(note) == 0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            noteMapper.updateById(note);
             QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
             likesQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
-            if (likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper) == 0)
-                throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper);
             QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
             collectionQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
-            if (collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper) == 0)
-                throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
             QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
             commentQueryWrapper.eq("object_id", note.getId()).eq("object_type", 0);
             List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
             for (Comment comment : comments) {
                 QueryWrapper<Comment> commentQueryWrapper1 = new QueryWrapper<>();
                 commentQueryWrapper1.eq("object_id", comment.getId()).eq("object_type", 1);
-                if (commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1) == 0)
-                    throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1);
             }
-            if (commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper) == 0)
-                throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);
 
         }
         QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
         likesQueryWrapper.eq("object_id", paper.getId()).eq("object_type", 0);
-        if (likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper) == 0)
-            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper);
         QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
         collectionQueryWrapper.eq("object_id", paper.getId()).eq("object_type", 0);
-        if (collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper) == 0)
-            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
         QueryWrapper<PaperQuotation> paperQuotationQueryWrapper = new QueryWrapper<>();
-        paperQuotationQueryWrapper.eq("paper_id", paper.getId());
-        if (paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper) == 0)
-            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        paperQuotationQueryWrapper.eq("quoter_id", paper.getId()).or().eq("quoted_id", paper.getId());
+        paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper);
         QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
-        if (paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(), paperDirectionQueryWrapper) == 0)
-            throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(), paperDirectionQueryWrapper);
         DeleteRequest deleteRequest = new DeleteRequest("paper", paperId.toString());
         deleteRequest.timeout("1s");
         try {
@@ -356,21 +357,20 @@ public class PaperServiceImpl implements PaperService {
 
     }
 
+    @Transactional
     @Override
     public void updatePaper(Long paperId, Long userId, UpdatePaperRequest updatePaperRequest) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
         Paper paper = paperMapper.selectById(paperId);
         AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || sessionData.getId().equals(paper.getUploaderId()), CommonErrorCode.CAN_NOT_MODIFY);
-        paperMapper.updateById(
-                Paper.builder().paperType(updatePaperRequest.getPaperType())
-                        .link(updatePaperRequest.getLink())
-                        .summary(updatePaperRequest.getSummary())
-                        .publishConference(updatePaperRequest.getPublishConference())
-                        .id(paperId)
-                        .publishDate(updatePaperRequest.getPublishDate())
-                        .author(updatePaperRequest.getAuthor())
-                        .title(updatePaperRequest.getTitle())
-                        .build());
+        paper.setPaperType(updatePaperRequest.getPaperType());
+        paper.setAuthor(updatePaperRequest.getAuthor());
+        paper.setLink(updatePaperRequest.getLink());
+        paper.setPublishConference(updatePaperRequest.getPublishConference());
+        paper.setPublishDate(updatePaperRequest.getPublishDate());
+        paper.setSummary(updatePaperRequest.getSummary());
+        paper.setTitle(updatePaperRequest.getTitle());
+        if (paperMapper.updateById(paper) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
 
         UpdateRequest updateRequest = new UpdateRequest("paper", paperId.toString());
         updateRequest.timeout("1s");
@@ -422,17 +422,19 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public void updateQuotation(Long id, String remarks) {
+    public void updateQuotation(Long id, String remarks) throws CommonException {
         PaperQuotation paperQuotation = paperQuotationMapper.selectById(id);
         paperQuotation.setRemarks(remarks);
-        paperQuotationMapper.updateById(paperQuotation);
+        if (paperQuotationMapper.updateById(paperQuotation) == 0)
+            throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
     @Override
-    public void deleteQuotation(Long id) {
+    public void deleteQuotation(Long id) throws CommonException {
         PaperQuotation paperQuotation = paperQuotationMapper.selectById(id);
         paperQuotation.setDeleteTime(TimeUtil.getCurrentTimestamp());
-        paperQuotationMapper.updateById(paperQuotation);
+        if (paperQuotationMapper.updateById(paperQuotation) == 0)
+            throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
     @Override
@@ -458,10 +460,10 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public void deleteDirection(Long paperDirectionId) {
+    public void deleteDirection(Long paperDirectionId) throws CommonException {
         PaperDirection paperDirection = paperDirectionMapper.selectById(paperDirectionId);
         paperDirection.setDeleteTime(TimeUtil.getCurrentTimestamp());
-        paperDirectionMapper.updateById(paperDirection);
+        if (paperDirectionMapper.updateById(paperDirection) == 0) throw new CommonException();
     }
 
     private static class Tmp {
@@ -471,5 +473,7 @@ public class PaperServiceImpl implements PaperService {
             this.context = context;
         }
     }
+
+
 }
 

@@ -1,5 +1,7 @@
 package com.phoenix.paper.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -7,8 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
@@ -18,7 +18,7 @@ import javax.persistence.Id;
 @ApiModel("Likes 点赞记录")
 public class Likes {
     @Id
-    @GeneratedValue(generator = "JDBC",strategy = GenerationType.IDENTITY)
+    @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("点赞id")
     private Long id;
 

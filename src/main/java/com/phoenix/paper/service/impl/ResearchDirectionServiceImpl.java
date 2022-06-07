@@ -11,6 +11,7 @@ import com.phoenix.paper.service.ResearchDirectionService;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
                         .rootId(fatherResearchDirection.getRootId())
                         .path(fatherResearchDirection.getPath() + (new Integer(nodeNum)).toString())
                         .isLeaf(1)
+                        .version(1)
                         .build();
                 researchDirectionMapper.insert(researchDirection);
             //}
@@ -82,6 +84,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
                     .creatorId(creatorId)
                     .fatherId((long) 0)
                     .isLeaf(1)
+                    .version(1)
                     .build();
             researchDirectionMapper.insert(researchDirection);
             researchDirection.setRootId(researchDirection.getId());
@@ -107,6 +110,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
         return researchDirectionMapper.getAllSons(researchDirection.getRootId(),researchDirection.getPath()+'%');
     }
 
+    @Transactional
     @Override
     public void deleteNode(Long id) throws CommonException{
         List<Long> sonList = getAllSons(id);
@@ -129,35 +133,35 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
                     List<Note> notes = noteMapper.selectList(noteQueryWrapper);
                     for (Note note : notes) {
                         note.setDeleteTime(deleteTime);
-                        if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                        noteMapper.updateById(note);
                         QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
-                        likesQueryWrapper.eq("object_id",note.getId()).eq("object_type",1);
-                        if(likesMapper.update(Likes.builder().deleteTime(deleteTime).build(),likesQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                        likesQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
+                        likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper);
                         QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
-                        collectionQueryWrapper.eq("object_id",note.getId()).eq("object_type",1);
-                        if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                        collectionQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
+                        collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
                         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-                        commentQueryWrapper.eq("object_id",note.getId()).eq("object_type",0);
+                        commentQueryWrapper.eq("object_id", note.getId()).eq("object_type", 0);
                         List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
                         for (Comment comment : comments) {
                             QueryWrapper<Comment> commentQueryWrapper1 = new QueryWrapper<>();
-                            commentQueryWrapper1.eq("object_id",comment.getId()).eq("object_type",1);
-                            if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                            commentQueryWrapper1.eq("object_id", comment.getId()).eq("object_type", 1);
+                            commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1);
                         }
-                        if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                        commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);
 
                     }
                     QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
-                    likesQueryWrapper.eq("object_id",paper.getId()).eq("object_type",0);
-                    if(likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                    likesQueryWrapper.eq("object_id", paper.getId()).eq("object_type", 0);
+                    likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper);
                     QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
-                    collectionQueryWrapper.eq("object_id",paper.getId()).eq("object_type",0);
-                    if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                    collectionQueryWrapper.eq("object_id", paper.getId()).eq("object_type", 0);
+                    collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
                     QueryWrapper<PaperQuotation> paperQuotationQueryWrapper = new QueryWrapper<>();
-                    paperQuotationQueryWrapper.eq("paper_id",paper.getId());
-                    if(paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                    paperQuotationQueryWrapper.eq("quoter_id", paper.getId()).or().eq("quoted_id", paper.getId());
+                    paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper);
                     QueryWrapper<PaperDirection> paperDirectionQueryWrapper1 = new QueryWrapper<>();
-                    if(paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(),paperDirectionQueryWrapper1)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                    paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(), paperDirectionQueryWrapper1);
 
                 }
             }

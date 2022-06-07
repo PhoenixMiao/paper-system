@@ -34,6 +34,14 @@
 			<version>3.0.5</version>
 		</dependency>
 
+		<!--		&lt;!&ndash; https://mvnrepository.com/artifact/org.springframework/spring-tx &ndash;&gt;-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework</groupId>-->
+		<!--			<artifactId>spring-tx</artifactId>-->
+		<!--			<version>2.5.2</version>-->
+		<!--		</dependency>-->
+
+
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>

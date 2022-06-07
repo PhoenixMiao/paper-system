@@ -148,7 +148,7 @@ public class PaperController {
         }
     }
 
-    @GetMapping(value = "/searchByBody", produces = "application/json")
+    @PostMapping(value = "/searchByBody", produces = "application/json")
     @ApiOperation(value = "论文搜索")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页显示数量 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
@@ -194,8 +194,12 @@ public class PaperController {
             @ApiImplicitParam(name = "remarks", value = "备注", required = true, paramType = "query", dataType = "String"),
     })
     public Result updateQuotation(@NotNull @RequestParam("quotationId") Long quotationId, @Param("remarks") String remarks) {
-        paperService.updateQuotation(quotationId, remarks);
-        return Result.success("更新备注成功");
+        try {
+            paperService.updateQuotation(quotationId, remarks);
+            return Result.success("更新备注成功");
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
     }
 
     @Auth
@@ -203,8 +207,13 @@ public class PaperController {
     @ApiOperation(value = "删除文献引用")
     @ApiImplicitParam(name = "quotationId", value = "论文引用id（创建论文的过程中给过）", required = true, paramType = "query", dataType = "Long")
     public Result deleteQuotation(@NotNull @RequestParam("quotationId") Long quotationId) {
-        paperService.deleteQuotation(quotationId);
-        return Result.success("删除成功");
+        try {
+            paperService.deleteQuotation(quotationId);
+            return Result.success("删除成功");
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+
     }
 
     @Auth
@@ -223,8 +232,12 @@ public class PaperController {
     @ApiOperation(value = "删除论文研究方向（仅用于后期更改论文研究方向时）")
     @ApiImplicitParam(name = "paperDirectionId", value = "论文-研究方向id（创建论文的过程中给过）", required = true, paramType = "query", dataType = "Long")
     public Result deleteDirection(@NotNull @RequestParam("paperDirectionId") Long paperDirectionId) {
-        paperService.deleteDirection(paperDirectionId);
-        return Result.success("删除成功");
+        try {
+            paperService.deleteDirection(paperDirectionId);
+            return Result.success("删除成功");
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
     }
 
     @Auth

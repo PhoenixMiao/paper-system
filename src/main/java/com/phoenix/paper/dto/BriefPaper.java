@@ -26,10 +26,16 @@ public class BriefPaper {
     @ApiModelProperty("摘要")
     private String summary;
 
-    @ApiModelProperty("author")
+    @ApiModelProperty("作者")
     private String author;
 
     @ApiModelProperty("附件链接")
     private String fileLink;
+
+    @ApiModelProperty("点赞数")
+    private Integer likeNumber;
+
+    @ApiModelProperty("收藏数")
+    private Integer collectNumber;
 
 }
