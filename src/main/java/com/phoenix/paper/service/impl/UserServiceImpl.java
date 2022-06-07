@@ -11,6 +11,7 @@ import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
 import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.dto.BriefUser;
+import com.phoenix.paper.dto.PaperAndNoteData;
 import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.*;
@@ -325,6 +326,17 @@ public class UserServiceImpl implements UserService {
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         PageHelper.startPage(pageNum, pageSize, "upload_time desc");
         return new Page<>(new PageInfo<>(paperMapper.getUserPaperList(userId)));
+    }
+
+    @Override
+    public List<PaperAndNoteData> getUserPaperData(Integer period, Long userId){
+        return paperMapper.getPaperData(userId,period);
+
+    }
+
+    @Override
+    public List<PaperAndNoteData> getUserNoteData(Integer period, Long userId){
+        return noteMapper.getNoteData(userId,period);
     }
 
 }
