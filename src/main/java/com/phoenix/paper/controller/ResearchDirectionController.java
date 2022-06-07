@@ -62,6 +62,17 @@ public class ResearchDirectionController {
         }
     }
 
+    @GetMapping(value = "",produces = "application/json")
+    @ApiOperation(value = "根据id获取研究方向名")
+    @ApiImplicitParam(name = "id",value = "研究方向id",paramType = "query",required = true,dataType = "Long")
+    public Result getResearchDirectionName(@NotNull @RequestParam("id") Long id){
+        try{
+            return Result.success(researchDirectionService.getResearchDirectionName(id));
+        }catch (CommonException e){
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
     @Admin
     @PostMapping(value = "delete",produces = "application/json")
     @ApiOperation(value = "删除某一研究方向")

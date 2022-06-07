@@ -21,6 +21,6 @@ public interface NoteMapper extends BaseMapper<Note> {
     @Select("SELECT * FROM note WHERE delete_time IS NULL")
     List<Note> getNoteList();
 
-    @Select("SELECT direction_id as direction,count(*) as number FROM note LEFT JOIN paper_direction ON note.paper_id=paper_direction.paper_id  where author_id=#{userId} AND TO_DAYS(NOW())-TO_DAYS(upload_time)<=#{period} group by direction_id ")
+    @Select("SELECT name as direction,count(*) as number FROM (note LEFT JOIN paper_direction ON note.paper_id=paper_direction.paper_id )LEFT JOIN research_direction ON paper_direction.direction_id=research_direction.id where author_id=#{user_id} AND TO_DAYS(NOW())-TO_DAYS(note.create_time)<=#{period} AND note.delete_time IS NULL group by direction_id")
     List<PaperAndNoteData> getNoteData(@Param("user_id")Long userId, @Param("period")Integer period);
 }

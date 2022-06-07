@@ -330,12 +330,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<PaperAndNoteData> getUserPaperData(Integer period, Long userId){
+        if(period!=7 && period!=30 && period!=365)throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
         return paperMapper.getPaperData(userId,period);
 
     }
 
     @Override
     public List<PaperAndNoteData> getUserNoteData(Integer period, Long userId){
+        if(period!=7 && period!=30 && period!=365)throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
         return noteMapper.getNoteData(userId,period);
     }
 

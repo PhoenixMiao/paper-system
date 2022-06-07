@@ -173,4 +173,9 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
         researchDirection.setName(name);
         if(researchDirectionMapper.updateById(researchDirection)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
+
+    @Override
+    public String getResearchDirectionName(Long id){
+        return researchDirectionMapper.getResearchDirectionName(id);
+    }
 }

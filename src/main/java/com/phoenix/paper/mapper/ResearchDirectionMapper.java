@@ -14,4 +14,7 @@ public interface ResearchDirectionMapper extends BaseMapper<ResearchDirection> {
 
     @Select("SELECT id FROM research_direction WHERE root_id = #{root_id} AND path LIKE #{path} AND LEN(delete_time) = 0 AND delete_time IS NULL;")
     List<Long> getAllSons(@Param("root_id")Long root_id,@Param("path")String path);
+
+    @Select("SELECT name FROM research_direction WHERE id = #{id} AND delete_time IS NULL;")
+    String getResearchDirectionName(@Param("id")Long id);
 }
