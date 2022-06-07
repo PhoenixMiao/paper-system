@@ -246,9 +246,9 @@ public class PaperController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页显示数量 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
             @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
-            @ApiImplicitParam(name = "keyword", value = "搜索框中输入的内容", required = true, paramType = "query", dataType = "Long")
+            @ApiImplicitParam(name = "keyword", value = "搜索框中输入的内容", required = true, paramType = "query", dataType = "String")
     })
-    public Result searchByQuery(@NotNull @RequestParam("pageSize") Integer pageSize, @NotNull @Param("pageNum") Integer pageNum, @NotNull @Param("orderBy") Integer orderBy, @Param("keyword") String keyword) {
+    public Result searchByQuery(@NotNull @RequestParam("pageSize") Integer pageSize, @NotNull @Param("pageNum") Integer pageNum, @Param("keyword") String keyword) {
         try {
             return Result.success(paperService.searchPaper(keyword, pageNum, pageSize));
         } catch (CommonException e) {
