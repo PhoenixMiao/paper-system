@@ -47,6 +47,7 @@ public enum CommonErrorCode {
     DOC_INDEX_FAILED(2032, "索引或文档操作失败", "请等待少许后重试"),
     CAN_NOT_COMMENT(2033, "该用户没有评论的权限", "请联系超管修改权限"),
     CAN_NOT_MODIFY(2034, "该用户没有修改/删除的权限", "请联系超管修改权限"),
+    PERIOD_NOT_SUPPORTED(2035, "不支持获取这一时间段的数据", "请选择其他时间段"),
     ;
 
 
