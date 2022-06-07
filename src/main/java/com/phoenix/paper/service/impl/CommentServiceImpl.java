@@ -18,6 +18,7 @@ import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -31,6 +32,7 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private SessionUtils sessionUtils;
 
+    @Transactional
     @Override
     public void deleteComment(Long commentId, Long userId) throws CommonException {
         Comment comment = commentMapper.selectById(commentId);
@@ -54,7 +56,7 @@ public class CommentServiceImpl implements CommentService {
             Comment comment=commentMapper.selectById(objectId);
             if(comment.getCommentId()!=null)throw new CommonException(CommonErrorCode.COMMENT_IS_NOT_ALLOWED);
         }
-        Comment comment=Comment.builder().userId(userId).createTime(TimeUtil.getCurrentTimestamp()).contents(content).build();
+        Comment comment = Comment.builder().userId(userId).createTime(TimeUtil.getCurrentTimestamp()).contents(content).version(1).build();
         if(objectType==0)comment.setNoteId(objectId);
         else if(objectType==1)comment.setCommentId(objectId);
         commentMapper.insert(comment);

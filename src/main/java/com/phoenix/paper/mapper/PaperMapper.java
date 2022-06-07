@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 public interface PaperMapper extends BaseMapper<Paper> {
-    @Select("SELECT id,title,publish_date,summary,link,like_number,collect_number FROM paper WHERE paper.delete_time IS NULL")
+    @Select("SELECT id,title,summary,publish_date,like_number,collect_number,author,file_link FROM paper WHERE paper.delete_time IS NULL")
     List<BriefPaper> getPaperList();
 
     @Select("SELECT id,title,publish_date,summary,link,like_number,collect_number FROM paper WHERE uploader_id=#{userId} AND paper.delete_time IS NULL")

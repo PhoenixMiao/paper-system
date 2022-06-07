@@ -20,6 +20,7 @@ import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -50,6 +51,7 @@ public class NoteServiceImpl implements NoteService{
     @Autowired
     private SessionUtils sessionUtils;
 
+    @Transactional
     @Override
     public String uploadNote(MultipartFile file, Long noteId) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
@@ -64,12 +66,13 @@ public class NoteServiceImpl implements NoteService{
         } catch (IOException e) {
             throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
         }
-        String link = CommonConstants.DOWNLOAD_PATH + flag;
+        String link = CommonConstants.DOWNLOAD_NOTE_PATH + flag;
         note.setNoteLink(link);
         if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         return link;
     }
 
+    @Transactional
     @Override
     public Long addNote(Long authorId,Long paperId) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
@@ -80,6 +83,7 @@ public class NoteServiceImpl implements NoteService{
                 .authorId(authorId)
                 .createTime(TimeUtil.getCurrentTimestamp())
                 .paperId(paperId)
+                .version(1)
                 .build();
         noteMapper.insert(note);
         User user = userMapper.selectById(authorId);
@@ -134,30 +138,31 @@ public class NoteServiceImpl implements NoteService{
         return note;
     }
 
+    @Transactional
     @Override
-    public void deleteNote(Long noteId,Long userId)throws CommonException{
+    public void deleteNote(Long noteId,Long userId)throws CommonException {
         Note note = noteMapper.selectById(noteId);
         User user = userMapper.selectById(userId);
         if (!note.getAuthorId().equals(userId) && user.getType() != 1 && user.getCanModify() != 1)
             throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         String deleteTime = TimeUtil.getCurrentTimestamp();
         note.setDeleteTime(deleteTime);
-        if(noteMapper.updateById(note)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        noteMapper.updateById(note);
         QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
-        likesQueryWrapper.eq("object_id",note.getId()).eq("object_type",1);
-        if(likesMapper.update(Likes.builder().deleteTime(deleteTime).build(),likesQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        likesQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
+        likesMapper.update(Likes.builder().deleteTime(deleteTime).build(), likesQueryWrapper);
         QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
-        collectionQueryWrapper.eq("object_id",note.getId()).eq("object_type",1);
-        if(collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        collectionQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
+        collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-        commentQueryWrapper.eq("object_id",note.getId()).eq("object_type",0);
+        commentQueryWrapper.eq("object_id", note.getId()).eq("object_type", 0);
         List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
         for (Comment comment : comments) {
             QueryWrapper<Comment> commentQueryWrapper1 = new QueryWrapper<>();
-            commentQueryWrapper1.eq("object_id",comment.getId()).eq("object_type",1);
-            if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+            commentQueryWrapper1.eq("object_id", comment.getId()).eq("object_type", 1);
+            commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1);
         }
-        if(commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+        commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);
     }
 
 }
