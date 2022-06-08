@@ -1,8 +1,11 @@
 package com.phoenix.paper.service.impl;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.phoenix.paper.common.CommonConstants;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Page;
@@ -26,9 +29,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.phoenix.paper.common.CommonConstants.USER_FILE_PATH;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -141,7 +148,6 @@ public class UserServiceImpl implements UserService {
     public void updateUser(Long userId, UpdateUserRequest updateUserRequest) throws CommonException {
         User user = userMapper.selectById(userId);
 
-        if (updateUserRequest.getPortrait() != null) user.setPortrait(updateUserRequest.getPortrait());
         if (updateUserRequest.getGender() != null) user.setGender(updateUserRequest.getGender());
         if (updateUserRequest.getGrade() != null) user.setGrade(updateUserRequest.getGrade());
         if (updateUserRequest.getSchool() != null) user.setSchool(updateUserRequest.getSchool());
@@ -331,15 +337,35 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<PaperAndNoteData> getUserPaperData(Integer period, Long userId){
-        if(period!=7 && period!=30 && period!=365)throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
-        return paperMapper.getPaperData(userId,period);
+        if (period != 7 && period != 30 && period != 365)
+            throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
+        return paperMapper.getPaperData(userId, period);
 
     }
 
     @Override
-    public List<PaperAndNoteData> getUserNoteData(Integer period, Long userId){
-        if(period!=7 && period!=30 && period!=365)throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
-        return noteMapper.getNoteData(userId,period);
+    public List<PaperAndNoteData> getUserNoteData(Integer period, Long userId) {
+        if (period != 7 && period != 30 && period != 365)
+            throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
+        return noteMapper.getNoteData(userId, period);
+    }
+
+    @Override
+    public String uploadPortrait(MultipartFile file, Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        String originalFilename = file.getOriginalFilename();
+        String flag = IdUtil.fastSimpleUUID();
+        String rootFilePath = USER_FILE_PATH + flag + "-" + originalFilename;
+        try {
+            FileUtil.writeBytes(file.getBytes(), rootFilePath);
+        } catch (IOException e) {
+            throw new CommonException(CommonErrorCode.READ_FILE_ERROR);
+        }
+        String link = CommonConstants.DOWNLOAD_NOTE_PATH + flag;
+        user.setPortrait(link);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        return link;
     }
 
 }

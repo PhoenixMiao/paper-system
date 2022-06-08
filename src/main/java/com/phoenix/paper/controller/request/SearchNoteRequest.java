@@ -1,6 +1,5 @@
 package com.phoenix.paper.controller.request;
 
-import com.phoenix.paper.common.PageParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -36,8 +35,8 @@ public class SearchNoteRequest {
     private Integer pageNum;
 
     @NotNull
-    @ApiModelProperty("排序规则(0为热度,1为论文在现实世界中发布时间)")
-    @Min(value = 0,message = "无效排序")
-    @Max(value = 1,message = "无效排序")
+    @ApiModelProperty("排序规则(0为热度,1为笔记发布时间)")
+    @Min(value = 0, message = "热度排序")
+    @Max(value = 1, message = "发布时间排序")
     private Integer orderby;
 }

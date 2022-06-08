@@ -128,8 +128,9 @@ public class PaperServiceImpl implements PaperService {
 
     @Transactional
     @Override
-    public Long addPaper(Long userId, AddPaperRequest addPaperRequest) throws CommonException {
+    public Long addPaper(AddPaperRequest addPaperRequest) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
+        Long userId = sessionData.getId();
         AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Paper paper = Paper.builder()
                 .title(addPaperRequest.getTitle())
@@ -189,7 +190,7 @@ public class PaperServiceImpl implements PaperService {
         if (paper == null || paper.getDeleteTime() != null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
-        String rootFilePath = DIR_PATH + flag + "-" + originalFilename;
+        String rootFilePath = PAPER_FILE_PATH + flag + "-" + originalFilename;
         try {
             FileUtil.writeBytes(file.getBytes(), rootFilePath);
         } catch (IOException e) {
@@ -305,9 +306,10 @@ public class PaperServiceImpl implements PaperService {
 
     @Transactional
     @Override
-    public void deletePaper(Long paperId, Long userId) throws CommonException {
+    public void deletePaper(Long paperId) throws CommonException {
         Paper paper = paperMapper.selectById(paperId);
-        User user = userMapper.selectById(userId);
+        SessionData user = sessionUtils.getSessionData();
+        Long userId = user.getId();
         if (!paper.getUploaderId().equals(userId) && user.getType() != 1 && user.getCanModify() != 1)
             throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
         String deleteTime = TimeUtil.getCurrentTimestamp();
@@ -356,17 +358,15 @@ public class PaperServiceImpl implements PaperService {
             throw new CommonException(CommonErrorCode.DOC_INDEX_FAILED);
         }
         if (paper.getFileLink() != null) {
-            String basePath = System.getProperty("user.dir") + "/src/main/resources/files";
-            List<String> fileNames = FileUtil.listFileNames(basePath);
+            List<String> fileNames = FileUtil.listFileNames(PAPER_FILE_PATH);
             String fileName = fileNames.stream().filter(name -> name.contains(paper.getFileLink().substring(43))).findAny().orElse("");
-            if (!fileName.equals(""))
-                FileUtil.del(System.getProperty("user.dir") + "/src/main/resources/files/" + fileName);
+            if (!fileName.equals("")) FileUtil.del(PAPER_FILE_PATH + fileName);
         }
     }
 
     @Transactional
     @Override
-    public void updatePaper(Long paperId, Long userId, UpdatePaperRequest updatePaperRequest) throws CommonException {
+    public void updatePaper(Long paperId, UpdatePaperRequest updatePaperRequest) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
         Paper paper = paperMapper.selectById(paperId);
         AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || sessionData.getId().equals(paper.getUploaderId()), CommonErrorCode.CAN_NOT_MODIFY);
