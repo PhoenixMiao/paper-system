@@ -340,7 +340,6 @@ public class UserServiceImpl implements UserService {
         if (period != 7 && period != 30 && period != 365)
             throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
         return paperMapper.getPaperData(userId, period);
-
     }
 
     @Override
