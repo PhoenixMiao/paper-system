@@ -22,6 +22,7 @@ public interface PaperMapper extends BaseMapper<Paper> {
     @Select("SELECT collect_number FROM paper where id=#{id}")
     Long getPaperCollects(@Param("id")Long id);
 
-    @Select("SELECT paper_direction.direction_id as direction, count(*) as number FROM paper_direction LEFT JOIN paper ON paper.id=paper_direction.paper_id  WHERE uploader_id=#{userId} AND TO_DAYS(NOW())-TO_DAYS(upload_time)<=#{period} group by direction_id")
-    List<PaperAndNoteData> getPaperData(@Param("userId")Long userId, @Param("period")Integer period);
+
+    @Select("SELECT name as direction,count(*) as number FROM (paper LEFT JOIN paper_direction ON paper.id=paper_direction.paper_id) LEFT JOIN research_direction ON paper_direction.direction_id=research_direction.id WHERE uploader_id=#{user_id} AND TO_DAYS(NOW())-TO_DAYS(upload_time)<=#{period} AND paper.delete_time IS NULL group by direction_id ")
+    List<PaperAndNoteData> getPaperData(@Param("user_id")Long userId, @Param("period")Integer period);
 }

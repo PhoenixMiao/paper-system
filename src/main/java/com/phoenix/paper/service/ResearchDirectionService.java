@@ -15,4 +15,6 @@ public interface ResearchDirectionService {
     void deleteNode(Long id);
 
     void updateNode(Long id,String name);
+
+    String getResearchDirectionName(Long id);
 }

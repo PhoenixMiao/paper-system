@@ -20,7 +20,7 @@ import java.util.List;
 public class PaperAndNoteData {
 
     @ApiModelProperty("研究方向")
-    private Integer direction;
+    private String direction;
 
     @ApiModelProperty("数量")
     private Integer number;
