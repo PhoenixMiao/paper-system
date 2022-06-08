@@ -20,6 +20,9 @@ public class BriefNode {
     @ApiModelProperty("节点名称")
     private String name;
 
+    @ApiModelProperty("父节点id")
+    private Long fatherId;
+
     @ApiModelProperty("是否是叶子")
     private Integer isLeaf;
 }

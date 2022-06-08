@@ -28,6 +28,8 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.List;
 
+import static com.phoenix.paper.common.CommonConstants.DIR_PATH;
+
 @Api("论文相关操作")
 @RestController
 @RequestMapping("/paper")
@@ -88,15 +90,14 @@ public class PaperController {
     @GetMapping(value = "/download/{flag}", produces = "application/json")
     public Result downloadPaper(@PathVariable String flag, HttpServletResponse response) {
         OutputStream os;
-        String basePath = System.getProperty("user.dir") + "/src/main/resources/files";
-        List<String> fileNames = FileUtil.listFileNames(basePath);
+        List<String> fileNames = FileUtil.listFileNames(DIR_PATH);
         String fileName = fileNames.stream().filter(name -> name.contains(flag)).findAny().orElse("");
         if (fileName.equals("")) return Result.result(CommonErrorCode.FILE_NOT_EXIST);
         try {
             if (StrUtil.isNotEmpty(fileName)) {
                 response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
                 response.setContentType("application/octet-stream");
-                byte[] bytes = FileUtil.readBytes(basePath + fileName);
+                byte[] bytes = FileUtil.readBytes(DIR_PATH + fileName);
                 os = response.getOutputStream();
                 os.write(bytes);
                 os.flush();

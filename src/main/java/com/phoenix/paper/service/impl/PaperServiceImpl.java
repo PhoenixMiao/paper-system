@@ -42,6 +42,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,8 +54,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.phoenix.paper.common.CommonConstants.PAPER_TYPE;
-import static com.phoenix.paper.common.CommonConstants.SEARCH_PAPER_FIELDS;
+import static com.phoenix.paper.common.CommonConstants.*;
 
 @Service
 public class PaperServiceImpl implements PaperService {
@@ -96,7 +96,7 @@ public class PaperServiceImpl implements PaperService {
     private SessionUtils sessionUtils;
 
     public static void main(String[] args) {
-        System.out.println(JSON.toJSONString("context:" + "1"));
+        System.out.println(DOWNLOAD_PAPER_PATH.length());
     }
 
     @Override
@@ -189,7 +189,7 @@ public class PaperServiceImpl implements PaperService {
         if (paper == null || paper.getDeleteTime() != null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
-        String rootFilePath = System.getProperty("user.dir") + "/src/main/resources/files/" + flag + "-" + originalFilename;
+        String rootFilePath = DIR_PATH + flag + "-" + originalFilename;
         try {
             FileUtil.writeBytes(file.getBytes(), rootFilePath);
         } catch (IOException e) {
@@ -332,7 +332,6 @@ public class PaperServiceImpl implements PaperService {
                 commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1);
             }
             commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);
-
         }
         QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
         likesQueryWrapper.eq("object_id", paper.getId()).eq("object_type", 0);
@@ -345,6 +344,8 @@ public class PaperServiceImpl implements PaperService {
         paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper);
         QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
         paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(), paperDirectionQueryWrapper);
+        paper.setDeleteTime(TimeUtil.getCurrentTimestamp());
+        if (paperMapper.updateById(paper) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         DeleteRequest deleteRequest = new DeleteRequest("paper", paperId.toString());
         deleteRequest.timeout("1s");
         try {
@@ -354,7 +355,13 @@ public class PaperServiceImpl implements PaperService {
         } catch (IOException e) {
             throw new CommonException(CommonErrorCode.DOC_INDEX_FAILED);
         }
-
+        if (paper.getFileLink() != null) {
+            String basePath = System.getProperty("user.dir") + "/src/main/resources/files";
+            List<String> fileNames = FileUtil.listFileNames(basePath);
+            String fileName = fileNames.stream().filter(name -> name.contains(paper.getFileLink().substring(43))).findAny().orElse("");
+            if (!fileName.equals(""))
+                FileUtil.del(System.getProperty("user.dir") + "/src/main/resources/files/" + fileName);
+        }
     }
 
     @Transactional
@@ -374,7 +381,7 @@ public class PaperServiceImpl implements PaperService {
 
         UpdateRequest updateRequest = new UpdateRequest("paper", paperId.toString());
         updateRequest.timeout("1s");
-        updateRequest.doc(JSON.toJSONString(updateRequest), XContentType.JSON);
+        updateRequest.doc(JSON.toJSONString(updatePaperRequest), XContentType.JSON);
         try {
             UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
             if (!updateResponse.status().toString().equals("OK"))
@@ -392,10 +399,17 @@ public class PaperServiceImpl implements PaperService {
         sourceBuilder.size(pageSize);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
-        MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_PAPER_FIELDS[0], SEARCH_PAPER_FIELDS[1], SEARCH_PAPER_FIELDS[2], SEARCH_PAPER_FIELDS[3], SEARCH_PAPER_FIELDS[4], SEARCH_PAPER_FIELDS[5], SEARCH_PAPER_FIELDS[6], SEARCH_PAPER_FIELDS[7], SEARCH_PAPER_FIELDS[8]);
+        MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_PAPER_FIELDS[0], SEARCH_PAPER_FIELDS[1], SEARCH_PAPER_FIELDS[2], SEARCH_PAPER_FIELDS[3], SEARCH_PAPER_FIELDS[4], SEARCH_PAPER_FIELDS[5], SEARCH_PAPER_FIELDS[6], SEARCH_PAPER_FIELDS[7]);
+
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.requireFieldMatch();
+        highlightBuilder.field(SEARCH_PAPER_FIELDS[0]).field(SEARCH_PAPER_FIELDS[1]).field(SEARCH_PAPER_FIELDS[2]).field(SEARCH_PAPER_FIELDS[3]).field(SEARCH_PAPER_FIELDS[4]).field(SEARCH_PAPER_FIELDS[5]).field(SEARCH_PAPER_FIELDS[6]).field(SEARCH_PAPER_FIELDS[7]);
+        highlightBuilder.preTags("<span style='color:orange'>");
+        highlightBuilder.postTags("</span>");
+
 
         sourceBuilder.query(multiMatchQueryBuilder);
-        sourceBuilder.highlighter();
+        sourceBuilder.highlighter(highlightBuilder);
 
         searchRequest.source(sourceBuilder);
         try {
