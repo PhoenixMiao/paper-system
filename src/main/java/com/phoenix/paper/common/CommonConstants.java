@@ -19,4 +19,5 @@ public class CommonConstants {
     public final static String LANG_TYPE_ZH_CN = "zh_CN";
     public final static String[] PAPER_TYPE = {"理论证明型", "综述型", "实验型", "⼯具型", "数据集型"};
     public final static String[] SEARCH_PAPER_FIELDS = {"title", "context", "summary", "publishConference", "author", "uploader", "paperType", "link",};
+    public final static String DIR_PATH = "/home/ubuntu/file/";
 }

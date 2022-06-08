@@ -96,7 +96,8 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
 
     @Override
     public List<BriefNode> getSons(Long father) throws CommonException{
-        if(father==0) return researchDirectionMapper.getSons((long)0);
+        if (father == -1) return researchDirectionMapper.getAll();
+        if (father == 0) return researchDirectionMapper.getSons((long) 0);
         ResearchDirection fatherDirection = researchDirectionMapper.selectById(father);
         if(fatherDirection == null || fatherDirection.getDeleteTime()!=null) throw new CommonException(CommonErrorCode.RESEARCH_DIRECTION_NOT_EXIST);
         if(fatherDirection.getIsLeaf()==1) throw new CommonException(CommonErrorCode.HAVE_NO_SON);

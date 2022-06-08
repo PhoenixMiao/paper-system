@@ -40,9 +40,9 @@ public class ResearchDirectionController {
         }
     }
 
-    @GetMapping(value = "/son",produces = "application/json")
-    @ApiOperation(value = "根据节点id获取该节点的子节点列表(若为0则获取根节点列表)")
-    @ApiImplicitParam(name = "id",value = "节点在表中的行id",required = true,paramType = "query",dataType = "Long")
+    @GetMapping(value = "/son", produces = "application/json")
+    @ApiOperation(value = "根据节点id获取该节点的子节点列表(若为0则获取根节点列表，若为-1则获取全部节点)")
+    @ApiImplicitParam(name = "id", value = "节点在表中的行id", required = true, paramType = "query", dataType = "Long")
     public Result getSons(@NotNull @RequestParam("id") Long id){
         try{
             return Result.success(researchDirectionService.getSons(id));
