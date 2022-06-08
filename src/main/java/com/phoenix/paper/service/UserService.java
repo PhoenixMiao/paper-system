@@ -7,6 +7,7 @@ import com.phoenix.paper.dto.BriefPaper;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.PaperAndNoteData;
 import com.phoenix.paper.dto.SessionData;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -50,4 +51,6 @@ public interface UserService {
     List<PaperAndNoteData> getUserPaperData(Integer period, Long userId);
 
     List<PaperAndNoteData> getUserNoteData(Integer period, Long userId);
+
+    String uploadPortrait(MultipartFile file, Long userId);
 }

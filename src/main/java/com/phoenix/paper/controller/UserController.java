@@ -18,6 +18,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -292,6 +293,17 @@ public class UserController {
     public Result getUserNoteData(@NotNull @RequestParam("period") Integer period) {
         try {
             return Result.success(userService.getUserNoteData(period, sessionUtils.getUserId()));
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @Auth
+    @PostMapping(value = "/upload", produces = "application/json")
+    @ApiOperation(value = "上传用户头像")
+    public Result uploadPortrait(MultipartFile file) {
+        try {
+            return Result.success(userService.uploadPortrait(file, sessionUtils.getUserId()));
         } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }

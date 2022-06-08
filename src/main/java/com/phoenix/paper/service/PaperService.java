@@ -18,11 +18,11 @@ public interface PaperService {
 
     Page<BriefPaper> getPaperList(int pageNum, int pageSize, int orderBy);
 
-    Long addPaper(Long userId, AddPaperRequest addPaperRequest);
+    Long addPaper(AddPaperRequest addPaperRequest);
 
     String uploadPaper(MultipartFile file, Long paperId);
 
-    void deletePaper(Long paperId, Long userId);
+    void deletePaper(Long paperId);
 
     Page<BriefPaper> findPaperByTitle(Integer pageNum, Integer pageSize, String title);
 
@@ -32,7 +32,7 @@ public interface PaperService {
 
     List<Map<String, Object>> searchPaper(String contents, int pageNum, int pageSize);
 
-    void updatePaper(Long paperId, Long userId, UpdatePaperRequest updatePaperRequest);
+    void updatePaper(Long paperId, UpdatePaperRequest updatePaperRequest);
 
     Long addQuotation(Long quoterId, Long quotedId, String remarks);
 

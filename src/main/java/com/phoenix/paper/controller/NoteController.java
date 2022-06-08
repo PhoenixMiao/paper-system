@@ -6,7 +6,9 @@ import com.phoenix.paper.annotation.Auth;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.common.Result;
+import com.phoenix.paper.controller.request.AddNoteRequest;
 import com.phoenix.paper.controller.request.SearchNoteRequest;
+import com.phoenix.paper.controller.request.UpdateNoteRequest;
 import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.SessionUtils;
@@ -14,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,25 +41,24 @@ public class NoteController {
     private SessionUtils sessionUtils;
 
     @Auth
-    @PostMapping(value = "/add",produces = "application/json")
+    @PostMapping(value = "/add", produces = "application/json")
     @ApiOperation(value = "增加笔记空壳及相关信息")
-    @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
-    public Result addNote(@NotNull @RequestParam("paperId")Long paperId){
-        try{
-            return Result.success(noteService.addNote(sessionUtils.getUserId(),paperId));
-        }catch (CommonException e){
+    public Result addNote(@NotNull @RequestBody AddNoteRequest addNoteRequest) {
+        try {
+            return Result.success(noteService.addNote(addNoteRequest));
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
     }
 
     @Auth
-    @PostMapping(value = "/upload",produces = "application/json")
-    @ApiOperation(value = "上传笔记附件（请先使用add接口增加笔记相关信息，并且add和upload之间不要有其他接口调用（对单个用户来说））")
-    @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
-    public Result uploadNote(MultipartFile file,@NotNull @RequestParam("noteId")Long noteId){
-        try{
-            return Result.success(noteService.uploadNote(file,noteId));
-        }catch (CommonException e){
+    @PostMapping(value = "/upload", produces = "application/json")
+    @ApiOperation(value = "上传笔记封面（请先使用add接口增加笔记相关信息，并且add和upload之间不要有其他接口调用（对单个用户来说））但是这个接口可以不调用，也就是不加封面")
+    @ApiImplicitParam(name = "noteId", value = "笔记id", required = true, paramType = "query", dataType = "Long")
+    public Result uploadCover(MultipartFile file, @NotNull @RequestParam("noteId") Long noteId) {
+        try {
+            return Result.success(noteService.uploadCover(file, noteId));
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
     }
@@ -99,7 +101,7 @@ public class NoteController {
     @PostMapping(value = "/search",produces = "application/json")
     @ApiOperation(value = "搜索笔记")
     public Result searchNote(@NotNull @RequestBody SearchNoteRequest searchNoteRequest){
-        return Result.success(noteService.searchNote(searchNoteRequest));
+        return Result.success(noteService.searchNoteByBody(searchNoteRequest));
     }
 
     @GetMapping(value = "",produces = "application/json")
@@ -119,13 +121,41 @@ public class NoteController {
     @Auth
     @PostMapping(value = "/delete",produces = "application/json")
     @ApiOperation(value = "删除笔记")
-    @ApiImplicitParam(name = "noteId",value = "笔记id",required = true,paramType = "query",dataType = "Long")
-    public Result deleteNote(@NotNull @RequestParam("noteId")Long noteId){
-        try{
-            noteService.deleteNote(noteId,sessionUtils.getUserId());
-        }catch (CommonException e){
+    @ApiImplicitParam(name = "noteId", value = "笔记id", required = true, paramType = "query", dataType = "Long")
+    public Result deleteNote(@NotNull @RequestParam("noteId") Long noteId) {
+        try {
+            noteService.deleteNote(noteId);
+        } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
         return Result.success("删除成功");
+    }
+
+    @GetMapping(value = "/searchByQuery", produces = "application/json")
+    @ApiOperation(value = "对于笔记的快速搜索")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页显示数量 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "keyword", value = "搜索框中输入的内容", required = true, paramType = "query", dataType = "String")
+    })
+    public Result searchByQuery(@NotNull @RequestParam("pageSize") Integer pageSize, @NotNull @Param("pageNum") Integer pageNum, @Param("keyword") String keyword) {
+        try {
+            return Result.success(noteService.searchNoteByQuery(keyword, pageNum, pageSize));
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @Auth
+    @PostMapping(value = "/update", produces = "application/json")
+    @ApiOperation(value = "更新笔记")
+    @ApiImplicitParam(name = "noteId", value = "笔记id", required = true, paramType = "query", dataType = "Long")
+    public Result updatePaper(@NotNull @RequestParam("noteId") Long noteId, @NotNull @RequestBody UpdateNoteRequest updateNoteRequest) {
+        try {
+            noteService.updateNote(noteId, updateNoteRequest);
+            return Result.success("更新成功");
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
     }
 }

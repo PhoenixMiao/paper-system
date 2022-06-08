@@ -24,9 +24,6 @@ public class Note {
     @ApiModelProperty("文献id")
     private Long paperId;
 
-    @ApiModelProperty("笔记链接")
-    private String noteLink;
-
     @ApiModelProperty("创建者id")
     private Long authorId;
 
@@ -35,6 +32,9 @@ public class Note {
 
     @ApiModelProperty("封面图片")
     private String cover;
+
+    @ApiModelProperty("笔记html文本")
+    private String html;
 
     @ApiModelProperty("创建时间")
     private String createTime;

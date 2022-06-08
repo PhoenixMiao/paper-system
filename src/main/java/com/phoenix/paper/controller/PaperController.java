@@ -28,7 +28,7 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.List;
 
-import static com.phoenix.paper.common.CommonConstants.DIR_PATH;
+import static com.phoenix.paper.common.CommonConstants.PAPER_FILE_PATH;
 
 @Api("论文相关操作")
 @RestController
@@ -70,7 +70,7 @@ public class PaperController {
     @ApiOperation(value = "新增论文")
     public Result addPPaper(@NotNull @RequestBody AddPaperRequest addPaperRequest) {
         try {
-            return Result.success(paperService.addPaper(sessionUtils.getUserId(), addPaperRequest));
+            return Result.success(paperService.addPaper(addPaperRequest));
         } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
@@ -90,14 +90,14 @@ public class PaperController {
     @GetMapping(value = "/download/{flag}", produces = "application/json")
     public Result downloadPaper(@PathVariable String flag, HttpServletResponse response) {
         OutputStream os;
-        List<String> fileNames = FileUtil.listFileNames(DIR_PATH);
+        List<String> fileNames = FileUtil.listFileNames(PAPER_FILE_PATH);
         String fileName = fileNames.stream().filter(name -> name.contains(flag)).findAny().orElse("");
         if (fileName.equals("")) return Result.result(CommonErrorCode.FILE_NOT_EXIST);
         try {
             if (StrUtil.isNotEmpty(fileName)) {
                 response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
                 response.setContentType("application/octet-stream");
-                byte[] bytes = FileUtil.readBytes(DIR_PATH + fileName);
+                byte[] bytes = FileUtil.readBytes(PAPER_FILE_PATH + fileName);
                 os = response.getOutputStream();
                 os.write(bytes);
                 os.flush();
@@ -127,7 +127,7 @@ public class PaperController {
     @ApiImplicitParam(name = "paperId", value = "论文id", required = true, paramType = "query", dataType = "Long")
     public Result deletePaper(@NotNull @RequestParam("paperId") Long paperId) {
         try {
-            paperService.deletePaper(paperId, sessionUtils.getUserId());
+            paperService.deletePaper(paperId);
         } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
@@ -247,7 +247,7 @@ public class PaperController {
     @ApiImplicitParam(name = "paperId", value = "论文id", required = true, paramType = "query", dataType = "Long")
     public Result updatePaper(@NotNull @RequestParam("paperId") Long paperId, @NotNull @RequestBody UpdatePaperRequest updatePaperRequest) {
         try {
-            paperService.updatePaper(paperId, sessionUtils.getUserId(), updatePaperRequest);
+            paperService.updatePaper(paperId, updatePaperRequest);
             return Result.success("更新成功");
         } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());

@@ -1,4 +1,4 @@
-package com.phoenix.paper.dto;
+package com.phoenix.paper.controller.request;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,17 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("SearchNote 搜索使用的笔记实体")
-public class SearchNote {
-    @ApiModelProperty("笔记id")
-    private Long id;
-
-    @ApiModelProperty("创建者用户名")
-    private String author;
-
+@ApiModel("UpdateNoteRequest 更新笔记请求")
+public class UpdateNoteRequest {
     @ApiModelProperty("标题")
     private String title;
 
+    @ApiModelProperty("html文本")
+    private String html;
+
     @ApiModelProperty("text文本")
-    private String context;
+    private String text;
 }

@@ -35,7 +35,4 @@ public class UpdateUserRequest {
     @ApiModelProperty("电话号")
     private String telephone;
 
-    @ApiModelProperty("头像")
-    private String portrait;
-
 }
