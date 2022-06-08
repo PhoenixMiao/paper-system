@@ -108,5 +108,6 @@ public class SessionData implements Serializable {
         this.paperNum = user.getPaperNum();
         this.canComment = user.getCanComment();
         this.canModify = user.getCanModify();
+        this.grade=user.getGrade();
     }
 }
