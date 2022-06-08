@@ -17,4 +17,7 @@ public interface ResearchDirectionMapper extends BaseMapper<ResearchDirection> {
 
     @Select("SELECT id,name,father_id,is_leaf FROM research_direction;")
     List<BriefNode> getAll();
+
+    @Select("SELECT name FROM research_direction WHERE id = #{id} AND delete_time IS NULL;")
+    String getResearchDirectionName(@Param("id") Long id);
 }
