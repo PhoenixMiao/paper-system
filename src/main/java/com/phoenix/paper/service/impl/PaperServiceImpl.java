@@ -374,7 +374,7 @@ public class PaperServiceImpl implements PaperService {
 
         UpdateRequest updateRequest = new UpdateRequest("paper", paperId.toString());
         updateRequest.timeout("1s");
-        updateRequest.doc(JSON.toJSONString(updateRequest), XContentType.JSON);
+        updateRequest.doc(JSON.toJSONString(updatePaperRequest), XContentType.JSON);
         try {
             UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
             if (!updateResponse.status().toString().equals("OK"))
@@ -392,7 +392,7 @@ public class PaperServiceImpl implements PaperService {
         sourceBuilder.size(pageSize);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
-        MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_PAPER_FIELDS[0], SEARCH_PAPER_FIELDS[1], SEARCH_PAPER_FIELDS[2], SEARCH_PAPER_FIELDS[3], SEARCH_PAPER_FIELDS[4], SEARCH_PAPER_FIELDS[5], SEARCH_PAPER_FIELDS[6], SEARCH_PAPER_FIELDS[7], SEARCH_PAPER_FIELDS[8]);
+        MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_PAPER_FIELDS[0], SEARCH_PAPER_FIELDS[1], SEARCH_PAPER_FIELDS[2], SEARCH_PAPER_FIELDS[3], SEARCH_PAPER_FIELDS[4], SEARCH_PAPER_FIELDS[5], SEARCH_PAPER_FIELDS[6], SEARCH_PAPER_FIELDS[7]);
 
         sourceBuilder.query(multiMatchQueryBuilder);
         sourceBuilder.highlighter();
