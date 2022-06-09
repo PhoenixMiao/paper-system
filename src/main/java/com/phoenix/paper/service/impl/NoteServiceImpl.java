@@ -78,8 +78,6 @@ public class NoteServiceImpl implements NoteService{
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
-    //todo 事务，高亮，权值搜索，不展现context
-
     @Transactional(rollbackFor = CommonException.class)
     @Override
     public String uploadCover(MultipartFile file, Long noteId) throws CommonException {
