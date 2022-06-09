@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId) {
+    public Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId) throws CommonException {
         if (userMapper.selectById(userId).getType() != 1)
             throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
         PageHelper.startPage(pageNum, pageSize, "can_modify,name asc");
@@ -115,6 +115,7 @@ public class UserServiceImpl implements UserService {
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void toAdmin(Long userId) {
         User user = userMapper.selectById(userId);
@@ -132,6 +133,7 @@ public class UserServiceImpl implements UserService {
         return new SessionData(user);
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void updateEmail(String email, Long userId) throws CommonException {
         User user = userMapper.selectById(userId);
@@ -144,6 +146,7 @@ public class UserServiceImpl implements UserService {
         if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void updateUser(Long userId, UpdateUserRequest updateUserRequest) throws CommonException {
         User user = userMapper.selectById(userId);
@@ -159,6 +162,7 @@ public class UserServiceImpl implements UserService {
         if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public LoginResponse signUp(String email, String password) throws CommonException {
         QueryWrapper<User> userQueryWrapper=new QueryWrapper<>();
@@ -187,7 +191,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String findNumber(String email) {
+    public String findNumber(String email) throws CommonException {
         List<User> userList = userMapper.selectByMap((Map<String, Object>) new HashMap<String, Object>().put("email", email));
         if (userList.size() == 0) {
             throw new CommonException(CommonErrorCode.EMAIL_NOT_SIGNED_UP);
@@ -196,6 +200,7 @@ public class UserServiceImpl implements UserService {
         return user.getAccountNum();
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void updatePassword(String accountNum, String password) throws CommonException {
         User user = userMapper.selectById(Long.parseLong(accountNum.substring(2)));
@@ -214,7 +219,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String sendEmail(String emailOrNumber, int flag) {
+    public String sendEmail(String emailOrNumber, int flag) throws CommonException {
         Map<String, Object> map = new HashMap<>();
         if (flag == 0) {
             map.put("email", emailOrNumber);
@@ -251,7 +256,7 @@ public class UserServiceImpl implements UserService {
         return verificationCode;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void deleteUser(Long userId) throws CommonException {
         User user = userMapper.selectById(userId);
@@ -314,20 +319,22 @@ public class UserServiceImpl implements UserService {
         commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
-    public void upgradeUser(Long userId, Integer canModify) {
+    public void upgradeUser(Long userId, Integer canModify) throws CommonException {
         User user = userMapper.selectById(userId);
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         user.setCanModify(canModify);
-        userMapper.updateById(user);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void muteUser(Long userId) throws CommonException {
         User user = userMapper.selectById(userId);
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         user.setCanComment(0);
-        userMapper.updateById(user);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         new MuteThead(userId).updateStatus();
     }
 
@@ -353,8 +360,9 @@ public class UserServiceImpl implements UserService {
         return noteMapper.getNoteData(userId, period);
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
-    public String uploadPortrait(MultipartFile file, Long userId) {
+    public String uploadPortrait(MultipartFile file, Long userId) throws CommonException {
         User user = userMapper.selectById(userId);
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();

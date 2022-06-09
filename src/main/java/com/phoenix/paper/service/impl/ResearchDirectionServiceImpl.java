@@ -45,7 +45,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
     @Autowired
     private PaperDirectionMapper paperDirectionMapper;
 
-
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public Long addResearchDirection(AddResearchDirectionRequest addResearchDirectionRequest, Long creatorId) throws CommonException {
         QueryWrapper<ResearchDirection> researchDirectionQueryWrapper = new QueryWrapper<>();
@@ -111,7 +111,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
         return researchDirectionMapper.getAllSons(researchDirection.getRootId(),researchDirection.getPath()+'%');
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void deleteNode(Long id) throws CommonException{
         List<Long> sonList = getAllSons(id);
@@ -171,6 +171,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
         }
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void updateNode(Long id,String name) throws CommonException{
         ResearchDirection researchDirection = researchDirectionMapper.selectById(id);

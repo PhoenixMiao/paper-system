@@ -32,7 +32,7 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private SessionUtils sessionUtils;
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void deleteComment(Long commentId, Long userId) throws CommonException {
         Comment comment = commentMapper.selectById(commentId);
@@ -50,15 +50,18 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
-    public void addComment(Long objectId,Integer objectType,Long userId,String content){
-        if(objectType==1){
-            Comment comment=commentMapper.selectById(objectId);
-            if(comment.getCommentId()!=null)throw new CommonException(CommonErrorCode.COMMENT_IS_NOT_ALLOWED);
+    public void addComment(Long objectId, Integer objectType, Long userId, String content) throws CommonException {
+        if (sessionUtils.getSessionData().getCanComment() != 1)
+            throw new CommonException(CommonErrorCode.CAN_NOT_COMMENT);
+        if (objectType == 1) {
+            Comment comment = commentMapper.selectById(objectId);
+            if (comment.getCommentId() != null) throw new CommonException(CommonErrorCode.COMMENT_IS_NOT_ALLOWED);
         }
         Comment comment = Comment.builder().userId(userId).createTime(TimeUtil.getCurrentTimestamp()).contents(content).version(1).build();
-        if(objectType==0)comment.setNoteId(objectId);
-        else if(objectType==1)comment.setCommentId(objectId);
+        if (objectType == 0) comment.setNoteId(objectId);
+        else if (objectType == 1) comment.setCommentId(objectId);
         commentMapper.insert(comment);
     }
 

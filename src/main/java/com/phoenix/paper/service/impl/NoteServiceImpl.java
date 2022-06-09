@@ -80,13 +80,18 @@ public class NoteServiceImpl implements NoteService{
 
     //todo 事务，高亮，权值搜索，不展现context
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public String uploadCover(MultipartFile file, Long noteId) throws CommonException {
-        SessionData sessionData = sessionUtils.getSessionData();
-        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Note note = noteMapper.selectById(noteId);
-        if (note == null || note.getDeleteTime() != null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
+        SessionData sessionData = sessionUtils.getSessionData();
+        if (sessionData.getCanModify() != 1 && sessionData.getType() != 1 && !sessionData.getId().equals(note.getAuthorId())) {
+            //TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            throw new CommonException(CommonErrorCode.CAN_NOT_MODIFY);
+        }
+        if (note == null || note.getDeleteTime() != null) {
+            throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
+        }
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
         String rootFilePath = NOTE_FILE_PATH + flag + "-" + originalFilename;
@@ -101,7 +106,7 @@ public class NoteServiceImpl implements NoteService{
         return link;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public Long addNote(AddNoteRequest addNoteRequest) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
@@ -189,7 +194,7 @@ public class NoteServiceImpl implements NoteService{
         return note;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void deleteNote(Long noteId) throws CommonException {
         SessionData user = sessionUtils.getSessionData();
@@ -226,7 +231,7 @@ public class NoteServiceImpl implements NoteService{
         }
         if (note.getCover() != null) {
             List<String> fileNames = FileUtil.listFileNames(NOTE_FILE_PATH);
-            String fileName = fileNames.stream().filter(name -> name.contains(note.getCover().substring(43))).findAny().orElse("");
+            String fileName = fileNames.stream().filter(name -> name.contains(note.getCover().substring(42))).findAny().orElse("");
             if (!fileName.equals("")) FileUtil.del(NOTE_FILE_PATH + fileName);
         }
     }
@@ -264,6 +269,7 @@ public class NoteServiceImpl implements NoteService{
         }
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void updateNote(Long noteId, UpdateNoteRequest updateNoteRequest) throws CommonException {
         Note note = noteMapper.selectById(noteId);
