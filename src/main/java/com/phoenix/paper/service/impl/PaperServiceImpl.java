@@ -126,12 +126,11 @@ public class PaperServiceImpl implements PaperService {
 
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public Long addPaper(AddPaperRequest addPaperRequest) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
         Long userId = sessionData.getId();
-        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Paper paper = Paper.builder()
                 .title(addPaperRequest.getTitle())
                 .paperType(addPaperRequest.getPaperType())
@@ -181,12 +180,12 @@ public class PaperServiceImpl implements PaperService {
         return paper.getId();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public  String uploadPaper(MultipartFile file, Long paperId)throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
-        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         Paper paper = paperMapper.selectById(paperId);
+        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || paper.getUploaderId().equals(sessionData.getId()), CommonErrorCode.CAN_NOT_MODIFY);
         if (paper == null || paper.getDeleteTime() != null) throw new CommonException(CommonErrorCode.PAPER_NOT_EXIST);
         String originalFilename = file.getOriginalFilename();
         String flag = IdUtil.fastSimpleUUID();
@@ -253,8 +252,6 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public Long addPaperQuotation(Long quoterId, Long quotedId) {
-        SessionData sessionData = sessionUtils.getSessionData();
-        AssertUtil.isTrue(sessionData.getCanModify() == 1 || sessionData.getType() == 1, CommonErrorCode.CAN_NOT_MODIFY);
         PaperQuotation paperQuotation = PaperQuotation.builder().quoterId(quoterId).quotedId(quotedId).build();
         paperQuotationMapper.insert(paperQuotation);
         return paperQuotation.getId();
@@ -304,7 +301,7 @@ public class PaperServiceImpl implements PaperService {
         return new Page<>(new PageInfo<>(briefPaperList));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void deletePaper(Long paperId) throws CommonException {
         Paper paper = paperMapper.selectById(paperId);
@@ -364,7 +361,7 @@ public class PaperServiceImpl implements PaperService {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void updatePaper(Long paperId, UpdatePaperRequest updatePaperRequest) throws CommonException {
         SessionData sessionData = sessionUtils.getSessionData();
@@ -435,6 +432,7 @@ public class PaperServiceImpl implements PaperService {
         return paperQuotation.getId();
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void updateQuotation(Long id, String remarks) throws CommonException {
         PaperQuotation paperQuotation = paperQuotationMapper.selectById(id);
@@ -443,6 +441,7 @@ public class PaperServiceImpl implements PaperService {
             throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void deleteQuotation(Long id) throws CommonException {
         PaperQuotation paperQuotation = paperQuotationMapper.selectById(id);
@@ -473,6 +472,7 @@ public class PaperServiceImpl implements PaperService {
         return paperDirection.getId();
     }
 
+    @Transactional(rollbackFor = CommonException.class)
     @Override
     public void deleteDirection(Long paperDirectionId) throws CommonException {
         PaperDirection paperDirection = paperDirectionMapper.selectById(paperDirectionId);
