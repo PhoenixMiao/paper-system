@@ -42,6 +42,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -116,7 +117,17 @@ public class PaperServiceImpl implements PaperService {
         paperDirectionQueryWrapper.eq("paper_id", paper.getId());
         QueryWrapper<PaperQuotation> paperQuotationQueryWrapper = new QueryWrapper<>();
         paperQuotationQueryWrapper.eq("quoter_id", paper.getId());
-        SessionData sessionData = sessionUtils.getSessionData();
+        SessionData sessionData = null;
+        try {
+            sessionData = sessionUtils.getSessionData();
+        } catch (CommonException e) {
+            return DetailedPaper.builder()
+                    .paper(paper)
+                    .paperDirectionList(paperDirectionMapper.selectList(paperDirectionQueryWrapper))
+                    .paperQuotationList(paperQuotationMapper.selectList(paperQuotationQueryWrapper))
+                    .canModify(false)
+                    .build();
+        }
         return DetailedPaper.builder()
                 .paper(paper)
                 .paperDirectionList(paperDirectionMapper.selectList(paperDirectionQueryWrapper))
@@ -307,6 +318,10 @@ public class PaperServiceImpl implements PaperService {
                     .title(paper.getTitle())
                     .summary(paper.getSummary())
                     .publishDate(paper.getPublishDate())
+                    .author(paper.getAuthor())
+                    .collectNumber(paper.getCollectNumber())
+                    .likeNumber(paper.getLikeNumber())
+                    .fileLink(paper.getFileLink())
                     .build());
         return new Page<>(new PageInfo<>(briefPaperList));
     }
@@ -406,26 +421,33 @@ public class PaperServiceImpl implements PaperService {
         sourceBuilder.size(pageSize);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
-        QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(contents);
-        queryStringQueryBuilder.fields(SEARCH_PAPER_FIELDS_BOOST);
-
         //MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_PAPER_FIELDS[0], SEARCH_PAPER_FIELDS[1], SEARCH_PAPER_FIELDS[2], SEARCH_PAPER_FIELDS[3], SEARCH_PAPER_FIELDS[4], SEARCH_PAPER_FIELDS[5], SEARCH_PAPER_FIELDS[6], SEARCH_PAPER_FIELDS[7]);
 
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.requireFieldMatch();
         highlightBuilder.field(SEARCH_PAPER_FIELDS[0]).field(SEARCH_PAPER_FIELDS[2]).field(SEARCH_PAPER_FIELDS[3]).field(SEARCH_PAPER_FIELDS[4]).field(SEARCH_PAPER_FIELDS[5]).field(SEARCH_PAPER_FIELDS[6]);
-        highlightBuilder.preTags("<span style='color:orange'>");
+        highlightBuilder.preTags("<span style='color:#4169E1'>");
         highlightBuilder.postTags("</span>");
 
-
-        sourceBuilder.query(queryStringQueryBuilder);
-        sourceBuilder.highlighter(highlightBuilder);
+        if (contents != null) {
+            QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(contents);
+            queryStringQueryBuilder.fields(SEARCH_PAPER_FIELDS_BOOST);
+            sourceBuilder.query(queryStringQueryBuilder);
+            sourceBuilder.highlighter(highlightBuilder);
+        } else {
+            sourceBuilder.query(new MatchAllQueryBuilder());
+        }
 
         searchRequest.source(sourceBuilder);
         try {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             ArrayList<Map<String, Object>> page = new ArrayList<>();
             for (SearchHit hit : searchResponse.getHits().getHits()) {
+                if (contents == null) {
+                    page.add(hit.getSourceAsMap());
+                    continue;
+                }
+
                 Map<String, HighlightField> map = hit.getHighlightFields();
                 Map<String, Object> resultMap = hit.getSourceAsMap();
 

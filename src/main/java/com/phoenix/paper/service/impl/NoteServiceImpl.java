@@ -18,6 +18,8 @@ import com.phoenix.paper.dto.SearchNote;
 import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
+import com.phoenix.paper.service.CollectionService;
+import com.phoenix.paper.service.LikeService;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.AssertUtil;
 import com.phoenix.paper.util.SessionUtils;
@@ -31,12 +33,15 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.phoenix.paper.common.CommonConstants.NOTE_FILE_PATH;
-import static com.phoenix.paper.common.CommonConstants.SEARCH_NOTE_FIELDS;
+import static com.phoenix.paper.common.CommonConstants.*;
 
 @Service
 public class NoteServiceImpl implements NoteService{
@@ -74,6 +78,12 @@ public class NoteServiceImpl implements NoteService{
 
     @Autowired
     private SessionUtils sessionUtils;
+
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private CollectionService collectionService;
 
     @Autowired
     private RestHighLevelClient restHighLevelClient;
@@ -159,29 +169,17 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public Page<BriefNote> searchNoteByBody(SearchNoteRequest searchNoteRequest) throws CommonException {
-        QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
-        if (searchNoteRequest.getTitle() != null)
-            noteQueryWrapper.like("title", searchNoteRequest.getTitle());
-        else if (searchNoteRequest.getAuthor() != null)
-            noteQueryWrapper.like("author", searchNoteRequest.getAuthor());
-        noteQueryWrapper.select("id", "author_id", "title", "cover", "create_time", "like_number", "collect_number");
         if (searchNoteRequest.getOrderby() == 0) {
             PageHelper.startPage(searchNoteRequest.getPageNum(), searchNoteRequest.getPageSize(), "create_time desc");
         } else {
             PageHelper.startPage(searchNoteRequest.getPageNum(), searchNoteRequest.getPageSize(), "like_number+collect_number desc");
         }
-        List<Note> notes = noteMapper.selectList(noteQueryWrapper);
-        List<BriefNote> briefNoteList = new ArrayList<>();
-        for (Note note : notes)
-            briefNoteList.add(BriefNote.builder()
-                    .id(note.getId())
-                    .authorId(note.getAuthorId())
-                    .collectNumber(note.getCollectNumber())
-                    .cover(note.getCover())
-                    .title(note.getTitle())
-                    .createTime(note.getCreateTime())
-                    .likeNumber(note.getLikeNumber())
-                    .build());
+        List<BriefNote> briefNoteList = null;
+        if (searchNoteRequest.getTitle() != null)
+            briefNoteList = noteMapper.getBriefNoteListByTitle(searchNoteRequest.getTitle());
+        else if (searchNoteRequest.getAuthor() != null)
+            briefNoteList = noteMapper.getBriefNoteListByAuthor(searchNoteRequest.getAuthor());
+        if (briefNoteList == null) briefNoteList = noteMapper.getBriefNoteList();
         return new Page<>(new PageInfo<>(briefNoteList));
     }
 
@@ -242,24 +240,60 @@ public class NoteServiceImpl implements NoteService{
         sourceBuilder.size(pageSize);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
-        MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_NOTE_FIELDS[0], SEARCH_NOTE_FIELDS[1], SEARCH_NOTE_FIELDS[2]);
-        multiMatchQueryBuilder.type(MultiMatchQueryBuilder.Type.BEST_FIELDS);
-
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.requireFieldMatch();
         highlightBuilder.field(SEARCH_NOTE_FIELDS[0]).field(SEARCH_NOTE_FIELDS[1]).field(SEARCH_NOTE_FIELDS[2]);
-        highlightBuilder.preTags("<span style='color:orange'>");
+        highlightBuilder.preTags("<span style='color:#4169E1'>");
         highlightBuilder.postTags("</span>");
 
-        sourceBuilder.query(multiMatchQueryBuilder);
-        sourceBuilder.highlighter(highlightBuilder);
+        if (contents != null) {
+            QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(contents);
+            queryStringQueryBuilder.fields(SEARCH_NOTE_FIELDS_BOOST);
+            sourceBuilder.query(queryStringQueryBuilder);
+            sourceBuilder.highlighter(highlightBuilder);
+        } else {
+            sourceBuilder.query(new MatchAllQueryBuilder());
+        }
 
         searchRequest.source(sourceBuilder);
         try {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             ArrayList<Map<String, Object>> page = new ArrayList<>();
-            for (SearchHit documentFields : searchResponse.getHits().getHits()) {
-                page.add(documentFields.getSourceAsMap());
+            for (SearchHit hit : searchResponse.getHits().getHits()) {
+                if (contents == null) {
+                    page.add(hit.getSourceAsMap());
+                    continue;
+                }
+
+                Map<String, HighlightField> map = hit.getHighlightFields();
+                Map<String, Object> resultMap = hit.getSourceAsMap();
+
+                HighlightField title = map.get("title");
+                if (title != null) {
+                    Text[] fragments = title.fragments();
+                    StringBuilder newTitle = new StringBuilder();
+                    for (Text text : fragments) newTitle.append(text);
+                    resultMap.put("title", newTitle.toString());
+                }
+
+                HighlightField author = map.get("author");
+                if (author != null) {
+                    Text[] fragments = author.fragments();
+                    StringBuilder newAuthor = new StringBuilder();
+                    for (Text text : fragments) newAuthor.append(text);
+                    resultMap.put("author", newAuthor.toString());
+                }
+
+                resultMap.put("context", "");
+
+                Long noteId = Long.valueOf(hit.getSourceAsMap().get("id").toString());
+
+                resultMap.put("likeNum", likeService.getLikeNumber(noteId, 1));
+
+                resultMap.put("collectNum", collectionService.getCollectNumber(noteId, 1));
+
+                page.add(resultMap);
+
             }
             return page;
         } catch (IOException e) {
