@@ -253,18 +253,19 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void deleteUser(Long userId) throws CommonException{
+    public void deleteUser(Long userId) throws CommonException {
         User user = userMapper.selectById(userId);
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         String deleteTime = TimeUtil.getCurrentTimestamp();
         user.setDeleteTime(TimeUtil.getCurrentTimestamp());
-        userMapper.updateById(user);
+        if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
         QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
         paperQueryWrapper.eq("uploader_id", userId);
         List<Paper> papers = paperMapper.selectList(paperQueryWrapper);
+        if(papers.size()!=0){
         for (Paper paper : papers) {
             QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
-            noteQueryWrapper.eq("paper_id",paper.getId());
+            noteQueryWrapper.eq("paper_id", paper.getId());
             List<Note> notes = noteMapper.selectList(noteQueryWrapper);
             for (Note note : notes) {
                 note.setDeleteTime(deleteTime);
@@ -297,6 +298,7 @@ public class UserServiceImpl implements UserService {
             paperQuotationMapper.update(PaperQuotation.builder().deleteTime(deleteTime).build(), paperQuotationQueryWrapper);
             QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
             paperDirectionMapper.update(PaperDirection.builder().deleteTime(deleteTime).build(), paperDirectionQueryWrapper);
+        }
         }
         QueryWrapper<Note> noteQueryWrapper = new QueryWrapper<>();
         noteQueryWrapper.eq("author_id", userId);
