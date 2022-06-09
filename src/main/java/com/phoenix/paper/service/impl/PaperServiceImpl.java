@@ -37,12 +37,14 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,7 +98,7 @@ public class PaperServiceImpl implements PaperService {
     private SessionUtils sessionUtils;
 
     public static void main(String[] args) {
-        System.out.println(DOWNLOAD_PAPER_PATH.length());
+        System.out.println(new StringBuilder("12345").toString());
     }
 
     @Override
@@ -400,7 +402,7 @@ public class PaperServiceImpl implements PaperService {
 
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.requireFieldMatch();
-        highlightBuilder.field(SEARCH_PAPER_FIELDS[0]).field(SEARCH_PAPER_FIELDS[1]).field(SEARCH_PAPER_FIELDS[2]).field(SEARCH_PAPER_FIELDS[3]).field(SEARCH_PAPER_FIELDS[4]).field(SEARCH_PAPER_FIELDS[5]).field(SEARCH_PAPER_FIELDS[6]).field(SEARCH_PAPER_FIELDS[7]);
+        highlightBuilder.field(SEARCH_PAPER_FIELDS[0]).field(SEARCH_PAPER_FIELDS[2]).field(SEARCH_PAPER_FIELDS[3]).field(SEARCH_PAPER_FIELDS[4]).field(SEARCH_PAPER_FIELDS[5]).field(SEARCH_PAPER_FIELDS[6]);
         highlightBuilder.preTags("<span style='color:orange'>");
         highlightBuilder.postTags("</span>");
 
@@ -412,8 +414,69 @@ public class PaperServiceImpl implements PaperService {
         try {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             ArrayList<Map<String, Object>> page = new ArrayList<>();
-            for (SearchHit documentFields : searchResponse.getHits().getHits()) {
-                page.add(documentFields.getSourceAsMap());
+            for (SearchHit hit : searchResponse.getHits().getHits()) {
+                Map<String, HighlightField> map = hit.getHighlightFields();
+                Map<String, Object> resultMap = hit.getSourceAsMap();
+
+                HighlightField title = map.get("title");
+                if (title != null) {
+                    Text[] fragments = title.fragments();
+                    StringBuilder newTitle = new StringBuilder();
+                    for (Text text : fragments) newTitle.append(text);
+                    resultMap.put("title", newTitle.toString());
+                }
+
+                HighlightField author = map.get("author");
+                if (author != null) {
+                    Text[] fragments = author.fragments();
+                    StringBuilder newAuthor = new StringBuilder();
+                    for (Text text : fragments) newAuthor.append(text);
+                    resultMap.put("author", newAuthor.toString());
+                }
+
+                HighlightField publishConference = map.get("publishConference");
+                if (publishConference != null) {
+                    Text[] fragments = publishConference.fragments();
+                    StringBuilder newpublishConference = new StringBuilder();
+                    for (Text text : fragments) newpublishConference.append(text);
+                    resultMap.put("publishConference", newpublishConference.toString());
+                }
+
+                HighlightField summary = map.get("summary");
+                if (summary != null) {
+                    Text[] fragments = summary.fragments();
+                    StringBuilder newsummary = new StringBuilder();
+                    for (Text text : fragments) newsummary.append(text);
+                    resultMap.put("summary", newsummary.toString());
+                }
+
+                HighlightField paperType = map.get("paperType");
+                if (paperType != null) {
+                    Text[] fragments = paperType.fragments();
+                    StringBuilder newpaperType = new StringBuilder();
+                    for (Text text : fragments) newpaperType.append(text);
+                    resultMap.put("paperType", newpaperType.toString());
+                }
+
+                HighlightField uploader = map.get("uploader");
+                if (uploader != null) {
+                    Text[] fragments = uploader.fragments();
+                    StringBuilder newuploader = new StringBuilder();
+                    for (Text text : fragments) newuploader.append(text);
+                    resultMap.put("uploader", newuploader.toString());
+                }
+
+                resultMap.put("context", "");
+
+                Long paperId = new Long(hit.getSourceAsMap().get("id").toString());
+                Paper paper = paperMapper.selectById(paperId);
+
+                resultMap.put("likeNum", (long) paper.getLikeNumber());
+
+                resultMap.put("collectNum", (long) paper.getCollectNumber());
+
+                page.add(resultMap);
+
             }
             return page;
         } catch (IOException e) {
