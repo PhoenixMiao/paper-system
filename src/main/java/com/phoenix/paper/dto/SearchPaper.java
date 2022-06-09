@@ -1,15 +1,12 @@
 package com.phoenix.paper.dto;
 
 import com.phoenix.paper.entity.Paper;
-import com.phoenix.paper.util.TimeUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 import static com.phoenix.paper.common.CommonConstants.PAPER_TYPE;
 
@@ -33,7 +30,7 @@ public class SearchPaper {
     private String publishConference;
 
     @ApiModelProperty("发布日期（真实）")
-    private Date publishDate;
+    private String publishDate;
 
     @ApiModelProperty("摘要")
     private String summary;
@@ -56,7 +53,7 @@ public class SearchPaper {
         this.link = paper.getLink();
         this.paperType = PAPER_TYPE[paper.getPaperType()];
         this.publishConference = paper.getPublishConference();
-        this.publishDate = TimeUtil.parseToDate(paper.getPublishDate());
+        this.publishDate = paper.getPublishDate();
         this.summary = paper.getSummary();
         this.title = paper.getTitle();
     }

@@ -1,7 +1,12 @@
 package com.phoenix.paper.common;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 通用常量
+ *
  * @author yannis
  * @version 2020/8/1 16:50
  */
@@ -23,4 +28,27 @@ public class CommonConstants {
     public final static String PAPER_FILE_PATH = "/home/ubuntu/file/paper";
     public final static String NOTE_FILE_PATH = "/home/ubuntu/file/note";
     public final static String USER_FILE_PATH = "/home/ubuntu/file/user";
+    public static final Map<String, Float> SEARCH_PAPER_FIELDS_BOOST = Collections.unmodifiableMap(new HashMap<String, Float>() {
+        private static final long serialVersionUID = 1L;
+
+        {
+            put("title", 5F);
+            put("context", 3F);
+            put("summary", 3F);
+            put("publishConference", 4F);
+            put("author", 2F);
+            put("uploader", 2F);
+            put("paperType", 4F);
+            put("link", 1F);
+        }
+    });
+    public static final Map<String, Float> SEARCH_NOTE_FIELDS_BOOST = Collections.unmodifiableMap(new HashMap<String, Float>() {
+        private static final long serialVersionUID = 1L;
+
+        {
+            put("title", 5F);
+            put("context", 3F);
+            put("author", 2F);
+        }
+    });
 }

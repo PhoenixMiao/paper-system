@@ -20,7 +20,10 @@ import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
-import com.phoenix.paper.service.*;
+import com.phoenix.paper.service.CollectionService;
+import com.phoenix.paper.service.LikeService;
+import com.phoenix.paper.service.PaperService;
+import com.phoenix.paper.service.ResearchDirectionService;
 import com.phoenix.paper.util.AssertUtil;
 import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
@@ -39,7 +42,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -48,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.phoenix.paper.service.LikeService.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -174,7 +177,7 @@ public class PaperServiceImpl implements PaperService {
                 .publishConference(paper.getPublishConference())
                 .title(paper.getTitle())
                 .summary(paper.getSummary())
-                .publishDate(TimeUtil.parseToDate(paper.getPublishDate()))
+                .publishDate(paper.getPublishDate())
                 .paperType(PAPER_TYPE[paper.getPaperType()]).build()), XContentType.JSON);
         try {
             if (!restHighLevelClient.index(request, RequestOptions.DEFAULT).status().toString().equals("CREATED")) {
@@ -272,7 +275,7 @@ public class PaperServiceImpl implements PaperService {
             paperQueryWrapper.like("summary", searchPaperRequest.getSummary());
         else if (searchPaperRequest.getAuthor() != null)
             paperQueryWrapper.like("author", searchPaperRequest.getAuthor());
-        if (searchPaperRequest.getResearchDirectionIds()!=null && searchPaperRequest.getResearchDirectionIds().length != 0) {
+        if (searchPaperRequest.getResearchDirectionIds() != null && searchPaperRequest.getResearchDirectionIds().length != 0) {
             HashSet<Long> longHashSet = new HashSet<>();
             for (long id : searchPaperRequest.getResearchDirectionIds()) {
                 List<Long> ids = researchDirectionService.getAllSons(id);
@@ -403,7 +406,10 @@ public class PaperServiceImpl implements PaperService {
         sourceBuilder.size(pageSize);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
-        MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_PAPER_FIELDS[0], SEARCH_PAPER_FIELDS[1], SEARCH_PAPER_FIELDS[2], SEARCH_PAPER_FIELDS[3], SEARCH_PAPER_FIELDS[4], SEARCH_PAPER_FIELDS[5], SEARCH_PAPER_FIELDS[6], SEARCH_PAPER_FIELDS[7]);
+        QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(contents);
+        queryStringQueryBuilder.fields(SEARCH_PAPER_FIELDS_BOOST);
+
+        //MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(contents, SEARCH_PAPER_FIELDS[0], SEARCH_PAPER_FIELDS[1], SEARCH_PAPER_FIELDS[2], SEARCH_PAPER_FIELDS[3], SEARCH_PAPER_FIELDS[4], SEARCH_PAPER_FIELDS[5], SEARCH_PAPER_FIELDS[6], SEARCH_PAPER_FIELDS[7]);
 
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.requireFieldMatch();
@@ -412,7 +418,7 @@ public class PaperServiceImpl implements PaperService {
         highlightBuilder.postTags("</span>");
 
 
-        sourceBuilder.query(multiMatchQueryBuilder);
+        sourceBuilder.query(queryStringQueryBuilder);
         sourceBuilder.highlighter(highlightBuilder);
 
         searchRequest.source(sourceBuilder);
