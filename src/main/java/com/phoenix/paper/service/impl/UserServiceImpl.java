@@ -161,7 +161,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginResponse signUp(String email, String password) throws CommonException {
-        if (userMapper.selectByMap((Map<String, Object>) new HashMap<String, Object>().put("email", email)).size() != 0) {
+        QueryWrapper<User> userQueryWrapper=new QueryWrapper<>();
+        userQueryWrapper.eq("email",email).isNull("delete_time");
+        if((userMapper.selectList(userQueryWrapper)).size()!=0){
             throw new CommonException(CommonErrorCode.EMAIL_HAS_BEEN_SIGNED_UP);
         }
         if (!passwordUtil.EvalPWD(password)) throw new CommonException(CommonErrorCode.PASSWORD_NOT_QUANTIFIED);
