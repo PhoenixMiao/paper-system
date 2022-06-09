@@ -20,8 +20,7 @@ import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
-import com.phoenix.paper.service.PaperService;
-import com.phoenix.paper.service.ResearchDirectionService;
+import com.phoenix.paper.service.*;
 import com.phoenix.paper.util.AssertUtil;
 import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
@@ -49,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.phoenix.paper.service.LikeService.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,6 +77,12 @@ public class PaperServiceImpl implements PaperService {
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private CollectionService collectionService;
 
     @Autowired
     private ResearchDirectionMapper researchDirectionMapper;
@@ -267,7 +272,7 @@ public class PaperServiceImpl implements PaperService {
             paperQueryWrapper.like("summary", searchPaperRequest.getSummary());
         else if (searchPaperRequest.getAuthor() != null)
             paperQueryWrapper.like("author", searchPaperRequest.getAuthor());
-        if (searchPaperRequest.getResearchDirectionIds().length != 0) {
+        if (searchPaperRequest.getResearchDirectionIds()!=null && searchPaperRequest.getResearchDirectionIds().length != 0) {
             HashSet<Long> longHashSet = new HashSet<>();
             for (long id : searchPaperRequest.getResearchDirectionIds()) {
                 List<Long> ids = researchDirectionService.getAllSons(id);
@@ -468,12 +473,11 @@ public class PaperServiceImpl implements PaperService {
 
                 resultMap.put("context", "");
 
-                Long paperId = new Long(hit.getSourceAsMap().get("id").toString());
-                Paper paper = paperMapper.selectById(paperId);
+                Long paperId = Long.valueOf(hit.getSourceAsMap().get("id").toString());
 
-                resultMap.put("likeNum", (long) paper.getLikeNumber());
+                resultMap.put("likeNum", likeService.getLikeNumber(paperId,0));
 
-                resultMap.put("collectNum", (long) paper.getCollectNumber());
+                resultMap.put("collectNum", collectionService.getCollectNumber(paperId,0));
 
                 page.add(resultMap);
 
