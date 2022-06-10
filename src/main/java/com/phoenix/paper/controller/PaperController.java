@@ -173,7 +173,7 @@ public class PaperController {
     }
 
     @Auth
-    @PostMapping(value = "/before", produces = "application/json")
+    @GetMapping(value = "/before", produces = "application/json")
     @ApiOperation(value = "获取在此篇论文之前发布的所有论文的列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "quoterId", value = "当前论文id", required = true, paramType = "query", dataType = "Long"),

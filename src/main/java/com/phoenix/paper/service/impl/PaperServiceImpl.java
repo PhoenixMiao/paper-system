@@ -71,6 +71,9 @@ public class PaperServiceImpl implements PaperService {
     private UserMapper userMapper;
 
     @Autowired
+    private PaperSumPerDayMapper paperSumPerDayMapper;
+
+    @Autowired
     private NoteMapper noteMapper;
 
     @Autowired
@@ -197,6 +200,15 @@ public class PaperServiceImpl implements PaperService {
         } catch (IOException e) {
             throw new CommonException(CommonErrorCode.DOC_INDEX_FAILED);
         }
+
+        for(Long directionId:addPaperRequest.getResearchDirectionList()){
+            String direction=researchDirectionMapper.getResearchDirectionName(directionId);
+            PaperSumPerDay paperSumPerDay=paperSumPerDayMapper.selectOne(new QueryWrapper<PaperSumPerDay>(PaperSumPerDay.builder().userId(userId).direction(direction).build()));
+            if(paperSumPerDay==null)paperSumPerDayMapper.insert(new PaperSumPerDay(null,userId,TimeUtil.getCurrentTimestamp(),direction,1));
+            else paperSumPerDay.setNumber(paperSumPerDay.getNumber()+1);
+        }
+
+
 
         return paper.getId();
     }

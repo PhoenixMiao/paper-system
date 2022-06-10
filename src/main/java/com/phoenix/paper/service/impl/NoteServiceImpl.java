@@ -49,6 +49,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -71,6 +72,12 @@ public class NoteServiceImpl implements NoteService{
     private CommentMapper commentMapper;
 
     @Autowired
+    private ResearchDirectionMapper researchDirectionMapper;
+
+    @Autowired
+    private NoteSumPerDayMapper noteSumPerDayMapper;
+
+    @Autowired
     private LikesMapper likesMapper;
 
     @Autowired
@@ -81,6 +88,9 @@ public class NoteServiceImpl implements NoteService{
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private PaperDirectionMapper paperDirectionMapper;
 
     @Autowired
     private CollectionService collectionService;
@@ -152,6 +162,16 @@ public class NoteServiceImpl implements NoteService{
             }
         } catch (IOException e) {
             throw new CommonException(CommonErrorCode.DOC_INDEX_FAILED);
+        }
+
+        Map<String,Object> paperMap = new HashMap<String, Object>();
+        paperMap.put("paper_id",paper.getId());
+        List<PaperDirection> paperDirections= paperDirectionMapper.selectByMap(paperMap);
+        for(PaperDirection paperDirection:paperDirections) {
+            String direction=researchDirectionMapper.getResearchDirectionName(paperDirection.getDirectionId());
+            NoteSumPerDay noteSumPerDay=noteSumPerDayMapper.selectOne(new QueryWrapper<NoteSumPerDay>(NoteSumPerDay.builder().userId(authorId).direction(direction).build()));
+            if(noteSumPerDay==null)noteSumPerDayMapper.insert(new NoteSumPerDay(null,authorId,TimeUtil.getCurrentTimestamp(),direction,1));
+            else noteSumPerDay.setNumber(noteSumPerDay.getNumber()+1);
         }
 
         return note.getId();

@@ -50,6 +50,12 @@ public class UserServiceImpl implements UserService {
     private NoteMapper noteMapper;
 
     @Autowired
+    private PaperSumPerDayMapper paperSumPerDayMapper;
+
+    @Autowired
+    private NoteSumPerDayMapper noteSumPerDayMapper;
+
+    @Autowired
     private CommentMapper commentMapper;
 
     @Autowired
