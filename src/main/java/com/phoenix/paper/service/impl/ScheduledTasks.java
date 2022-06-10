@@ -4,9 +4,11 @@ package com.phoenix.paper.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
+import com.phoenix.paper.dto.PaperAndNoteData;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.util.RedisUtils;
+import com.phoenix.paper.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,6 +31,12 @@ public class ScheduledTasks {
 
     @Autowired
     private NoteMapper noteMapper;
+
+    @Autowired
+    private PaperSumPerDayMapper paperSumPerDayMapper;
+
+    @Autowired
+    private NoteSumPerDayMapper noteSumPerDayMapper;
 
     @Autowired
     private LikesMapper likesMapper;
@@ -142,6 +150,26 @@ public class ScheduledTasks {
             user.setPaperWeekNum(0);
             user.setNoteWeekNum(0);
             if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 0/24 * ? ")
+    public void updateUserData(){
+        List<Long> allUserId = userMapper.allUserIdList();
+        for(Long userId:allUserId){
+            List<PaperAndNoteData> paperDataList =  paperMapper.getPaperData(userId,1);
+            for(PaperAndNoteData paperData:paperDataList){
+                PaperSumPerDay paperSumPerDay = paperSumPerDayMapper.selectOne(new QueryWrapper<>(PaperSumPerDay.builder().userId(userId).direction(paperData.getDirection()).build()));
+                if(paperSumPerDay!=null) paperSumPerDay.setNumber(paperSumPerDay.getNumber()+paperData.getNumber());
+                else paperSumPerDayMapper.insert(new PaperSumPerDay(null,userId, TimeUtil.getCurrentTimestamp(),paperData.getDirection(),paperData.getNumber()));
+            }
+            List<PaperAndNoteData> noteDataList =  noteMapper.getNoteData(userId,1);
+            for(PaperAndNoteData noteData:noteDataList){
+                NoteSumPerDay noteSumPerDay = noteSumPerDayMapper.selectOne(new QueryWrapper<>(NoteSumPerDay.builder().userId(userId).direction(noteData.getDirection()).build()));
+                if(noteSumPerDay!=null) noteSumPerDay.setNumber(noteSumPerDay.getNumber()+noteData.getNumber());
+                else noteSumPerDayMapper.insert(new NoteSumPerDay(null,userId, TimeUtil.getCurrentTimestamp(),noteData.getDirection(),noteData.getNumber()));
+            }
+
         }
     }
 
