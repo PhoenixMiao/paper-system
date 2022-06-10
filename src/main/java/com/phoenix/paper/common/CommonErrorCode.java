@@ -48,6 +48,7 @@ public enum CommonErrorCode {
     CAN_NOT_COMMENT(2033, "该用户没有评论的权限", "请联系超管修改权限"),
     CAN_NOT_MODIFY(2034, "该用户没有修改/删除的权限", "请联系超管修改权限"),
     PERIOD_NOT_SUPPORTED(2035, "不支持获取这一时间段的数据", "请选择其他时间段"),
+    FLOW_LIMITED(2036, "网关服务熔断", "请等待流量缓减后重试"),
     ;
 
 

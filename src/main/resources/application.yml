@@ -18,11 +18,11 @@ spring:
     properties.mail.smtp.ssl.enable: true #开启SSL
     default-encoding: utf-8
 
-  #  rabbitmq:
-#    host: 124.222.112.118
-  #    port: 5672
-  #    username: root
-  #    password: Lishuai0923
+    rabbitmq:
+      host: 124.222.112.118
+      port: 5672
+      username: root
+      password: Lishuai0923
 
 
   datasource:
@@ -58,12 +58,56 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 
+#  cloud:
+#     gateway:
+#        #discovery:
+#        #locator:
+#        #enabled: true
+#       routes:
+#        - id: my-consumer-service
+#          uri: http://124.222.112.118:8010  #  http://127.0.0.1:8088
+#           predicates:
+#            - Path=/**/** #断言处理
+#          filters:
+##            - StripPrefix=1 #表示路由时会去除一位 如 api/app/login app/login
+#            - name: RequestRateLimiter #名称必须是RequestRateLimiter
+#              args:
+#                key-resolver: "#{@urlResolver}"  #使用SpEL按名称引用bean
+#                redis-rate-limiter.replenishRate: 20 #允许用户每秒处理多少个请求
+#                redis-rate-limiter.burstCapacity: 50 #令牌桶的容量，允许在一秒钟内完成的最大请求数
+#            - name: Hystrix #断路器的配置
+#              args:
+#                 name: fallbackcmd
+#                fallbackUri: forward:/defaultfallback
+#        - id: my-consumer-service2
+#          uri: http://124.222.112.118:8010  #  http://127.0.0.1:8088 lb://consumer-service lb 代表从注册中心获取服务，且已负载均衡方式转发
+#            predicates:
+#            - Path=/user/** #断言处理
+#          filters:
+#            - StripPrefix=1 #表示路由时会去除一位 如 api/app/login app/login
+#             - name: RequestRateLimiter #名称必须是RequestRateLimiter
+#              args:
+#                key-resolver: "#{@urlResolver}"  #使用SpEL按名称引用bean
+#                redis-rate-limiter.replenishRate: 20 #允许用户每秒处理多少个请求
+#                redis-rate-limiter.burstCapacity: 50 #令牌桶的容量，允许在一秒钟内完成的最大请求数
+#             - name: Hystrix #断路器的配置
+#               args:
+#                name: fallbackcmd
+#                fallbackUri: forward:/defaultfallback
+
+#
+#     my-consumer-service:
+#       ribbon:
+#         listOfServers: 124.222.112.118:9088,124.222.112.118:9099
+#         NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RoundRobinRule
+
+
 
 mini-app:
-# 开发
-#  app-id: wx0babc1717ad5dee9
-#  app-secret: 2cd5df837351e0b87a09e780c344eaa0
-# 正式
+  # 开发
+  #  app-id: wx0babc1717ad5dee9
+  #  app-secret: 2cd5df837351e0b87a09e780c344eaa0
+  # 正式
   app-id: wx08d1da6fb17ce5a4
   app-secret: 8f80a14b1bc57caf95a4152093a41ced
 #  mch-id: 1605043549
