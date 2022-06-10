@@ -4,6 +4,7 @@ package com.phoenix.paper.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
+import com.phoenix.paper.dto.PaperAndNoteData;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.util.RedisUtils;
@@ -38,6 +39,12 @@ public class ScheduledTasks {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PaperSumPerDayMapper paperSumPerDayMapper;
+
+    @Autowired
+    private NoteSumPerDayMapper noteSumPerDayMapper;
 
     @Transactional(rollbackFor = CommonException.class)
     @Scheduled(cron = "0 0 0/12 * * ? ")
@@ -142,6 +149,29 @@ public class ScheduledTasks {
             user.setPaperWeekNum(0);
             user.setNoteWeekNum(0);
             if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 0/24 * ? ")
+    public void updateUserData(){
+        List<User> userList= userMapper.selectList(new QueryWrapper<>());
+        for(User user:userList){
+            List<PaperAndNoteData> paperDataList=paperMapper.getPaperData(user.getId(),7);
+            for(PaperAndNoteData paperData:paperDataList) {
+                PaperSumPerDay paperSumPerDay= paperSumPerDayMapper.selectOne(new QueryWrapper<>(PaperSumPerDay.builder().id(user.getId()).direction(paperData.getDirection()).build()));
+                Integer change=paperSumPerDay.getNumber_week()-paperData.getNumber();
+                paperSumPerDay.setNumber_week(paperSumPerDay.getNumber_week()-change);
+                paperSumPerDay.setNumber_month(paperSumPerDay.getNumber_month()-change);
+                paperSumPerDay.setNumber_year(paperSumPerDay.getNumber_year()-change);
+            }
+            List<PaperAndNoteData> noteDataList=noteMapper.getNoteData(user.getId(),7);
+            for(PaperAndNoteData noteData:noteDataList) {
+                NoteSumPerDay noteSumPerDay= noteSumPerDayMapper.selectOne(new QueryWrapper<>(NoteSumPerDay.builder().id(user.getId()).direction(noteData.getDirection()).build()));
+                Integer change=noteSumPerDay.getNumber_week()-noteData.getNumber();
+                noteSumPerDay.setNumber_week(noteSumPerDay.getNumber_week()-change);
+                noteSumPerDay.setNumber_month(noteSumPerDay.getNumber_month()-change);
+                noteSumPerDay.setNumber_year(noteSumPerDay.getNumber_year()-change);
+            }
         }
     }
 

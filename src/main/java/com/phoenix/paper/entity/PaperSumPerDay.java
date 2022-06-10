@@ -31,6 +31,12 @@ public class PaperSumPerDay {
     @ApiModelProperty("论文方向")
     private String direction;
 
-    @ApiModelProperty("论文数量")
-    private Integer number;
+    @ApiModelProperty("周笔记数量")
+    private Integer number_week;
+
+    @ApiModelProperty("月笔记数量")
+    private Integer number_month;
+
+    @ApiModelProperty("年笔记数量")
+    private Integer number_year;
 }

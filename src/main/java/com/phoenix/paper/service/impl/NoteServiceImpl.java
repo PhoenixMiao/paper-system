@@ -170,8 +170,12 @@ public class NoteServiceImpl implements NoteService{
         for(PaperDirection paperDirection:paperDirections) {
             String direction=researchDirectionMapper.getResearchDirectionName(paperDirection.getDirectionId());
             NoteSumPerDay noteSumPerDay=noteSumPerDayMapper.selectOne(new QueryWrapper<NoteSumPerDay>(NoteSumPerDay.builder().userId(authorId).direction(direction).build()));
-            if(noteSumPerDay==null)noteSumPerDayMapper.insert(new NoteSumPerDay(null,authorId,TimeUtil.getCurrentTimestamp(),direction,1));
-            else noteSumPerDay.setNumber(noteSumPerDay.getNumber()+1);
+            if(noteSumPerDay==null)noteSumPerDayMapper.insert(new NoteSumPerDay(null,authorId,TimeUtil.getCurrentTimestamp(),direction,1,1,1));
+            else {
+                noteSumPerDay.setNumber_week(noteSumPerDay.getNumber_week()+1);
+                noteSumPerDay.setNumber_month(noteSumPerDay.getNumber_month()+1);
+                noteSumPerDay.setNumber_year(noteSumPerDay.getNumber_year()+1);
+            }
         }
 
         return note.getId();

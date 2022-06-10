@@ -31,7 +31,13 @@ public class NoteSumPerDay {
     @ApiModelProperty("笔记方向")
     private String direction;
 
-    @ApiModelProperty("笔记数量")
-    private Integer number;
+    @ApiModelProperty("周笔记数量")
+    private Integer number_week;
+
+    @ApiModelProperty("月笔记数量")
+    private Integer number_month;
+
+    @ApiModelProperty("年笔记数量")
+    private Integer number_year;
 
 }
