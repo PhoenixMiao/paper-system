@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
     public Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId) throws CommonException {
         if (userMapper.selectById(userId).getType() != 1)
             throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        PageHelper.startPage(pageNum, pageSize, "can_modify,nickname asc");
+        PageHelper.startPage(pageNum, pageSize, "can_modify,nickname desc");
         //List<BriefUser> briefUsers = briefUserList.stream().parallel().filter(user -> user.getDeleteTime() == null).collect(Collectors.toList());
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
