@@ -29,4 +29,10 @@ public class DetailedPaper {
 
     @ApiModelProperty("是否有修改和删除权限")
     private boolean canModify;
+
+    @ApiModelProperty("论文引用数量")
+    private int QuoterNumber;
+
+    @ApiModelProperty("论文被引用数量")
+    private int QuotedNumber;
 }
