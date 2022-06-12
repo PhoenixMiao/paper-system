@@ -205,7 +205,10 @@ public class PaperServiceImpl implements PaperService {
             String direction=researchDirectionMapper.getResearchDirectionName(directionId);
             PaperSumPerDay paperSumPerDay=paperSumPerDayMapper.selectOne(new QueryWrapper<PaperSumPerDay>(PaperSumPerDay.builder().userId(userId).direction(direction).build()));
             if(paperSumPerDay==null)paperSumPerDayMapper.insert(new PaperSumPerDay(null,userId,TimeUtil.getCurrentTimestamp(),direction,1));
-            else paperSumPerDay.setNumber(paperSumPerDay.getNumber()+1);
+            else {
+                paperSumPerDay.setNumber(paperSumPerDay.getNumber()+1);
+                paperSumPerDayMapper.updateById(paperSumPerDay);
+            }
         }
 
 

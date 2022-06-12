@@ -356,14 +356,14 @@ public class UserServiceImpl implements UserService {
     public List<PaperAndNoteData> getUserPaperData(Integer period, Long userId){
         if (period != 7 && period != 30 && period != 365)
             throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
-        return paperMapper.getPaperData(userId, period);
+        return paperSumPerDayMapper.getPaperData(userId, period);
     }
 
     @Override
     public List<PaperAndNoteData> getUserNoteData(Integer period, Long userId) {
         if (period != 7 && period != 30 && period != 365)
             throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
-        return noteMapper.getNoteData(userId, period);
+        return noteSumPerDayMapper.getNoteData(userId,period);
     }
 
     @Transactional(rollbackFor = CommonException.class)
