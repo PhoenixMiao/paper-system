@@ -34,4 +34,5 @@ public class NoteSumPerDay {
     @ApiModelProperty("笔记数量")
     private Integer number;
 
+
 }

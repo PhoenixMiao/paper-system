@@ -4,8 +4,7 @@ import cn.hutool.core.util.PageUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.phoenix.paper.service.impl.ScheduledTasks;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.mapper.CollectionMapper;
 import com.phoenix.paper.mapper.NoteMapper;
@@ -28,6 +27,9 @@ public class CollectionServiceImpl implements CollectionService {
 
     @Autowired
     private PaperMapper paperMapper;
+
+    @Autowired
+    private ScheduledTasks scheduledTasks;
 
     @Autowired
     private NoteMapper noteMapper;
@@ -57,7 +59,7 @@ public class CollectionServiceImpl implements CollectionService {
     public Long getCollectNumber(Long objectId, Integer type){
         Long collects = getCollectionsFromRedis(objectId,type);
         if (collects != null) return collects;
-        else if(type==0)collects = Optional.ofNullable(paperMapper.getPaperCollects(objectId)).orElse(0L);
+        else if(type==0)collects =Optional.ofNullable(paperMapper.getPaperCollects(objectId)).orElse(0L);
         else if(type==1)collects=Optional.ofNullable(noteMapper.getNoteCollects(objectId)).orElse(0L);
         Map<String,Object> collectCount=new HashMap<>();
         collectCount.put(COLLECT_COUNT_KEY(type,objectId),collects);
@@ -96,6 +98,7 @@ public class CollectionServiceImpl implements CollectionService {
 
     @Override
     public IPage<Collection> getCollectionList(Integer pageSize, Integer pageNum, Long userId){
+        scheduledTasks.collections2database();
         QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
         collectionQueryWrapper.eq("user_id",userId).isNull("delete_time");
         collectionQueryWrapper.select("id","object_id","object_type","user_id","collect_time");

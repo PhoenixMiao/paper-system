@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -46,6 +47,7 @@ public class ScheduledTasks {
 
     @Autowired
     private UserMapper userMapper;
+
 
     @Transactional(rollbackFor = CommonException.class)
     @Scheduled(cron = "0 0 0/12 * * ? ")
@@ -100,7 +102,7 @@ public class ScheduledTasks {
         Map<Object, Object> collectInformation = new HashMap<>();
         collectInformation = redisUtils.hmget("COLLECT_INFORMATION");
         Map<Object, Object> collectCount = new HashMap<>();
-        collectCount = redisUtils.hmget("LIKE_COUNT");
+        collectCount = redisUtils.hmget("COLLECT_COUNT");
         redisUtils.del("COLLECT_COUNT");
         redisUtils.del("COLLECT_INFORMATION");
         for (Map.Entry<Object, Object> entry : collectInformation.entrySet()) {
@@ -112,23 +114,23 @@ public class ScheduledTasks {
                 collectionMapper.insert(collection);
             }
             else if(splitInfo[2].equals("0")){
-                QueryWrapper<Collection> collectionQueryWrapper = new QueryWrapper<>();
-                collectionQueryWrapper.eq("object_id",Long.parseLong(splitInfo[1].substring(1))).eq("object_type", (int) splitInfo[1].charAt(0) -48);
-                if(collectionMapper.update(Collection.builder().deleteTime(time).build(), collectionQueryWrapper)==0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                Collection collection=collectionMapper.getCollect(Long.parseLong(splitInfo[1].substring(1)),Integer.valueOf( splitInfo[1].charAt(0) -48));
+               if(collection!=null)collection.setDeleteTime(TimeUtil.getCurrentTimestamp());
+               collectionMapper.updateById(collection);
             }
         }
         for (Map.Entry<Object, Object> entry : collectCount.entrySet()){
             String object=(String) entry.getKey();
             Long collectNumber=(Long) entry.getValue();
-            if(object.charAt(0)=='1') {
+            if(object.charAt(0)=='0') {
                 Paper paper = Paper.builder().id(Long.valueOf(object.substring(2))).build();
-                paper.setCollectNumber(collectNumber.intValue());
+                paper.setCollectNumber(Optional.ofNullable(paper.getCollectNumber()).orElse(0) + collectNumber.intValue());
                 if (paperMapper.updateById(paper) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
 
             }
-            else if(object.charAt(0)=='0') {
+            else if(object.charAt(0)=='1') {
                 Note note = Note.builder().id(Long.valueOf(object.substring(2))).build();
-                note.setCollectNumber(collectNumber.intValue());
+                note.setCollectNumber(Optional.ofNullable(note.getCollectNumber()).orElse(0) + collectNumber.intValue());
                 if (noteMapper.updateById(note) == 0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
             }
         }
@@ -172,5 +174,4 @@ public class ScheduledTasks {
 
         }
     }
-
 }
