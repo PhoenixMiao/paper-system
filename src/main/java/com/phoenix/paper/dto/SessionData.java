@@ -12,10 +12,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * session缓存实体
- * @author yan on 2020-02-27
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

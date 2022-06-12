@@ -6,10 +6,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
-* 统一返回实体
-* @author yan on 2020-02-27
-*/
 @Data
 public class Result implements Serializable {
 

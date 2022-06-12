@@ -110,7 +110,7 @@ public class PaperServiceImpl implements PaperService {
     private SessionUtils sessionUtils;
 
     public static void main(String[] args) {
-        System.out.println(new StringBuilder("12345").toString());
+        System.out.println(JSON.toJSONString(UpdatePaperRequest.builder().paperType(1).build()));
     }
 
     @Override
@@ -136,6 +136,8 @@ public class PaperServiceImpl implements PaperService {
                 .paperDirectionList(paperDirectionMapper.selectList(paperDirectionQueryWrapper))
                 .paperQuotationList(paperQuotationMapper.selectList(paperQuotationQueryWrapper))
                 .canModify(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || sessionData.getId().equals(paper.getUploaderId()))
+                .QuoterNumber(paperQuotationMapper.selectList(paperQuotationQueryWrapper).size())
+                .QuotedNumber(paperQuotationMapper.getQuotedNumber(paperId))
                 .build();
     }
 
@@ -204,11 +206,9 @@ public class PaperServiceImpl implements PaperService {
         for(Long directionId:addPaperRequest.getResearchDirectionList()){
             String direction=researchDirectionMapper.getResearchDirectionName(directionId);
             PaperSumPerDay paperSumPerDay=paperSumPerDayMapper.selectOne(new QueryWrapper<PaperSumPerDay>(PaperSumPerDay.builder().userId(userId).direction(direction).build()));
-            if(paperSumPerDay==null)paperSumPerDayMapper.insert(new PaperSumPerDay(null,userId,TimeUtil.getCurrentTimestamp(),direction,1));
-            else {
-                paperSumPerDay.setNumber(paperSumPerDay.getNumber()+1);
-                paperSumPerDayMapper.updateById(paperSumPerDay);
-            }
+            if (paperSumPerDay == null)
+                paperSumPerDayMapper.insert(new PaperSumPerDay(null, userId, TimeUtil.getCurrentTimestamp(), direction, 1));
+            else paperSumPerDay.setNumber(paperSumPerDay.getNumber() + 1);
         }
 
 
@@ -320,7 +320,7 @@ public class PaperServiceImpl implements PaperService {
         }
         paperQueryWrapper.select("id", "title", "publish_date", "summary", "author", "file_link");
         if (orderBy == 0) {
-            PageHelper.startPage(pageNum, pageSize, "paper_date desc");
+            PageHelper.startPage(pageNum, pageSize, "publish_date desc");
         } else {
             PageHelper.startPage(pageNum, pageSize, "like_number+collect_number desc");
         }
@@ -457,7 +457,9 @@ public class PaperServiceImpl implements PaperService {
         try {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             ArrayList<Map<String, Object>> page = new ArrayList<>();
+            int size = searchResponse.getHits().getHits().length;
             for (SearchHit hit : searchResponse.getHits().getHits()) {
+
                 if (contents == null) {
                     page.add(hit.getSourceAsMap());
                     continue;
@@ -518,9 +520,11 @@ public class PaperServiceImpl implements PaperService {
 
                 Long paperId = Long.valueOf(hit.getSourceAsMap().get("id").toString());
 
-                resultMap.put("likeNum", likeService.getLikeNumber(paperId,0));
+                resultMap.put("likeNum", likeService.getLikeNumber(paperId, 0));
 
-                resultMap.put("collectNum", collectionService.getCollectNumber(paperId,0));
+                resultMap.put("collectNum", collectionService.getCollectNumber(paperId, 0));
+
+                resultMap.put("total", size);
 
                 page.add(resultMap);
 
