@@ -5,7 +5,6 @@ import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.entity.User;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  */
 
 public interface UserMapper extends BaseMapper<User>{
-    @Select("SELECT id,name,nickname,portrait,type FROM user WHERE user.delete_time IS NULL")
+    @Select("SELECT id,name,nickname,portrait,type,can_comment,can_modify,create_time,delete_time FROM user WHERE user.delete_time IS NULL")
     List<BriefUser> getBriefUserList();
 
     @Select("SELECT * FROM user WHERE account_num = #{account_num}")
