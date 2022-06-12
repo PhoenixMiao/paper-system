@@ -12,6 +12,6 @@ import java.util.List;
 
 public interface PaperSumPerDayMapper  extends BaseMapper<PaperSumPerDay> {
 
-    @Select("SELECT direction, CASE #{period} WHEN 7 THEN number_week WHEN 30 THEN number_month ELSE number_year END AS number FROM paper_sum_per_day WHERE user_id=#{user_id}")
+    @Select("SELECT direction,  number FROM paper_sum_per_day WHERE user_id=#{user_id}")
     List<PaperAndNoteData> getPaperData(@Param("user_id")Long userId,@Param("period")Integer period);
 }
