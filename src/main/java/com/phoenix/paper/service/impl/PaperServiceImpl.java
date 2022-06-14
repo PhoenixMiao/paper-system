@@ -110,7 +110,7 @@ public class PaperServiceImpl implements PaperService {
     private SessionUtils sessionUtils;
 
     public static void main(String[] args) {
-        System.out.println(JSON.toJSONString(UpdatePaperRequest.builder().paperType(1).build()));
+        System.out.println(new String("http://124.222.112.118:8010/paper/download/").length());
     }
 
     @Override
@@ -138,6 +138,7 @@ public class PaperServiceImpl implements PaperService {
                 .canModify(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || sessionData.getId().equals(paper.getUploaderId()))
                 .QuoterNumber(paperQuotationMapper.selectList(paperQuotationQueryWrapper).size())
                 .QuotedNumber(paperQuotationMapper.getQuotedNumber(paperId))
+                .paperType(PAPER_TYPE[paper.getPaperType()])
                 .build();
     }
 
@@ -392,7 +393,7 @@ public class PaperServiceImpl implements PaperService {
         }
         if (paper.getFileLink() != null) {
             List<String> fileNames = FileUtil.listFileNames(PAPER_FILE_PATH);
-            String fileName = fileNames.stream().filter(name -> name.contains(paper.getFileLink().substring(43))).findAny().orElse("");
+            String fileName = fileNames.stream().filter(name -> name.contains(paper.getFileLink().substring(36))).findAny().orElse("");
             if (!fileName.equals("")) FileUtil.del(PAPER_FILE_PATH + fileName);
         }
     }

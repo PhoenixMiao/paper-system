@@ -137,6 +137,7 @@ public class NoteServiceImpl implements NoteService{
                 .createTime(TimeUtil.getCurrentTimestamp())
                 .paperId(addNoteRequest.getPaperId())
                 .html(addNoteRequest.getHtml())
+                .author(sessionData.getNickname())
                 .title(addNoteRequest.getTitle())
                 .version(1)
                 .build();
@@ -250,7 +251,7 @@ public class NoteServiceImpl implements NoteService{
         }
         if (note.getCover() != null) {
             List<String> fileNames = FileUtil.listFileNames(NOTE_FILE_PATH);
-            String fileName = fileNames.stream().filter(name -> name.contains(note.getCover().substring(42))).findAny().orElse("");
+            String fileName = fileNames.stream().filter(name -> name.contains(note.getCover().substring(35))).findAny().orElse("");
             if (!fileName.equals("")) FileUtil.del(NOTE_FILE_PATH + fileName);
         }
     }

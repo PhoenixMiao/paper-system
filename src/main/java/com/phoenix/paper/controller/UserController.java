@@ -271,6 +271,21 @@ public class UserController {
     }
 
     @Auth
+    @GetMapping(value = "/note", produces = "application/json")
+    @ApiOperation(value = "获取该用户的笔记列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页显示数量 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "pageNum", value = "页数 (不小于0)", required = true, paramType = "query", dataType = "Integer"),
+    })
+    public Result getUserNoteList(@NotNull @RequestParam("pageSize") Integer pageSize, @NotNull @Param("pageNum") Integer pageNum) {
+        try {
+            return Result.success(userService.getUserNoteList(pageNum, pageSize, sessionUtils.getUserId()));
+        } catch (CommonException e) {
+            return Result.result(e.getCommonErrorCode());
+        }
+    }
+
+    @Auth
     @GetMapping(value = "/paperData", produces = "application/json")
     @ApiOperation(value = "获取该用户的论文数据")
     @ApiImplicitParams({

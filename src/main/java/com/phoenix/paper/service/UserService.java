@@ -3,10 +3,7 @@ package com.phoenix.paper.service;
 import com.phoenix.paper.common.Page;
 import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
-import com.phoenix.paper.dto.BriefPaper;
-import com.phoenix.paper.dto.BriefUser;
-import com.phoenix.paper.dto.PaperAndNoteData;
-import com.phoenix.paper.dto.SessionData;
+import com.phoenix.paper.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -47,6 +44,8 @@ public interface UserService {
     void updateEmail(String email, Long userId);
 
     Page<BriefPaper> getUserPaperList(Integer pageNum, Integer pageSize, Long userId);
+
+    Page<BriefNote> getUserNoteList(Integer pageNum, Integer pageSize, Long userId);
 
     List<PaperAndNoteData> getUserPaperData(Integer period, Long userId);
 

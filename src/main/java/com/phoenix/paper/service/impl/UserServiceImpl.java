@@ -12,10 +12,7 @@ import com.phoenix.paper.common.Page;
 import com.phoenix.paper.config.YmlConfig;
 import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.controller.response.LoginResponse;
-import com.phoenix.paper.dto.BriefPaper;
-import com.phoenix.paper.dto.BriefUser;
-import com.phoenix.paper.dto.PaperAndNoteData;
-import com.phoenix.paper.dto.SessionData;
+import com.phoenix.paper.dto.*;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
@@ -116,7 +113,7 @@ public class UserServiceImpl implements UserService {
     public Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId) throws CommonException {
         if (userMapper.selectById(userId).getType() != 1)
             throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        PageHelper.startPage(pageNum, pageSize, "can_modify,nickname asc");
+        PageHelper.startPage(pageNum, pageSize, "can_modify,nickname desc");
         //List<BriefUser> briefUsers = briefUserList.stream().parallel().filter(user -> user.getDeleteTime() == null).collect(Collectors.toList());
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
@@ -345,7 +342,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<BriefPaper> getUserPaperList(Integer pageNum, Integer pageSize, Long userId) {
+    public Page<BriefPaper> getUserPaperList(Integer pageNum, Integer pageSize, Long userId) throws CommonException {
         User user = userMapper.selectById(userId);
         if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
         PageHelper.startPage(pageNum, pageSize, "upload_time desc");
@@ -353,7 +350,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<PaperAndNoteData> getUserPaperData(Integer period, Long userId){
+    public Page<BriefNote> getUserNoteList(Integer pageNum, Integer pageSize, Long userId) throws CommonException {
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getDeleteTime() != null) throw new CommonException(CommonErrorCode.USER_NOT_EXIST);
+        PageHelper.startPage(pageNum, pageSize, "create_time desc");
+        return new Page<>(new PageInfo<>(noteMapper.getUserNoteList(userId)));
+    }
+
+    @Override
+    public List<PaperAndNoteData> getUserPaperData(Integer period, Long userId) {
         if (period != 7 && period != 30 && period != 365)
             throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
         return paperSumPerDayMapper.getPaperData(userId, period);

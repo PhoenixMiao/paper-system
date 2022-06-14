@@ -27,6 +27,9 @@ public class Note {
     @ApiModelProperty("创建者id")
     private Long authorId;
 
+    @ApiModelProperty("创建者昵称")
+    private String author;
+
     @ApiModelProperty("标题")
     private String title;
 
