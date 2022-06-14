@@ -22,6 +22,7 @@ import com.phoenix.paper.service.CollectionService;
 import com.phoenix.paper.service.LikeService;
 import com.phoenix.paper.service.NoteService;
 import com.phoenix.paper.util.AssertUtil;
+import com.phoenix.paper.util.RedisUtils;
 import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -43,6 +44,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,6 +96,9 @@ public class NoteServiceImpl implements NoteService{
 
     @Autowired
     private CollectionService collectionService;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Autowired
     private RestHighLevelClient restHighLevelClient;
@@ -169,12 +174,17 @@ public class NoteServiceImpl implements NoteService{
         List<PaperDirection> paperDirections= paperDirectionMapper.selectByMap(paperMap);
         for(PaperDirection paperDirection:paperDirections) {
             String direction=researchDirectionMapper.getResearchDirectionName(paperDirection.getDirectionId());
-            NoteSumPerDay noteSumPerDay=noteSumPerDayMapper.selectOne(new QueryWrapper<NoteSumPerDay>(NoteSumPerDay.builder().userId(authorId).direction(direction).build()));
-            if(noteSumPerDay==null)noteSumPerDayMapper.insert(new NoteSumPerDay(null,authorId,TimeUtil.getCurrentTimestamp(),direction,1));
-            else {
-                noteSumPerDay.setNumber(noteSumPerDay.getNumber()+1);
-                noteSumPerDayMapper.updateById(noteSumPerDay);
-            }
+            Long number =(Long) redisUtils.hget(authorId+"note",direction);
+            Map<String,Object> addNoteInfo=new HashMap<>();
+            addNoteInfo.put(direction,number==null?1:number+1);
+            redisUtils.hmset(authorId+"note",addNoteInfo,87000);
+            redisUtils.sSet("updateNoteUser",authorId);
+//            NoteSumPerDay noteSumPerDay=noteSumPerDayMapper.selectOne(new QueryWrapper<NoteSumPerDay>(NoteSumPerDay.builder().userId(authorId).direction(direction).build()));
+//            if(noteSumPerDay==null)noteSumPerDayMapper.insert(new NoteSumPerDay(null,authorId,TimeUtil.getCurrentTimestamp(),direction,1));
+//            else {
+//                noteSumPerDay.setNumber(noteSumPerDay.getNumber()+1);
+//                noteSumPerDayMapper.updateById(noteSumPerDay);
+//            }
         }
 
         return note.getId();
