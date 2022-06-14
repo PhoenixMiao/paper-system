@@ -152,7 +152,7 @@ public class PaperController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "quoterId", value = "当前论文id", required = true, paramType = "query", dataType = "Long"),
             @ApiImplicitParam(name = "quotedId", value = "被引用的论文id", required = true, paramType = "query", dataType = "Long"),
-            @ApiImplicitParam(name = "remarks", value = "备注", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "备注", paramType = "query", dataType = "String"),
     })
     public Result addQuotation(@NotNull @RequestParam("quoterId") Long quoterId, @NotNull @Param("quotedId") Long quotedId, @Param("remarks") String remarks) {
         return Result.success(paperService.addQuotation(quoterId, quotedId, remarks));

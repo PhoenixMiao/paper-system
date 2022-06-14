@@ -23,13 +23,13 @@ public interface NoteMapper extends BaseMapper<Note> {
     @Select("SELECT name as direction,count(*) as number FROM (note LEFT JOIN paper_direction ON note.paper_id=paper_direction.paper_id )LEFT JOIN research_direction ON paper_direction.direction_id=research_direction.id where author_id=#{user_id} AND TO_DAYS(NOW())-TO_DAYS(note.create_time)<=#{period} AND note.delete_time IS NULL group by direction_id")
     List<PaperAndNoteData> getNoteData(@Param("user_id") Long userId, @Param("period") Integer period);
 
-    @Select("SELECT id,author_id,author,title,cover,create_time,like_number,collect_number FROM note LEFT JOIN user ON note.author_id = user.id WHERE user.nickname LIKE %#{author}%;")
+    @Select("SELECT id,author_id,author,title,cover,create_time,like_number,collect_number FROM note LEFT JOIN user ON note.author_id = user.id WHERE user.nickname LIKE %#{author}% AND user.delete_time IS NULL AND note.delete_time IS NULL;")
     List<BriefNote> getBriefNoteListByAuthor(@Param("author") String author);
 
-    @Select("SELECT id,author_id,author,title,cover,create_time,like_number,collect_number FROM note WHERE title LIKE #{title}%;")
+    @Select("SELECT id,author_id,author,title,cover,create_time,like_number,collect_number FROM note WHERE title LIKE #{title}% AND delete_time IS NULL;")
     List<BriefNote> getBriefNoteListByTitle(@Param("author") String title);
 
-    @Select("SELECT id,author_id,author,title,cover,create_time,like_number,collect_number FROM note;")
+    @Select("SELECT id,author_id,author,title,cover,create_time,like_number,collect_number FROM note AND delete_time IS NULL;")
     List<BriefNote> getBriefNoteList();
 
     @Select("SELECT id,author_id,author,title,cover,create_time,like_number,collect_number FROM note WHERE author_id=#{userId} AND delete_time IS NULL;")

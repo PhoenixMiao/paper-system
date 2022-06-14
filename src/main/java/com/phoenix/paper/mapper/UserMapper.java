@@ -20,7 +20,7 @@ public interface UserMapper extends BaseMapper<User>{
     @Select("SELECT * FROM user WHERE account_num = #{account_num}")
     User getUserByNum(@Param("account_num")String number);
 
-    @Select("SELECT Id FROM user")
+    @Select("SELECT id FROM user WHERE delete_time IS NULL")
     List<Long> allUserIdList();
 
 }
