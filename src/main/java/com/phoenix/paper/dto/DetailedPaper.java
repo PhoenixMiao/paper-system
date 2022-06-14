@@ -35,4 +35,8 @@ public class DetailedPaper {
 
     @ApiModelProperty("论文被引用数量")
     private int QuotedNumber;
+
+    @ApiModelProperty("论文类型")
+    private String paperType;
+
 }

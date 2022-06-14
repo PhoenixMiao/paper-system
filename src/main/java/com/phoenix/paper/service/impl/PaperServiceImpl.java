@@ -138,6 +138,7 @@ public class PaperServiceImpl implements PaperService {
                 .canModify(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || sessionData.getId().equals(paper.getUploaderId()))
                 .QuoterNumber(paperQuotationMapper.selectList(paperQuotationQueryWrapper).size())
                 .QuotedNumber(paperQuotationMapper.getQuotedNumber(paperId))
+                .paperType(PAPER_TYPE[paper.getPaperType()])
                 .build();
     }
 

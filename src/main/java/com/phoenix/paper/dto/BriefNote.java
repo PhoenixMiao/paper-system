@@ -7,10 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +19,9 @@ public class BriefNote {
 
     @ApiModelProperty("创建者id")
     private Long authorId;
+
+    @ApiModelProperty("创建者昵称")
+    private String author;
 
     @ApiModelProperty("标题")
     private String title;

@@ -137,6 +137,7 @@ public class NoteServiceImpl implements NoteService{
                 .createTime(TimeUtil.getCurrentTimestamp())
                 .paperId(addNoteRequest.getPaperId())
                 .html(addNoteRequest.getHtml())
+                .author(sessionData.getNickname())
                 .title(addNoteRequest.getTitle())
                 .version(1)
                 .build();
