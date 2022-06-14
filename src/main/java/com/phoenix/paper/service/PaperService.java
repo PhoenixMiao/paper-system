@@ -26,7 +26,6 @@ public interface PaperService {
 
     Page<BriefPaper> findPaperByTitle(Integer pageNum, Integer pageSize, String title);
 
-    Long addPaperQuotation(Long quoterId, Long quotedId);
 
     Page<BriefPaper> searchPaperByDirection(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest);
 
