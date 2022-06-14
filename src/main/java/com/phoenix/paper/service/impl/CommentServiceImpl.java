@@ -36,6 +36,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteComment(Long commentId, Long userId) throws CommonException {
         Comment comment = commentMapper.selectById(commentId);
+        if(comment.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.COMMENT_NOT_EXIST);
         User user = userMapper.selectById(userId);
         if (!comment.getUserId().equals(userId) && user.getType() != 1 && user.getCanComment() != 1)
             throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
@@ -57,6 +58,7 @@ public class CommentServiceImpl implements CommentService {
             throw new CommonException(CommonErrorCode.CAN_NOT_COMMENT);
         if (objectType == 1) {
             Comment comment = commentMapper.selectById(objectId);
+            if(comment.getDeleteTime()!=null)throw new CommonException(CommonErrorCode.COMMENT_NOT_EXIST);
             if (comment.getCommentId() != null) throw new CommonException(CommonErrorCode.COMMENT_IS_NOT_ALLOWED);
         }
         Comment comment = Comment.builder().userId(userId).createTime(TimeUtil.getCurrentTimestamp()).contents(content).version(1).build();
