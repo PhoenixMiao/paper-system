@@ -290,13 +290,6 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public Long addPaperQuotation(Long quoterId, Long quotedId) {
-        PaperQuotation paperQuotation = PaperQuotation.builder().quoterId(quoterId).quotedId(quotedId).build();
-        paperQuotationMapper.insert(paperQuotation);
-        return paperQuotation.getId();
-    }
-
-    @Override
     public Page<BriefPaper> searchPaperByDirection(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest) {
         QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
         if (searchPaperRequest.getTitle() != null) paperQueryWrapper.like("title", searchPaperRequest.getTitle());
