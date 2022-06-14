@@ -6,7 +6,6 @@ import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.dto.PaperAndNoteData;
 import com.phoenix.paper.entity.*;
-import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.mapper.*;
 import com.phoenix.paper.util.RedisUtils;
 import com.phoenix.paper.util.TimeUtil;
@@ -16,8 +15,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.management.ObjectName;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -156,41 +157,21 @@ public class ScheduledTasks {
 
     @Scheduled(cron = "0 0 0 0/24 * ? ")
     public void updateUserData(){
-        Set<Object> allUserId=redisUtils.sGet("updatePaperUser");
-//        List<Long> allUserId = userMapper.allUserIdList();
-        for(Object userIdItem:allUserId){
-            Long userId=(Long) userIdItem;
-            Map<Object, Object> temp = new HashMap<>();
-            temp = redisUtils.hmget(userId+"paper");
-            for (Map.Entry<Object, Object> entry : temp.entrySet()){
-                String direction=(String) entry.getKey();
-                Long number=(Long) entry.getValue();
-                paperSumPerDayMapper.insert(new PaperSumPerDay(null,userId, TimeUtil.getCurrentTimestamp(),direction,number));
+        List<Long> allUserId = userMapper.allUserIdList();
+        for(Long userId:allUserId){
+            List<PaperAndNoteData> paperDataList =  paperMapper.getPaperData(userId,1);
+            for(PaperAndNoteData paperData:paperDataList){
+                PaperSumPerDay paperSumPerDay = paperSumPerDayMapper.selectOne(new QueryWrapper<>(PaperSumPerDay.builder().userId(userId).direction(paperData.getDirection()).build()));
+                if(paperSumPerDay!=null) paperSumPerDay.setNumber(paperSumPerDay.getNumber()+paperData.getNumber());
+                else paperSumPerDayMapper.insert(new PaperSumPerDay(null,userId, TimeUtil.getCurrentTimestamp(),paperData.getDirection(),paperData.getNumber()));
             }
-//            List<PaperAndNoteData> paperDataList =  paperMapper.getPaperData(userId,1);
-//            for(PaperAndNoteData paperData:paperDataList){
-//                PaperSumPerDay paperSumPerDay = paperSumPerDayMapper.selectOne(new QueryWrapper<>(PaperSumPerDay.builder().userId(userId).direction(paperData.getDirection()).build()));
-//                if(paperSumPerDay!=null) paperSumPerDay.setNumber(paperSumPerDay.getNumber()+paperData.getNumber());
-//                else paperSumPerDayMapper.insert(new PaperSumPerDay(null,userId, TimeUtil.getCurrentTimestamp(),paperData.getDirection(),paperData.getNumber()));
-//            }
-//            List<PaperAndNoteData> noteDataList =  noteMapper.getNoteData(userId,1);
-//            for(PaperAndNoteData noteData:noteDataList){
-//                NoteSumPerDay noteSumPerDay = noteSumPerDayMapper.selectOne(new QueryWrapper<>(NoteSumPerDay.builder().userId(userId).direction(noteData.getDirection()).build()));
-//                if(noteSumPerDay!=null) noteSumPerDay.setNumber(noteSumPerDay.getNumber()+noteData.getNumber());
-//                else noteSumPerDayMapper.insert(new NoteSumPerDay(null,userId, TimeUtil.getCurrentTimestamp(),noteData.getDirection(),noteData.getNumber()));
-//            }
+            List<PaperAndNoteData> noteDataList =  noteMapper.getNoteData(userId,1);
+            for(PaperAndNoteData noteData:noteDataList){
+                NoteSumPerDay noteSumPerDay = noteSumPerDayMapper.selectOne(new QueryWrapper<>(NoteSumPerDay.builder().userId(userId).direction(noteData.getDirection()).build()));
+                if(noteSumPerDay!=null) noteSumPerDay.setNumber(noteSumPerDay.getNumber()+noteData.getNumber());
+                else noteSumPerDayMapper.insert(new NoteSumPerDay(null,userId, TimeUtil.getCurrentTimestamp(),noteData.getDirection(),noteData.getNumber()));
+            }
 
-        }
-        allUserId=redisUtils.sGet("updateNoteUser");
-        for(Object userIdItem:allUserId) {
-            Long userId = (Long) userIdItem;
-            Map<Object, Object> temp = new HashMap<>();
-            temp = redisUtils.hmget(userId + "note");
-            for (Map.Entry<Object, Object> entry : temp.entrySet()) {
-                String direction = (String) entry.getKey();
-                Long number = (Long) entry.getValue();
-                noteSumPerDayMapper.insert(new NoteSumPerDay(null, userId, TimeUtil.getCurrentTimestamp(), direction, number));
-            }
         }
     }
 }
