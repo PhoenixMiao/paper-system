@@ -274,7 +274,7 @@ public class PaperServiceImpl implements PaperService {
     @Override
     public Page<BriefPaper> findPaperByTitle(Integer pageNum, Integer pageSize, String title) {
         QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
-        paperQueryWrapper.like("title", title);
+        paperQueryWrapper.like("title", title).isNull("delete_time");
         paperQueryWrapper.select("title", "id", "publish_time", "summary", "file_link");
         PageHelper.startPage(pageNum, pageSize);
         List<Paper> papers = paperMapper.selectList(paperQueryWrapper);
@@ -293,6 +293,7 @@ public class PaperServiceImpl implements PaperService {
     @Override
     public Page<BriefPaper> searchPaperByDirection(int pageNum, int pageSize, int orderBy, SearchPaperRequest searchPaperRequest) {
         QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
+        paperQueryWrapper.isNull("delete_time");
         if (searchPaperRequest.getTitle() != null) paperQueryWrapper.like("title", searchPaperRequest.getTitle());
         else if (searchPaperRequest.getSummary() != null)
             paperQueryWrapper.like("summary", searchPaperRequest.getSummary());
@@ -303,7 +304,7 @@ public class PaperServiceImpl implements PaperService {
             for (long id : searchPaperRequest.getResearchDirectionIds()) {
                 List<Long> ids = researchDirectionService.getAllSons(id);
                 QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
-                paperDirectionQueryWrapper.isNotNull("delete_time");
+                paperDirectionQueryWrapper.isNull("delete_time");
                 paperDirectionQueryWrapper.and(w -> {
                     for (Long x : ids) {
                         w.or().eq("direction_id", x);
@@ -567,9 +568,9 @@ public class PaperServiceImpl implements PaperService {
         AssertUtil.isTrue(paper != null, CommonErrorCode.PAPER_NOT_EXIST);
         QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
         if (title.length() == 0)
-            paperQueryWrapper.select("id", "title").lt("publish_date", paper.getPublishDate()).orderByAsc("publish_date");
+            paperQueryWrapper.select("id", "title").lt("publish_date", paper.getPublishDate()).isNull("delete_time").orderByAsc("publish_date");
         else
-            paperQueryWrapper.select("id", "title").lt("publish_date", paper.getPublishDate()).like("title", "%" + title + "%").orderByAsc("publish_date");
+            paperQueryWrapper.select("id", "title").lt("publish_date", paper.getPublishDate()).isNull("delete_time").like("title", "%" + title + "%").orderByAsc("publish_date");
         return paperMapper.selectList(paperQueryWrapper);
     }
 

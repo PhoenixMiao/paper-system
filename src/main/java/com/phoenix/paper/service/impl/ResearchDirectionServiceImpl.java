@@ -49,7 +49,7 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
     @Override
     public Long addResearchDirection(AddResearchDirectionRequest addResearchDirectionRequest, Long creatorId) throws CommonException {
         QueryWrapper<ResearchDirection> researchDirectionQueryWrapper = new QueryWrapper<>();
-        researchDirectionQueryWrapper.eq("name", addResearchDirectionRequest.getName());
+        researchDirectionQueryWrapper.eq("name", addResearchDirectionRequest.getName()).isNull("delete_time");
         int exist = researchDirectionMapper.selectCount(researchDirectionQueryWrapper);
         if (exist != 0) throw new CommonException(CommonErrorCode.REPETITIVE_DIRECTION);
         ResearchDirection researchDirection;
