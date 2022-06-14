@@ -25,6 +25,7 @@ import com.phoenix.paper.service.LikeService;
 import com.phoenix.paper.service.PaperService;
 import com.phoenix.paper.service.ResearchDirectionService;
 import com.phoenix.paper.util.AssertUtil;
+import com.phoenix.paper.util.RedisUtils;
 import com.phoenix.paper.util.SessionUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -75,6 +76,9 @@ public class PaperServiceImpl implements PaperService {
 
     @Autowired
     private NoteMapper noteMapper;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Autowired
     private LikesMapper likesMapper;
@@ -205,13 +209,18 @@ public class PaperServiceImpl implements PaperService {
 
         for(Long directionId:addPaperRequest.getResearchDirectionList()){
             String direction=researchDirectionMapper.getResearchDirectionName(directionId);
-            PaperSumPerDay paperSumPerDay=paperSumPerDayMapper.selectOne(new QueryWrapper<PaperSumPerDay>(PaperSumPerDay.builder().userId(userId).direction(direction).build()));
-            if (paperSumPerDay == null)
-                paperSumPerDayMapper.insert(new PaperSumPerDay(null, userId, TimeUtil.getCurrentTimestamp(), direction, 1));
-            else {
-                paperSumPerDay.setNumber(paperSumPerDay.getNumber()+1);
-                paperSumPerDayMapper.updateById(paperSumPerDay);
-            }
+            Long number =(Long) redisUtils.hget(userId+"paper",direction);
+            Map<String,Object> addPaperInfo=new HashMap<>();
+            addPaperInfo.put(direction,number==null?1:number+1);
+            redisUtils.hmset(userId+"paper",addPaperInfo,87000);
+            redisUtils.sSet("updatePaperUser",userId);
+//            PaperSumPerDay paperSumPerDay=paperSumPerDayMapper.selectOne(new QueryWrapper<PaperSumPerDay>(PaperSumPerDay.builder().userId(userId).direction(direction).build()));
+//            if (paperSumPerDay == null)
+//                paperSumPerDayMapper.insert(new PaperSumPerDay(null, userId, TimeUtil.getCurrentTimestamp(), direction, 1));
+//            else {
+//                paperSumPerDay.setNumber(paperSumPerDay.getNumber()+1);
+//                paperSumPerDayMapper.updateById(paperSumPerDay);
+//            }
         }
 
 

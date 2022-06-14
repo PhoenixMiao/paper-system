@@ -32,5 +32,5 @@ public class PaperSumPerDay {
     private String direction;
 
     @ApiModelProperty("笔记数量")
-    private Integer number;
+    private Long number;
 }

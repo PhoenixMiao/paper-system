@@ -92,6 +92,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PaperDirectionMapper paperDirectionMapper;
 
+    @Autowired
+    private ScheduledTasks scheduledTasks;
+
     @Override
     public LoginResponse login(String number, String password) throws CommonException {
 
@@ -356,6 +359,7 @@ public class UserServiceImpl implements UserService {
     public List<PaperAndNoteData> getUserPaperData(Integer period, Long userId){
         if (period != 7 && period != 30 && period != 365)
             throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
+        scheduledTasks.updateUserData();
         return paperSumPerDayMapper.getPaperData(userId, period);
     }
 
@@ -363,6 +367,7 @@ public class UserServiceImpl implements UserService {
     public List<PaperAndNoteData> getUserNoteData(Integer period, Long userId) {
         if (period != 7 && period != 30 && period != 365)
             throw new CommonException(CommonErrorCode.PERIOD_NOT_SUPPORTED);
+        scheduledTasks.updateUserData();
         return noteSumPerDayMapper.getNoteData(userId,period);
     }
 
