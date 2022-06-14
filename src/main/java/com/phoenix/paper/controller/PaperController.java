@@ -134,20 +134,6 @@ public class PaperController {
         return Result.success("删除成功");
     }
 
-    @Auth
-    @PostMapping(value = "/quote", produces = "application/json")
-    @ApiOperation(value = "添加论文引用关系")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "quoterId", value = "引用者id", required = true, paramType = "query", dataType = "Long"),
-            @ApiImplicitParam(name = "quotedId", value = "被引用论文id", required = true, paramType = "query", dataType = "Long"),
-    })
-    public Result deletePaper(@NotNull @RequestParam("quoterId") Long quoterId, @NotNull @RequestParam("quotedId") Long quotedId) {
-        try {
-            return Result.success(paperService.addPaperQuotation(quoterId, quotedId));
-        } catch (CommonException e) {
-            return Result.result(e.getCommonErrorCode());
-        }
-    }
 
     @PostMapping(value = "/searchByBody", produces = "application/json")
     @ApiOperation(value = "论文搜索")
