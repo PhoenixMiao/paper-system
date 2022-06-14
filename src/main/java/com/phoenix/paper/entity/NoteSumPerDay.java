@@ -32,7 +32,7 @@ public class NoteSumPerDay {
     private String direction;
 
     @ApiModelProperty("笔记数量")
-    private Long number;
+    private Integer number;
 
 
 }
