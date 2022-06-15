@@ -9,8 +9,10 @@ import com.phoenix.paper.common.Page;
 import com.phoenix.paper.dto.BriefComment;
 import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.entity.Comment;
+import com.phoenix.paper.entity.Note;
 import com.phoenix.paper.entity.User;
 import com.phoenix.paper.mapper.CommentMapper;
+import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.UserMapper;
 import com.phoenix.paper.service.CommentService;
 import com.phoenix.paper.util.AssertUtil;
@@ -28,6 +30,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private NoteMapper noteMapper;
 
     @Autowired
     private SessionUtils sessionUtils;
@@ -57,7 +62,12 @@ public class CommentServiceImpl implements CommentService {
             throw new CommonException(CommonErrorCode.CAN_NOT_COMMENT);
         if (objectType == 1) {
             Comment comment = commentMapper.selectById(objectId);
+            if (comment == null || comment.getDeleteTime() != null)
+                throw new CommonException(CommonErrorCode.COMENT_NOT_EXIST);
             if (comment.getCommentId() != null) throw new CommonException(CommonErrorCode.COMMENT_IS_NOT_ALLOWED);
+        } else {
+            Note note = noteMapper.selectById(objectId);
+            if (note == null || note.getDeleteTime() != null) throw new CommonException(CommonErrorCode.NOTE_NOT_EXIST);
         }
         Comment comment = Comment.builder().userId(userId).createTime(TimeUtil.getCurrentTimestamp()).contents(content).version(1).build();
         if (objectType == 0) comment.setNoteId(objectId);

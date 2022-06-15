@@ -404,7 +404,7 @@ public class PaperServiceImpl implements PaperService {
         }
         if (paper.getFileLink() != null) {
             List<String> fileNames = FileUtil.listFileNames(PAPER_FILE_PATH);
-            String fileName = fileNames.stream().filter(name -> name.contains(paper.getFileLink().substring(36))).findAny().orElse("");
+            String fileName = fileNames.stream().filter(name -> name.contains(paper.getFileLink().substring(43))).findAny().orElse("");
             if (!fileName.equals("")) FileUtil.del(PAPER_FILE_PATH + fileName);
         }
     }
