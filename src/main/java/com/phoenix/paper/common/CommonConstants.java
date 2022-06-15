@@ -16,8 +16,8 @@ public class CommonConstants {
     public final static String APP_NAME = "paper";
     public final static String SHADOW_TEST = "shadow-test";
     public final static String WX_SESSION_REQUEST_URL = "https://api.weixin.qq.com/sns/jscode2session";
-    public final static String DOWNLOAD_PAPER_PATH = "http://124.222.112.118:8010/paper/download/";
-    public final static String DOWNLOAD_NOTE_PATH = "http://124.222.112.118:8010/note/download/";
+    public final static String DOWNLOAD_PAPER_PATH = "http://124.222.112.118:8009/paper/download/";
+    public final static String DOWNLOAD_NOTE_PATH = "http://124.222.112.118:8009/note/download/";
     public final static String CNY_CURRENCY = "CNY";
     public final static String SIGN_TYPE_RSA = "RSA";
     public final static String SIGN_TYPE_HMAC_SHA256 = "HMAC-SHA256";
