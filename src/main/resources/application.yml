@@ -1,5 +1,5 @@
 server:
-  port: 8009
+  port: 8079
   #  ssl:
   #    key-store: classpath:yiqikang.xyz.pfx
   #    key-store-password: wha42jmq4982m
