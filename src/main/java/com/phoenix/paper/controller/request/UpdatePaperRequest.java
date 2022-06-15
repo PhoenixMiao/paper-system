@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("AddPaperRequest 添加论文请求")
+@ApiModel("UpdatePaperRequest 更新论文请求")
 public class UpdatePaperRequest {
 
     @NotNull

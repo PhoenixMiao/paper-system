@@ -13,10 +13,7 @@ import com.phoenix.paper.common.Page;
 import com.phoenix.paper.controller.request.AddPaperRequest;
 import com.phoenix.paper.controller.request.SearchPaperRequest;
 import com.phoenix.paper.controller.request.UpdatePaperRequest;
-import com.phoenix.paper.dto.BriefPaper;
-import com.phoenix.paper.dto.DetailedPaper;
-import com.phoenix.paper.dto.SearchPaper;
-import com.phoenix.paper.dto.SessionData;
+import com.phoenix.paper.dto.*;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
@@ -117,24 +114,37 @@ public class PaperServiceImpl implements PaperService {
     public DetailedPaper getPaperById(Long paperId) {
         Paper paper = paperMapper.selectById(paperId);
         QueryWrapper<PaperDirection> paperDirectionQueryWrapper = new QueryWrapper<>();
-        paperDirectionQueryWrapper.eq("paper_id", paper.getId());
+        paperDirectionQueryWrapper.eq("paper_id", paper.getId()).isNull("delete_time");
         QueryWrapper<PaperQuotation> paperQuotationQueryWrapper = new QueryWrapper<>();
-        paperQuotationQueryWrapper.eq("quoter_id", paper.getId());
+        paperQuotationQueryWrapper.eq("quoter_id", paper.getId()).isNull("delete_time");
         SessionData sessionData = null;
+        ArrayList<TmpQuotation> tmpQuotations = new ArrayList<>();
+        for (PaperQuotation paperQuotation : paperQuotationMapper.selectList(paperQuotationQueryWrapper)) {
+            QueryWrapper<Paper> paperQueryWrapper = new QueryWrapper<>();
+            paperQueryWrapper.isNull("delete_time").select("title").eq("id", paperQuotation.getQuotedId());
+            tmpQuotations.add(TmpQuotation.builder()
+                    .createTime(paperQuotation.getCreateTime())
+                    .id(paperQuotation.getId())
+                    .quotedId(paperQuotation.getQuotedId())
+                    .quoterId(paperQuotation.getQuoterId())
+                    .remarks(paperQuotation.getRemarks())
+                    .title(paperMapper.selectOne(paperQueryWrapper).getTitle())
+                    .build());
+        }
         try {
             sessionData = sessionUtils.getSessionData();
         } catch (CommonException e) {
             return DetailedPaper.builder()
                     .paper(paper)
                     .paperDirectionList(paperDirectionMapper.selectList(paperDirectionQueryWrapper))
-                    .paperQuotationList(paperQuotationMapper.selectList(paperQuotationQueryWrapper))
+                    .paperQuotationList(tmpQuotations)
                     .canModify(false)
                     .build();
         }
         return DetailedPaper.builder()
                 .paper(paper)
                 .paperDirectionList(paperDirectionMapper.selectList(paperDirectionQueryWrapper))
-                .paperQuotationList(paperQuotationMapper.selectList(paperQuotationQueryWrapper))
+                .paperQuotationList(tmpQuotations)
                 .canModify(sessionData.getCanModify() == 1 || sessionData.getType() == 1 || sessionData.getId().equals(paper.getUploaderId()))
                 .QuoterNumber(paperQuotationMapper.selectList(paperQuotationQueryWrapper).size())
                 .QuotedNumber(paperQuotationMapper.getQuotedNumber(paperId))
@@ -539,6 +549,7 @@ public class PaperServiceImpl implements PaperService {
                 .quoterId(quoterId)
                 .quotedId(quotedId)
                 .remarks(remarks)
+                .version(1)
                 .build();
         paperQuotationMapper.insert(paperQuotation);
         return paperQuotation.getId();
@@ -579,6 +590,7 @@ public class PaperServiceImpl implements PaperService {
         PaperDirection paperDirection = PaperDirection.builder()
                 .directionId(directionId)
                 .paperId(paperId)
+                .version(1)
                 .build();
         paperDirectionMapper.insert(paperDirection);
         return paperDirection.getId();
