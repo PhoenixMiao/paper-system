@@ -2,7 +2,6 @@ package com.phoenix.paper.dto;
 
 import com.phoenix.paper.entity.Paper;
 import com.phoenix.paper.entity.PaperDirection;
-import com.phoenix.paper.entity.PaperQuotation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -25,7 +24,7 @@ public class DetailedPaper {
     private List<PaperDirection> paperDirectionList;
 
     @ApiModelProperty("文献引用")
-    private List<PaperQuotation> paperQuotationList;
+    private List<TmpQuotation> paperQuotationList;
 
     @ApiModelProperty("是否有修改和删除权限")
     private boolean canModify;

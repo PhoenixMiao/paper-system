@@ -51,7 +51,6 @@ public class NoteController {
         }
     }
 
-    @Auth
     @PostMapping(value = "/upload", produces = "application/json")
     @ApiOperation(value = "上传笔记封面（请先使用add接口增加笔记相关信息，并且add和upload之间不要有其他接口调用（对单个用户来说））但是这个接口可以不调用，也就是不加封面")
     @ApiImplicitParam(name = "noteId", value = "笔记id", required = true, paramType = "query", dataType = "Long")

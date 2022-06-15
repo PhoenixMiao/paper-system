@@ -87,7 +87,7 @@ public class ResearchDirectionController {
     }
 
     @Admin
-    @GetMapping(value = "/rename",produces = "application/json")
+    @PostMapping(value = "/rename", produces = "application/json")
     @ApiOperation(value = "重命名某一研究方向")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id",value = "研究方向的节点id",required = true,paramType = "query",dataType = "Long"),

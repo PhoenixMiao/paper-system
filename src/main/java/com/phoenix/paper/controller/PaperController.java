@@ -76,7 +76,6 @@ public class PaperController {
         }
     }
 
-    @Auth
     @PostMapping(value = "/upload",produces = "application/json")
     @ApiImplicitParam(name = "paperId",value = "论文id",required = true,paramType = "query",dataType = "Long")
     public Result uploadNote(MultipartFile file, @NotNull @RequestParam("paperId")Long paperId){

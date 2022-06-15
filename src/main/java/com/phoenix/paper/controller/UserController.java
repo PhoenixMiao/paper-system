@@ -313,7 +313,6 @@ public class UserController {
         }
     }
 
-    @Auth
     @PostMapping(value = "/upload", produces = "application/json")
     @ApiOperation(value = "上传用户头像")
     public Result uploadPortrait(MultipartFile file) {
