@@ -23,6 +23,9 @@ public class BriefComment {
     @ApiModelProperty("评论id")
     private Long commentId;
 
+    @ApiModelProperty("笔记id")
+    private Long noteId;
+
     @ApiModelProperty("评论时间")
     private String createTime;
 

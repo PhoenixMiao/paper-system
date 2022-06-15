@@ -3,35 +3,28 @@
 #### 介绍
 大二下数据库实践大作业：论文管理查询系统
 
-#### 软件架构
-软件架构说明
+项目部署地址：https://yiqikang.xyz
 
+项目功能演示视频：
 
-#### 安装教程
+项目答辩视频：https://www.bilibili.com/video/BV1vL4y1N7xr/
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+后端源码地址： https://gitee.com/phoenix1975/paper-system
 
-#### 使用说明
+前端源码地址： https://gitee.com/phoenix1975/paper-system-frontend
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+项目数据库设计：https://paper-1305159828.cos.ap-nanjing.myqcloud.com/DatabaseDesign.md
 
-#### 参与贡献
+项目接口文档：http://124.222.112.118:8010/swagger-ui.html#/
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+项目答辩PPT：https://paper-1305159828.cos.ap-nanjing.myqcloud.com/IntroductionPPT.pptx
 
+项目操作文档：https://paper-1305159828.cos.ap-nanjing.myqcloud.com/OperationDocument.docx
 
-#### 特技
+项目汇总文档：https://paper-1305159828.cos.ap-nanjing.myqcloud.com/SummaryDocument.docx
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+项目技术文档：https://paper-1305159828.cos.ap-nanjing.myqcloud.com/TechnicalDocumentation.docx
+
+Elasticsearch教学视频：https://www.bilibili.com/video/BV1RB4y1W7cq/
+
+Mybatisplus+乐观锁教学视频：https://www.bilibili.com/video/BV1RB4y1W7cq/
