@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
     public Page<BriefUser> getBriefUserList(int pageSize, int pageNum, Long userId) throws CommonException {
         if (userMapper.selectById(userId).getType() != 1)
             throw new CommonException(CommonErrorCode.USER_NOT_SUPERADMIN);
-        PageHelper.startPage(pageNum, pageSize, "can_modify,nickname desc");
+        PageHelper.startPage(pageNum, pageSize, "id asc");
         //List<BriefUser> briefUsers = briefUserList.stream().parallel().filter(user -> user.getDeleteTime() == null).collect(Collectors.toList());
         return new Page<>(new PageInfo<>(userMapper.getBriefUserList()));
     }
@@ -195,11 +195,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String findNumber(String email) throws CommonException {
-        List<User> userList = userMapper.selectByMap((Map<String, Object>) new HashMap<String, Object>().put("email", email));
-        if (userList.size() == 0) {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("email", email);
+        User user = userMapper.selectOne(userQueryWrapper);
+        if (user == null || user.getDeleteTime() != null) {
             throw new CommonException(CommonErrorCode.EMAIL_NOT_SIGNED_UP);
         }
-        User user = userList.get(0);
         return user.getAccountNum();
     }
 
@@ -331,7 +332,7 @@ public class UserServiceImpl implements UserService {
         if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
     }
 
-    @Transactional(rollbackFor = CommonException.class)
+    //@Transactional(rollbackFor = CommonException.class)
     @Override
     public void muteUser(Long userId) throws CommonException {
         User user = userMapper.selectById(userId);

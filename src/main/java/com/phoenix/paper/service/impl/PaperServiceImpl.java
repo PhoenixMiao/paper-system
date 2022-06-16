@@ -23,6 +23,7 @@ import com.phoenix.paper.service.PaperService;
 import com.phoenix.paper.service.ResearchDirectionService;
 import com.phoenix.paper.util.AssertUtil;
 import com.phoenix.paper.util.SessionUtils;
+import com.phoenix.paper.util.SpringContextUtil;
 import com.phoenix.paper.util.TimeUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
@@ -107,7 +108,7 @@ public class PaperServiceImpl implements PaperService {
     private SessionUtils sessionUtils;
 
     public static void main(String[] args) {
-        System.out.println(new String("http://124.222.112.118:8010/paper/download/").length());
+        System.out.println(SpringContextUtil.getBean("UserService").toString());
     }
 
     @Override
@@ -371,11 +372,11 @@ public class PaperServiceImpl implements PaperService {
             collectionQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
             collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
             QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-            commentQueryWrapper.eq("object_id", note.getId()).eq("object_type", 0);
+            commentQueryWrapper.eq("note_id", note.getId());
             List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
             for (Comment comment : comments) {
                 QueryWrapper<Comment> commentQueryWrapper1 = new QueryWrapper<>();
-                commentQueryWrapper1.eq("object_id", comment.getId()).eq("object_type", 1);
+                commentQueryWrapper1.eq("comment_id", comment.getId());
                 commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1);
             }
             commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);

@@ -165,6 +165,7 @@ public class NoteServiceImpl implements NoteService{
             throw new CommonException(CommonErrorCode.DOC_INDEX_FAILED);
         }
 
+
         Map<String,Object> paperMap = new HashMap<String, Object>();
         paperMap.put("paper_id",paper.getId());
         List<PaperDirection> paperDirections= paperDirectionMapper.selectByMap(paperMap);
@@ -232,11 +233,11 @@ public class NoteServiceImpl implements NoteService{
         collectionQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
         collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-        commentQueryWrapper.eq("object_id", note.getId()).eq("object_type", 0);
+        commentQueryWrapper.eq("note_id", note.getId());
         List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
         for (Comment comment : comments) {
             QueryWrapper<Comment> commentQueryWrapper1 = new QueryWrapper<>();
-            commentQueryWrapper1.eq("object_id", comment.getId()).eq("object_type", 1);
+            commentQueryWrapper1.eq("comment_id", comment.getId());
             commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1);
         }
         commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);
@@ -312,9 +313,9 @@ public class NoteServiceImpl implements NoteService{
 
                 Long noteId = Long.valueOf(hit.getSourceAsMap().get("id").toString());
 
-                resultMap.put("likeNum", likeService.getLikeNumber(noteId, 1));
+                resultMap.put("likeNumber", likeService.getLikeNumber(noteId, 1));
 
-                resultMap.put("collectNum", collectionService.getCollectNumber(noteId, 1));
+                resultMap.put("collectNumber", collectionService.getCollectNumber(noteId, 1));
 
                 page.add(resultMap);
 
