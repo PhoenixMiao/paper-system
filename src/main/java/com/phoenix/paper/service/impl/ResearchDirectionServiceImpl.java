@@ -142,11 +142,11 @@ public class ResearchDirectionServiceImpl implements ResearchDirectionService {
                         collectionQueryWrapper.eq("object_id", note.getId()).eq("object_type", 1);
                         collectionMapper.update(Collection.builder().deleteTime(deleteTime).build(), collectionQueryWrapper);
                         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-                        commentQueryWrapper.eq("object_id", note.getId()).eq("object_type", 0);
+                        commentQueryWrapper.eq("note_id", note.getId());
                         List<Comment> comments = commentMapper.selectList(commentQueryWrapper);
                         for (Comment comment : comments) {
                             QueryWrapper<Comment> commentQueryWrapper1 = new QueryWrapper<>();
-                            commentQueryWrapper1.eq("object_id", comment.getId()).eq("object_type", 1);
+                            commentQueryWrapper1.eq("comment_id", comment.getId());
                             commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper1);
                         }
                         commentMapper.update(Comment.builder().deleteTime(deleteTime).build(), commentQueryWrapper);
