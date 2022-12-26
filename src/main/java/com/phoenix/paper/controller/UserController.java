@@ -8,8 +8,8 @@ import com.phoenix.paper.controller.request.UpdateUserRequest;
 import com.phoenix.paper.dto.BriefUser;
 import com.phoenix.paper.dto.SessionData;
 import com.phoenix.paper.service.UserService;
-import com.phoenix.paper.util.RedisUtils;
 import com.phoenix.paper.util.SessionUtils;
+import com.phoenix.paper.util.ShuaiDatabaseUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -36,7 +36,7 @@ public class UserController {
     private SessionUtils sessionUtils;
 
     @Autowired
-    private RedisUtils redisUtils;
+    private ShuaiDatabaseUtils shuaiDatabaseUtils;
 
     @Autowired
     private HttpServletRequest request;
@@ -137,7 +137,7 @@ public class UserController {
     public Result deleteUser(@NotNull @RequestParam("userId") Long userId) {
         try {
             userService.deleteUser(userId);
-            if (sessionUtils.getSessionData().getType() == 0) redisUtils.del(request.getHeader("session"));
+            if (sessionUtils.getSessionData().getType() == 0) shuaiDatabaseUtils.del(request.getHeader("session"));
         } catch (CommonException e) {
             return Result.result(e.getCommonErrorCode());
         }
@@ -313,6 +313,7 @@ public class UserController {
         }
     }
 
+    @Auth
     @PostMapping(value = "/upload", produces = "application/json")
     @ApiOperation(value = "上传用户头像")
     public Result uploadPortrait(MultipartFile file) {

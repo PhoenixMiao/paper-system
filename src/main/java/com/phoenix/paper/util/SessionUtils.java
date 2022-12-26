@@ -28,7 +28,7 @@ public class SessionUtils {
     private HttpServletResponse response;
 
     @Autowired
-    private RedisUtils redisUtil;
+    private ShuaiDatabaseUtils shuaiDatabaseUtil;
 
     @Autowired
     private UserMapper userMapper;
@@ -41,17 +41,15 @@ public class SessionUtils {
     }
 
 
-    public SessionData getSessionData() throws CommonException{
+    public SessionData getSessionData() throws CommonException {
         String key = request.getHeader(CommonConstants.SESSION);
-        if(key == null) throw new CommonException(CommonErrorCode.NEED_SESSION_ID);
-        //if(!redisUtil.hasKey(key)) throw new CommonException(CommonErrorCode.SESSION_IS_INVALID);
-        if(redisUtil.isExpire(key)){
-            redisUtil.del(key);
+        if (key == null) throw new CommonException(CommonErrorCode.NEED_SESSION_ID);
+        //if(!shuaiDatabaseUtil.hasKey(key)) throw new CommonException(CommonErrorCode.SESSION_IS_INVALID);
+        if (shuaiDatabaseUtil.isExpire(key)) {
+            shuaiDatabaseUtil.del(key);
             throw new CommonException(CommonErrorCode.LOGIN_HAS_OVERDUE);
         }
-
-        return (SessionData) redisUtil.get(key);
-
+        return (SessionData) shuaiDatabaseUtil.get(key);
     }
 
     public void setSessionId(String sessionId){

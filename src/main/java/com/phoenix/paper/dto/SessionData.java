@@ -2,6 +2,7 @@ package com.phoenix.paper.dto;
 
 import com.phoenix.paper.common.CommonErrorCode;
 import com.phoenix.paper.entity.User;
+import com.phoenix.paper.single.ShuaiObject;
 import com.phoenix.paper.util.AssertUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +18,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @ApiModel("SessionData 会话实体")
-public class SessionData implements Serializable {
+public class SessionData extends ShuaiObject implements Serializable {
 
     /**
      * {@link User}

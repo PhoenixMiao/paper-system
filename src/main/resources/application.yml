@@ -65,6 +65,7 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 
+
 #  cloud:
 #     gateway:
 #        #discovery:
@@ -166,7 +167,7 @@ logback:
 #文件的最大文件大小
   maxfilesize: 100MB
 #日志级别
-  level: debug
+  level: warn
 #日志字符编码
   charset: UTF-8
 #日志格式

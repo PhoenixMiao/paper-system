@@ -1,5 +1,6 @@
 package com.phoenix.paper;
 
+import com.phoenix.paper.single.ShuaiServer;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class PaperApplication {
 
     public static void main(String[] args) {
+        ShuaiServer.open();
         SpringApplication.run(PaperApplication.class, args);
     }
 

@@ -28,6 +28,11 @@ public class CommonConstants {
     public final static String PAPER_FILE_PATH = "/home/ubuntu/file/paper/";
     public final static String NOTE_FILE_PATH = "/home/ubuntu/file/note/";
     public final static String USER_FILE_PATH = "/home/ubuntu/file/user/";
+    public final static String COS_REGION = "ap-shanghai";
+    public final static String COS_APP_ID = "1305159828";
+    public final static String COS_SECRET_ID = "AKIDwgANJxKQGp78tNaVAYfW6QTFkyvb092e";
+    public final static String COS_SECRET_KEY = "MTKuDF0UgbFcYCZgW5NO8bmhLiocARRA";
+    public static final String COS_BUCKET_NAME = "paper-1305159828";
     public static final Map<String, Float> SEARCH_PAPER_FIELDS_BOOST = Collections.unmodifiableMap(new HashMap<String, Float>() {
         private static final long serialVersionUID = 1L;
 
@@ -51,4 +56,5 @@ public class CommonConstants {
             put("author", 2F);
         }
     });
+
 }

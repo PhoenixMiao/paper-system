@@ -1,16 +1,14 @@
 package com.phoenix.paper.service.impl;
 
-import cn.hutool.core.util.PageUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.phoenix.paper.service.impl.ScheduledTasks;
 import com.phoenix.paper.entity.Collection;
 import com.phoenix.paper.mapper.CollectionMapper;
 import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.service.CollectionService;
-import com.phoenix.paper.util.RedisUtils;
+import com.phoenix.paper.util.ShuaiDatabaseUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,7 @@ import java.util.Optional;
 public class CollectionServiceImpl implements CollectionService {
 
     @Autowired
-    private RedisUtils redisUtils;
+    private ShuaiDatabaseUtils shuaiDatabaseUtils;
 
     @Autowired
     private PaperMapper paperMapper;
@@ -47,7 +45,7 @@ public class CollectionServiceImpl implements CollectionService {
 
     private Long getCollectionsFromRedis(Long objectId, Integer type) {
         try {
-            return (Long )redisUtils.hget("COLLECT_COUNT",COLLECT_COUNT_KEY(type,objectId));
+            return (Long) shuaiDatabaseUtils.hget("COLLECT_COUNT", COLLECT_COUNT_KEY(type, objectId));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -56,44 +54,44 @@ public class CollectionServiceImpl implements CollectionService {
 
 
     @Override
-    public Long getCollectNumber(Long objectId, Integer type){
-        Long collects = getCollectionsFromRedis(objectId,type);
+    public Long getCollectNumber(Long objectId, Integer type) {
+        Long collects = getCollectionsFromRedis(objectId, type);
         if (collects != null) return collects;
-        else if(type==0)collects =Optional.ofNullable(paperMapper.getPaperCollects(objectId)).orElse(0L);
-        else if(type==1)collects=Optional.ofNullable(noteMapper.getNoteCollects(objectId)).orElse(0L);
-        Map<String,Object> collectCount=new HashMap<>();
-        collectCount.put(COLLECT_COUNT_KEY(type,objectId),collects);
-        redisUtils.hmset("COLLECT_COUNT",collectCount);
+        else if (type == 0) collects = Optional.ofNullable(paperMapper.getPaperCollects(objectId)).orElse(0L);
+        else if (type == 1) collects = Optional.ofNullable(noteMapper.getNoteCollects(objectId)).orElse(0L);
+        Map<String, String> collectCount = new HashMap<>();
+        if (collects != null) collectCount.put(COLLECT_COUNT_KEY(type, objectId), collects.toString());
+        shuaiDatabaseUtils.hmset("COLLECT_COUNT", collectCount);
         return collects;
     }
 
 
     @Override
-    public Long collect(Long objectId, Integer type, Long userId){
-        Map<String,Object> collectInformation=new HashMap<>();
-        collectInformation.put(COLLECT_INFORMATION_KEY(userId,type,objectId,1), TimeUtil.getCurrentTimestamp());
-        redisUtils.hmset("COLLECT_INFORMATION",collectInformation);
+    public Long collect(Long objectId, Integer type, Long userId) {
+        Map<String, String> collectInformation = new HashMap<>();
+        collectInformation.put(COLLECT_INFORMATION_KEY(userId, type, objectId, 1), TimeUtil.getCurrentTimestamp());
+        shuaiDatabaseUtils.hmset("COLLECT_INFORMATION", collectInformation);
 
 
-        Long collectNumber = getCollectNumber(objectId,type);
-        Map<String,Object> collectCount=new HashMap<>();
-        collectCount.put(COLLECT_COUNT_KEY(type,objectId),collectNumber+1);
-        redisUtils.hmset("COLLECT_COUNT", collectCount );
-        return collectNumber+1;
+        long collectNumber = getCollectNumber(objectId, type) + 1;
+        Map<String, String> collectCount = new HashMap<>();
+        collectCount.put(COLLECT_COUNT_KEY(type, objectId), Long.toString(collectNumber));
+        shuaiDatabaseUtils.hmset("COLLECT_COUNT", collectCount);
+        return collectNumber + 1;
     }
 
     @Override
     public Long cancelCollect(Long objectId, Integer type, Long userId) {
-        Map<String,Object> collectInformation=new HashMap<>();
-        collectInformation.put(COLLECT_INFORMATION_KEY(userId,type,objectId,0), TimeUtil.getCurrentTimestamp());
-        redisUtils.hmset("COLLECT_INFORMATION",collectInformation);
+        Map<String, String> collectInformation = new HashMap<>();
+        collectInformation.put(COLLECT_INFORMATION_KEY(userId, type, objectId, 0), TimeUtil.getCurrentTimestamp());
+        shuaiDatabaseUtils.hmset("COLLECT_INFORMATION", collectInformation);
 
 
-        Long collectNumber = getCollectNumber(objectId,type);
-        Map<String,Object> collectCount=new HashMap<>();
-        collectCount.put(COLLECT_COUNT_KEY(type,objectId),collectNumber-1);
-        redisUtils.hmset("COLLECT_COUNT", collectCount );
-        return collectNumber-1;
+        long collectNumber = getCollectNumber(objectId, type) - 1;
+        Map<String, String> collectCount = new HashMap<>();
+        collectCount.put(COLLECT_COUNT_KEY(type, objectId), String.valueOf(collectNumber));
+        shuaiDatabaseUtils.hmset("COLLECT_COUNT", collectCount);
+        return collectNumber - 1;
     }
 
     @Override

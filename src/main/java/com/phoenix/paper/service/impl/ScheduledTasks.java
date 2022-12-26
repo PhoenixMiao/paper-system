@@ -7,7 +7,7 @@ import com.phoenix.paper.common.CommonException;
 import com.phoenix.paper.dto.PaperAndNoteData;
 import com.phoenix.paper.entity.*;
 import com.phoenix.paper.mapper.*;
-import com.phoenix.paper.util.RedisUtils;
+import com.phoenix.paper.util.ShuaiDatabaseUtils;
 import com.phoenix.paper.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.Optional;
 public class ScheduledTasks {
 
     @Autowired
-    private RedisUtils redisUtils;
+    private ShuaiDatabaseUtils shuaiDatabaseUtils;
 
     @Autowired
     private PaperMapper paperMapper;
@@ -52,36 +52,34 @@ public class ScheduledTasks {
     @Transactional(rollbackFor = CommonException.class)
     @Scheduled(cron = "0 0 0/12 * * ? ")
     public void likes2database() {
-        Map<Object, Object> likeInformation = new HashMap<>();
-        likeInformation = redisUtils.hmget("LIKE_INFORMATION");
-        Map<Object, Object> likeCount = new HashMap<>();
-        likeCount = redisUtils.hmget("LIKE_COUNT");
-        redisUtils.del("LIKE_COUNT");
-        redisUtils.del("LIKE_INFORMATION");
-        for (Map.Entry<Object, Object> entry : likeInformation.entrySet()) {
+        Map<String, String> likeInformation = new HashMap<>();
+        likeInformation = shuaiDatabaseUtils.hmget("LIKE_INFORMATION");
+        Map<String, String> likeCount = new HashMap<>();
+        likeCount = shuaiDatabaseUtils.hmget("LIKE_COUNT");
+        shuaiDatabaseUtils.del("LIKE_COUNT");
+        shuaiDatabaseUtils.del("LIKE_INFORMATION");
+        for (Map.Entry<String, String> entry : likeInformation.entrySet()) {
             String information = (String) entry.getKey();
             String[] splitInfo = information.split(" ");
             String time = (String) entry.getValue();
-            if(splitInfo[2].equals("1")){
-                Likes like= Likes.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType((int) splitInfo[1].charAt(0) -48).userId(Long.valueOf(splitInfo[0])).likeTime(time).build();
+            if (splitInfo[2].equals("1")) {
+                Likes like = Likes.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType((int) splitInfo[1].charAt(0) - 48).userId(Long.valueOf(splitInfo[0])).likeTime(time).build();
                 likesMapper.insert(like);
-            }
-            else if(splitInfo[2].equals("0")){
+            } else if (splitInfo[2].equals("0")) {
 
                 QueryWrapper<Likes> likesQueryWrapper = new QueryWrapper<>();
-                likesQueryWrapper.eq("object_id",Long.parseLong(splitInfo[1].substring(1))).eq("object_type",(int) splitInfo[1].charAt(0) -48);
-                likesMapper.update(Likes.builder().deleteTime(time).build(),likesQueryWrapper);
+                likesQueryWrapper.eq("object_id", Long.parseLong(splitInfo[1].substring(1))).eq("object_type", (int) splitInfo[1].charAt(0) - 48);
+                likesMapper.update(Likes.builder().deleteTime(time).build(), likesQueryWrapper);
             }
         }
-        for (Map.Entry<Object, Object> entry : likeCount.entrySet()){
-            String object=(String) entry.getKey();
-            Long likeNumber=(Long) entry.getValue();
-            if(object.charAt(0)=='1') {
+        for (Map.Entry<String, String> entry : likeCount.entrySet()) {
+            String object = (String) entry.getKey();
+            Long likeNumber = Long.valueOf(entry.getValue());
+            if (object.charAt(0) == '1') {
                 Paper paper = Paper.builder().id(Long.valueOf(object.substring(2))).build();
                 paper.setLikeNumber(likeNumber.intValue());
                 if (paperMapper.updateById(paper) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
-            }
-            else if(object.charAt(0)=='0') {
+            } else if (object.charAt(0) == '0') {
                 Note note = Note.builder().id(Long.valueOf(object.substring(2))).build();
                 note.setLikeNumber(likeNumber.intValue());
                 if (noteMapper.updateById(note) == 0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
@@ -89,8 +87,8 @@ public class ScheduledTasks {
         }
         try {
             Thread.sleep(1000 * 5);
-            redisUtils.del("LIKE_COUNT");
-            redisUtils.del("LIKE_INFORMATION");
+            shuaiDatabaseUtils.del("LIKE_COUNT");
+            shuaiDatabaseUtils.del("LIKE_INFORMATION");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,45 +97,47 @@ public class ScheduledTasks {
     @Transactional(rollbackFor = CommonException.class)
     @Scheduled(cron = "0 0 0/12 * * ? ")
     public void collections2database() {
-        Map<Object, Object> collectInformation = new HashMap<>();
-        collectInformation = redisUtils.hmget("COLLECT_INFORMATION");
-        Map<Object, Object> collectCount = new HashMap<>();
-        collectCount = redisUtils.hmget("COLLECT_COUNT");
-        redisUtils.del("COLLECT_COUNT");
-        redisUtils.del("COLLECT_INFORMATION");
-        for (Map.Entry<Object, Object> entry : collectInformation.entrySet()) {
-            String information = (String) entry.getKey();
-            String[] splitInfo = information.split(" ");
-            String time = (String) entry.getValue();
-            if(splitInfo[2].equals("1")){
-                Collection collection= Collection.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType((int) splitInfo[1].charAt(0) -48).userId(Long.valueOf(splitInfo[0])).collectTime(time).build();
-                collectionMapper.insert(collection);
-            }
-            else if(splitInfo[2].equals("0")){
-                Collection collection=collectionMapper.getCollect(Long.parseLong(splitInfo[1].substring(1)),Integer.valueOf( splitInfo[1].charAt(0) -48));
-               if(collection!=null)collection.setDeleteTime(TimeUtil.getCurrentTimestamp());
-               collectionMapper.updateById(collection);
+        Map<String, String> collectInformation = new HashMap<>();
+        collectInformation = shuaiDatabaseUtils.hmget("COLLECT_INFORMATION");
+        Map<String, String> collectCount = new HashMap<>();
+        collectCount = shuaiDatabaseUtils.hmget("COLLECT_COUNT");
+        shuaiDatabaseUtils.del("COLLECT_COUNT");
+        shuaiDatabaseUtils.del("COLLECT_INFORMATION");
+        if (collectInformation != null) {
+            for (Map.Entry<String, String> entry : collectInformation.entrySet()) {
+                String information = (String) entry.getKey();
+                String[] splitInfo = information.split(" ");
+                String time = (String) entry.getValue();
+                if (splitInfo[2].equals("1")) {
+                    Collection collection = Collection.builder().objectId(Long.valueOf(splitInfo[1].substring(1))).objectType((int) splitInfo[1].charAt(0) - 48).userId(Long.valueOf(splitInfo[0])).collectTime(time).build();
+                    collectionMapper.insert(collection);
+                } else if (splitInfo[2].equals("0")) {
+                    Collection collection = collectionMapper.getCollect(Long.parseLong(splitInfo[1].substring(1)), Integer.valueOf(splitInfo[1].charAt(0) - 48));
+                    if (collection != null) collection.setDeleteTime(TimeUtil.getCurrentTimestamp());
+                    collectionMapper.updateById(collection);
+                }
             }
         }
-        for (Map.Entry<Object, Object> entry : collectCount.entrySet()){
-            String object=(String) entry.getKey();
-            Long collectNumber=(Long) entry.getValue();
-            if(object.charAt(0)=='0') {
-                Paper paper = Paper.builder().id(Long.valueOf(object.substring(2))).build();
-                paper.setCollectNumber(Optional.ofNullable(paper.getCollectNumber()).orElse(0) + collectNumber.intValue());
-                if (paperMapper.updateById(paper) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
+        if (collectCount != null) {
+            for (Map.Entry<String, String> entry : collectCount.entrySet()) {
+                String object = (String) entry.getKey();
+                long collectNumber = Long.parseLong(entry.getValue());
+                if (object.charAt(0) == '0') {
+                    Paper paper = Paper.builder().id(Long.valueOf(object.substring(2))).build();
+                    paper.setCollectNumber(Optional.ofNullable(paper.getCollectNumber()).orElse(0) + (int) collectNumber);
+                    if (paperMapper.updateById(paper) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
 
-            }
-            else if(object.charAt(0)=='1') {
-                Note note = Note.builder().id(Long.valueOf(object.substring(2))).build();
-                note.setCollectNumber(Optional.ofNullable(note.getCollectNumber()).orElse(0) + collectNumber.intValue());
-                if (noteMapper.updateById(note) == 0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                } else if (object.charAt(0) == '1') {
+                    Note note = Note.builder().id(Long.valueOf(object.substring(2))).build();
+                    note.setCollectNumber(Optional.ofNullable(note.getCollectNumber()).orElse(0) + (int) collectNumber);
+                    if (noteMapper.updateById(note) == 0) throw new CommonException(CommonErrorCode.CAN_NOT_DELETE);
+                }
             }
         }
         try {
-            Thread.sleep(1000*5);
-            redisUtils.del("COLLECT_COUNT");
-            redisUtils.del("COLLECT_INFORMATION");
+            Thread.sleep(1000 * 5);
+            shuaiDatabaseUtils.del("COLLECT_COUNT");
+            shuaiDatabaseUtils.del("COLLECT_INFORMATION");
         } catch (Exception e) {
             e.printStackTrace();
         }

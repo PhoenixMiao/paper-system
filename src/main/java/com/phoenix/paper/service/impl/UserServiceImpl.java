@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     private YmlConfig ymlConfig;
 
     @Autowired
-    private RedisUtils redisUtils;
+    private ShuaiDatabaseUtils shuaiDatabaseUtils;
 
     @Autowired
     private PasswordUtil passwordUtil;
@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
 
         sessionUtils.setSessionId(sessionId);
 
-        redisUtils.set(sessionId, new SessionData(user), 86400);
+        shuaiDatabaseUtils.set(sessionId, new SessionData(user), 86400);
 
         return new LoginResponse(new SessionData(user), sessionId);
     }
@@ -189,7 +189,7 @@ public class UserServiceImpl implements UserService {
         userMapper.insert(user);
         user.setAccountNum("ps" + String.format("%08d", user.getId()));
         if (userMapper.updateById(user) == 0) throw new CommonException(CommonErrorCode.UPDATE_FAILED);
-        redisUtils.set(sessionId, new SessionData(user), 86400);
+        shuaiDatabaseUtils.set(sessionId, new SessionData(user), 86400);
         return new LoginResponse(new SessionData(user), sessionId);
     }
 
@@ -216,10 +216,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void checkCode(String email, String code) throws CommonException {
-        //if (!redisUtils.hasKey(email)) throw new CommonException((CommonErrorCode.HAS_NOT_SENT_EMAIL));
-        if (redisUtils.isExpire(email)) throw new CommonException(CommonErrorCode.VERIFICATION_CODE_HAS_EXPIRED);
-        if (!redisUtils.get(email).equals(code)) throw new CommonException(CommonErrorCode.VERIFICATION_CODE_WRONG);
-        else redisUtils.del(email);
+        //if (!shuaiDatabaseUtils.hasKey(email)) throw new CommonException((CommonErrorCode.HAS_NOT_SENT_EMAIL));
+        if (shuaiDatabaseUtils.isExpire(email))
+            throw new CommonException(CommonErrorCode.VERIFICATION_CODE_HAS_EXPIRED);
+        if (!shuaiDatabaseUtils.get(email).equals(code))
+            throw new CommonException(CommonErrorCode.VERIFICATION_CODE_WRONG);
+        else shuaiDatabaseUtils.del(email);
     }
 
     @Override
@@ -244,14 +246,14 @@ public class UserServiceImpl implements UserService {
             }
             emailOrNumber = user.getEmail();
         }
-//        if (redisUtils.hasKey(emailOrNumber) && redisUtils.getExpire(emailOrNumber) > 240) {
+//        if (shuaiDatabaseUtils.hasKey(emailOrNumber) && shuaiDatabaseUtils.getExpire(emailOrNumber) > 240) {
 //            throw new CommonException(CommonErrorCode.DO_NOT_SEND_VERIFICATION_CODE_AGAIN);
 //        } else
-        if (redisUtils.isExpire(emailOrNumber)) {
-            redisUtils.del(emailOrNumber);
+        if (shuaiDatabaseUtils.isExpire(emailOrNumber)) {
+            shuaiDatabaseUtils.del(emailOrNumber);
         }
         String verificationCode = RandomVerifyCodeUtil.getRandomVerifyCode();
-        redisUtils.set(emailOrNumber, verificationCode, 3000);
+        shuaiDatabaseUtils.set(emailOrNumber, verificationCode, 3000);
         try {
             messageUtil.sendMail(sender, emailOrNumber, verificationCode, jms, flag);
         } catch (Exception e) {

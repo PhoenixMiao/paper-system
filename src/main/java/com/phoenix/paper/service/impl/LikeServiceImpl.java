@@ -3,10 +3,11 @@ package com.phoenix.paper.service.impl;
 import com.phoenix.paper.mapper.NoteMapper;
 import com.phoenix.paper.mapper.PaperMapper;
 import com.phoenix.paper.service.LikeService;
-import com.phoenix.paper.util.RedisUtils;
+import com.phoenix.paper.util.ShuaiDatabaseUtils;
 import com.phoenix.paper.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public class LikeServiceImpl implements LikeService {
 
     @Autowired
-    private RedisUtils redisUtils;
+    private ShuaiDatabaseUtils shuaiDatabaseUtils;
 
     @Autowired
     private PaperMapper paperMapper;
@@ -33,7 +34,7 @@ public class LikeServiceImpl implements LikeService {
 
     private Long getLikesFromRedis(Long objectId, Integer type) {
         try {
-            return (Long )redisUtils.hget("LIKE_COUNT",LIKE_COUNT_KEY(type,objectId));
+            return (Long) shuaiDatabaseUtils.hget("LIKE_COUNT", LIKE_COUNT_KEY(type, objectId));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -42,44 +43,44 @@ public class LikeServiceImpl implements LikeService {
 
 
     @Override
-    public Long getLikeNumber(Long objectId, Integer type){
-        Long likes = getLikesFromRedis(objectId,type);
+    public Long getLikeNumber(Long objectId, Integer type) {
+        Long likes = getLikesFromRedis(objectId, type);
         if (likes != null) return likes;
-        else if(type==0)likes = Optional.ofNullable(paperMapper.getPaperLikes(objectId)).orElse(0L);
-        else if(type==1)likes=Optional.ofNullable(noteMapper.getNoteLikes(objectId)).orElse(0L);
-        Map<String,Object> likeCount=new HashMap<>();
-        likeCount.put(LIKE_COUNT_KEY(type,objectId),likes);
-        redisUtils.hmset("LIKE_COUNT",likeCount);
+        else if (type == 0) likes = Optional.ofNullable(paperMapper.getPaperLikes(objectId)).orElse(0L);
+        else if (type == 1) likes = Optional.ofNullable(noteMapper.getNoteLikes(objectId)).orElse(0L);
+        Map<String, String> likeCount = new HashMap<>();
+        if (likes != null) likeCount.put(LIKE_COUNT_KEY(type, objectId), likes.toString());
+        shuaiDatabaseUtils.hmset("LIKE_COUNT", likeCount);
         return likes;
     }
 
 
     @Override
-    public Long like(Long objectId, Integer type, Long userId){
-        Map<String,Object> likeInformation=new HashMap<>();
-        likeInformation.put(LIKE_INFORMATION_KEY(userId,type,objectId,1),TimeUtil.getCurrentTimestamp());
-        redisUtils.hmset("LIKE_INFORMATION",likeInformation);
+    public Long like(Long objectId, Integer type, Long userId) {
+        Map<String, String> likeInformation = new HashMap<>();
+        likeInformation.put(LIKE_INFORMATION_KEY(userId, type, objectId, 1), TimeUtil.getCurrentTimestamp());
+        shuaiDatabaseUtils.hmset("LIKE_INFORMATION", likeInformation);
 
 
-        Long likeNumber = getLikeNumber(objectId,type);
-        Map<String,Object> likeCount=new HashMap<>();
-        likeCount.put(LIKE_COUNT_KEY(type,objectId),likeNumber+1);
-        redisUtils.hmset("LIKE_COUNT", likeCount );
-        return likeNumber+1;
+        long likeNumber = getLikeNumber(objectId, type) + 1;
+        Map<String, String> likeCount = new HashMap<>();
+        likeCount.put(LIKE_COUNT_KEY(type, objectId), String.valueOf(likeNumber));
+        shuaiDatabaseUtils.hmset("LIKE_COUNT", likeCount);
+        return likeNumber + 1;
     }
 
     @Override
     public Long cancelLike(Long objectId, Integer type, Long userId) {
-        Map<String,Object> likeInformation=new HashMap<>();
-        likeInformation.put(LIKE_INFORMATION_KEY(userId,type,objectId,0), TimeUtil.getCurrentTimestamp());
-        redisUtils.hmset("LIKE_INFORMATION",likeInformation);
+        Map<String, String> likeInformation = new HashMap<>();
+        likeInformation.put(LIKE_INFORMATION_KEY(userId, type, objectId, 0), TimeUtil.getCurrentTimestamp());
+        shuaiDatabaseUtils.hmset("LIKE_INFORMATION", likeInformation);
 
 
-        Long likeNumber = getLikeNumber(objectId,type);
-        Map<String,Object> likeCount=new HashMap<>();
-        likeCount.put(LIKE_COUNT_KEY(type,objectId),likeNumber-1);
-        redisUtils.hmset("LIKE_COUNT", likeCount );
-        return likeNumber-1;
+        long likeNumber = getLikeNumber(objectId, type) - 1;
+        Map<String, String> likeCount = new HashMap<>();
+        likeCount.put(LIKE_COUNT_KEY(type, objectId), String.valueOf(likeNumber));
+        shuaiDatabaseUtils.hmset("LIKE_COUNT", likeCount);
+        return likeNumber - 1;
     }
 
 }
